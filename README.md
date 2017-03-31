@@ -1,14 +1,21 @@
-# Creative Theme for Jekyll
+# The Plain v3.0
 
-A Jekyll implementation of the [Creative Theme](http://startbootstrap.com/template-overviews/creative/) template by [Start Bootstrap](http://startbootstrap.com).
+The Plain is a minimalist Jekyll theme, designed to focus on writing that really matters to you and your audience. Everything else is just a distraction. Nothing more other than useful and understandable information sharing. I have made a final update to this theme. This theme is suit best for personal blog type, but not limited to. P/S: This theme is originally inspired from Leonard Lamprecht's original [Jekyll theme](https://github.com/leo/leo.github.io) (thanks!).
 
-Creative is a one page Bootstrap theme for creatives, small businesses, and other multipurpose uses.
-The theme includes a number of rich features and plugins that you can use as a great boilerplate for your next Jekyll project! 
+[**Live Demo**](http://heiswayi.github.io/the-plain/)
 
-See it live in action at <https://volny.github.io/creative-theme-jekyll/>
+### Screenshot
 
-## To use the Creative Theme template in your project
+![The Plain Screenshot](http://i.imgur.com/8ZXhjfV.png)
 
-- Start by adding your info in `_config.yml`
-- In `_layouts/front.html` reorder or remove section as you prefer.
+### Philosophy
 
+> Minimalism is a masterpiece of tranquility. -- Heiswayi Nrird
+
+### License
+
+[MIT](LICENSE.md)
+
+### Credits
+
+Many thanks to this theme [contributors](https://github.com/heiswayi/the-plain/graphs/contributors) that help fixing bugs or enhance this theme source code.

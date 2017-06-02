@@ -1,7 +1,6 @@
 ### Mac编译Android源码排雷手册
-> 这是一篇我在Mac系统下编译Android源码时一路撞雷排雷的记录，由于之前一直是在Ubuntu上做Android开发，特意将此过程记录下来。也希望能帮助到遇到同样问题的同学冲出雷区。常识性的jdk环境配置等问题这里就不提了。
 
-
+>这是一篇我在Mac系统下编译Android源码时一路撞雷排雷的记录，由于之前一直是在Ubuntu上做Android开发，特意将此过程 记录下来。也希望能帮助到遇到同样问题的同学冲出雷区。常识性的jdk环境配置等问题这里就不提了。
 
 ## 一.磁盘镜像
 Mac默认的文件磁盘系统是大小写不敏感的，而Android得编译需要依赖大小写敏感的文件磁盘系统。所以第一步我们要创建一个大小写敏感的磁盘镜像。可以通过各种可视化的磁盘管理工具，但个人觉得直接使用hdiutil工具比较方便：
@@ -123,10 +122,8 @@ make: *** [out/target/product/generic/obj/STATIC_LIBRARIES/libext4_intermediates
 make: *** Waiting for unfinished jobs....
 
 - 解决方法：在目录**external/iptables/include/linux/netfilter**中创建文件**xt_DSCP.h**。
-
-
+- 
 文件内容：
-
 
 ```cpp
 * based on ipt_FTOS.c (C) 2000 by Matthew G. Marsh <mgm@paktronix.com>

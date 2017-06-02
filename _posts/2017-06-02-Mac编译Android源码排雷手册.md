@@ -1,0 +1,158 @@
+### Mac编译Android源码排雷手册
+> 这是一篇我在Mac系统下编译Android源码时一路撞雷排雷的记录，由于之前一直是在Ubuntu上做Android开发，特意将此过程记录下来。也希望能帮助到遇到同样问题的同学冲出雷区。常识性的jdk环境配置等问题这里就不提了。
+## 一.磁盘镜像
+Mac默认的文件磁盘系统是大小写不敏感的，而Android得编译需要依赖大小写敏感的文件磁盘系统。所以第一步我们要创建一个大小写敏感的磁盘镜像。可以通过各种可视化的磁盘管理工具，但个人觉得直接使用hdiutil工具比较方便：
+
+    hdiutil create -type SPARSE -fs 'Case-sensitive Journaled HFS+' -size 80g ~/Android.dmg.sparsefile
+
+hdiutil的create命令就是为我们创建了一个磁盘镜像，后面的参数表示:
+- **-type SPARSE** - 创建一个稀疏磁盘映像。
+- **-fs 'Case-sensitive Journaled HFS+'** - 创建一个大小写敏感的文件系统。
+- **-size 80g** - 创建的镜像大小为80g。
+- **~/Android.dmg.sparsefile** - 创建的镜像文件的位置。
+
+    
+生成了镜像文件后，就可以使用hdiutil来挂载该镜像了，挂载后我们才能使用该磁盘镜像。可以使用以下命令挂载分区：
+
+    hdiutil attach ~/Android.dmg.sparsefile -mountpoint /Volumes/Android
+
+其实这里也是用的hdiutil工具，用到了它的attach命令。
+- **~/Android.dmg.sparsefile** - 刚刚创建的镜像文件。
+- **-mountpoint /Volumes/Android** - 挂载到/Volumes/Android。
+
+在每次系统重启后都需要重新挂载，如果想简化该流程可以在~/.bashrc或者~/.bash_profile中添加：
+
+    function mountAndroid { hdiutil attach ~/Android.dmg.sparsefile -mountpoint /Volumes/android; }
+
+这样只要每次重启后执行mountAndroid就行了。
+
+接下来就可以下代码了。代码下载完全参照Google的引导流程即可，这里不多说。见[下载源码](https://source.android.com/source/downloading?hl=zh-cn)。注意把代码下载到我们前面的挂载点（也就是/Volumes/Android/）就好了。
+
+## 二. 编译代码
+在编译之前你得**保证**你的Mac中**已经安装了Xcode**。没有的话直接商店装一下就好了。
+
+**坑一**
+
+> build/core/combo/mac_version.mk:26: none of the installed SDKs (ac_sdk_versions_installed) match supported versions (10.8 10.9 10.10 10.11), trying 10.8
+build/core/combo/mac_version.mk:36: no SDK 10.8 at /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk, trying legacy dir
+build/core/combo/mac_version.mk:40: *****************************************************
+build/core/combo/mac_version.mk:41: * Can not find SDK 10.8 at /Developer/SDKs/MacOSX10.8.sdk
+build/core/combo/mac_version.mk:42: *****************************************************
+build/core/combo/mac_version.mk:43: *** Stop..  Stop.
+** Don't have a product spec for: 'aosp_dragon'
+** Do you have the right repo manifest?
+
+这是在lunch的时候报的错误，错误是说系统的配置是使用10.8-10.11这几个版本的MacSDK，默认先去找10.8版本的SDK，但是我的电脑上**/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/**路径下面只有一个10.12的SDK。
+- 解决方法：找到**build/core/combo/mac_version.mk**文件中的**mac_sdk_versions_supported**字段，修改其值为：
+    **mac_sdk_versions_supported :=  10.12 10.8 10.9 10.10 10.11**
+让系统去优先找10.12版本的SDK。
+
+**坑二**
+如果按照上面的设置，lunch没有问题了，接着make -j20（恨不得-j200）开始编译，可是你会发现刚开始编译没多久就报了这么一个错：
+> system/core/libcutils/threads.c:38:10: error: 'syscall' is deprecated: first deprecated in OS X 10.12 - syscall(2) is unsupported; please switch to a supported interface. For SYS_kdebug_trace use kdebug_signpost(). [-Werror,-Wdeprecated-declarations]
+  return syscall(SYS_thread_selfid);
+         ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/usr/include/unistd.h:733:6: note: 'syscall' has been explicitly marked deprecated here
+int      syscall(int, ...);
+         ^
+
+这里是说我本地10.12版本的SDK中得**syscall**已经过期了（ 一万头草泥马开始涌现了），好吧，总之又是MacSDK版本的问题，刚刚是把配置文件改成优先使用10.12版本，但可以看到那个配置文件原先默认支持的是10.8-10.11的版本，那不改配置文件，自己下载10.8-10.11中的一个版本的SDK放到**/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/**总可以吧。试试呗。
+- 解决方法：[这里](https://github.com/phracker/MacOSX-SDKs)可以下载到比较齐全的MacSDKs。下载一个10.11的版本。然后调整配置文件的顺序为：
+    **mac_sdk_versions_supported :=  10.11 10.8 10.9 10.10**
+再次make...
+
+**坑三**
+> FAILED: setup-jack-server 
+  Jack server installation not found
+
+- 解决方法：到**prebuilts/sdk/tools**目录下执行一下这个命令：
+    **./jack-admin install-server jack-launcher.jar jack-server-4.11.ALPHA.jar**
+jack-launcher.jar，jack-server-4.11.ALPHA.jar这两个文件的名字视 prebuilts/sdk/tools 目录下的文件名而定。
+
+
+**坑四**
+
+> GC overhead limit exceeded
+Try increasing heap size with java option '-Xmx<size>'
+Warning: This may have produced partial or corrupted output.
+ninja: build stopped: subcommand failed.
+make: *** [ninja_wrapper] Error 1
+
+出现这个错误是由于电脑内存不足。
+- 解决方法：在命令行分别执行以下三条语句，然后继续编译。
+**export JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4g"**
+**./prebuilts/sdk/tools/jack-admin kill-server**
+**./prebuilts/sdk/tools/jack-admin start-server**
+
+
+
+
+**坑五**
+
+> FAILED: /bin/bash -c "(prebuilts/sdk/tools/jack-admin install-server prebuilts/sdk/tools/jack-launcher.jar prebuilts/sdk/tools/jack-server-4.8.ALPHA.jar  2>&1 || (exit 0) ) && (JACK_SERVER_VM_ARGUMENTS=\"-Dfile.encoding=UTF-8 -XX:+TieredCompilation\" prebuilts/sdk/tools/jack-admin start-server 2>&1 || exit 0 ) && (prebuilts/sdk/tools/jack-admin update server prebuilts/sdk/tools/jack-server-4.8.ALPHA.jar 4.8.ALPHA 2>&1 || exit 0 ) && (prebuilts/sdk/tools/jack-admin update jack prebuilts/sdk/tools/jacks/jack-2.28.RELEASE.jar 2.28.RELEASE || exit 47; prebuilts/sdk/tools/jack-admin update jack prebuilts/sdk/tools/jacks/jack-3.36.CANDIDATE.jar 3.36.CANDIDATE || exit 47; prebuilts/sdk/tools/jack-admin update jack prebuilts/sdk/tools/jacks/jack-4.7.BETA.jar 4.7.BETA || exit 47 )"
+Unsupported curl, please use a curl not based on SecureTransport
+Jack server installation not found
+Unsupported curl, please use a curl not based on SecureTransport
+Unsupported curl, please use a curl not based on SecureTransport
+
+这个问题是因为本地的curl和Jack编译工具链不兼容。
+- 解决方法：可以**brew install curl --with-openssl**来安装一个基于OpenSSL的curl，接着修改环境变量以使用新的curl:
+    **export PATH=$(brew --prefix curl)/bin:$PATH**
+**brew --prefix curl**返回通过brew安装的curl的路径信息。
+
+**坑六**
+
+> 磁盘空间不够
+
+这里官方建议的是25g，可是我一开始的镜像文件是创建了80g。呵呵了... 没关系，那不够大我接着扩呗，咱有的是硬盘（任性）。
+- 解决方法：这里提一下可以直接使用hdiutil工具来resize之前已经创建的镜像文件的大小，没必要重新创建一个：
+    **hdiutil resize -size 150g ~/Android.dmg**
+该命令有可能会报错，原因是该镜像已经挂载，无法操作。简单粗暴点就重启下系统然后再resize，完了之后再挂载就可以了。
+
+
+**坑七**
+> In file included from out/target/product/generic/obj/STATIC_LIBRARIES/libext4_intermediates/libipt_ECN.c:11:0:
+external/iptables/extensions/../include/linux/netfilter_ipv4/ipt_ECN.h:13:37: fatal error: linux/netfilter/xt_DSCP.h: No such file or directory
+ #include <linux/netfilter/xt_DSCP.h>
+                                     ^
+compilation terminated.
+make: *** [out/target/product/generic/obj/STATIC_LIBRARIES/libext4_intermediates/libipt_ECN.o] Error 1
+make: *** Waiting for unfinished jobs....
+
+- 解决方法：在目录**external/iptables/include/linux/netfilter**中创建文件**xt_DSCP.h**。
+文件内容：
+```cpp
+* based on ipt_FTOS.c (C) 2000 by Matthew G. Marsh <mgm@paktronix.com>
+ * This software is distributed under GNU GPL v2, 1991
+ *
+ * See RFC2474 for a description of the DSCP field within the IP Header.
+ *
+ * xt_DSCP.h,v 1.7 2002/03/14 12:03:13 laforge Exp
+*/
+#ifndef _XT_DSCP_TARGET_H
+#define _XT_DSCP_TARGET_H
+#include <linux/netfilter/xt_dscp.h>
+#include <linux/types.h>
+
+/* target info */
+struct xt_DSCP_info {
+        __u8 dscp;
+};
+
+struct xt_tos_target_info {
+        __u8 tos_value;
+        __u8 tos_mask;
+};
+
+#endif /* _XT_DSCP_TARGET_H */
+```
+## 终于
+
+> **#### make completed successfully (01:02:06 (hh:mm:ss)) ####**
+
+## 关于Jack Server
+上面遇到的一些问题，一部分原因是Mac的平台特性导致的，还有一部分是由于Android N使用了新的编译工具Jack Server。关于Jack Server这里有一篇文章做了一些介绍。[Jack Server](http://blog.csdn.net/xz10561/article/details/53886691)
+
+## 完
+
+谢谢~

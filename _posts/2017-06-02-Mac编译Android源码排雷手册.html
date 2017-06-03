@@ -1,0 +1,179 @@
+<!DOCTYPE html><html><head><title>Mac编译Android源码排雷手册</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style></style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h3 id="mac编译android源码排雷手册">Mac编译Android源码排雷手册</h3>
+
+<p>这是一篇我在Mac系统下编译Android源码时一路撞雷排雷的记录，由于之前一直是在Ubuntu上做Android开发，特意将此过程 记录下来。也希望能帮助到遇到同样问题的同学冲出雷区。常识性的jdk环境配置等问题这里就不提了。</p>
+
+<h2 id="一磁盘镜像">一.磁盘镜像</h2>
+
+<p>Mac默认的文件磁盘系统是大小写不敏感的，而Android得编译需要依赖大小写敏感的文件磁盘系统。所以第一步我们要创建一个大小写敏感的磁盘镜像。可以通过各种可视化的磁盘管理工具，但个人觉得直接使用hdiutil工具比较方便：</p>
+
+<pre class="prettyprint hljs-dark"><code class="hljs sql">hdiutil <span class="hljs-keyword">create</span> -<span class="hljs-keyword">type</span> <span class="hljs-keyword">SPARSE</span> -fs <span class="hljs-string">'Case-sensitive Journaled HFS+'</span> -<span class="hljs-keyword">size</span> <span class="hljs-number">80</span>g ~/Android.dmg.sparsefile<br></code></pre>
+
+<p>hdiutil的create命令就是为我们创建了一个磁盘镜像，后面的参数表示:</p>
+
+<ul><li><strong>-type SPARSE</strong> - 创建一个稀疏磁盘映像。</li>
+<li><strong>-fs ‘Case-sensitive Journaled HFS+’</strong> - 创建一个大小写敏感的文件系统。</li>
+<li><strong>-size 80g</strong> - 创建的镜像大小为80g。</li>
+<li><strong>~/Android.dmg.sparsefile</strong> - 创建的镜像文件的位置。</li>
+</ul>
+
+<p>生成了镜像文件后，就可以使用hdiutil来挂载该镜像了，挂载后我们才能使用该磁盘镜像。可以使用以下命令挂载分区：</p>
+
+<pre class="prettyprint hljs-dark"><code class="hljs stylus">hdiutil attach ~/Android<span class="hljs-selector-class">.dmg</span><span class="hljs-selector-class">.sparsefile</span> -mountpoint /Volumes/Android<br></code></pre>
+
+<p>其实这里也是用的hdiutil工具，用到了它的attach命令。</p>
+
+<ul><li><strong>~/Android.dmg.sparsefile</strong> - 刚刚创建的镜像文件。</li>
+<li><strong>-mountpoint /Volumes/Android</strong> - 挂载到/Volumes/Android。</li>
+</ul>
+
+<p>在每次系统重启后都需要重新挂载，如果想简化该流程可以在~/.bashrc或者~/.bash_profile中添加：</p>
+
+<pre class="prettyprint hljs-dark"><code class="hljs javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">mountAndroid</span> </span>{ hdiutil attach ~<span class="hljs-regexp">/Android.dmg.sparsefile -mountpoint /</span>Volumes/android; }<br></code></pre>
+
+<p>这样只要每次重启后执行mountAndroid就行了。</p>
+
+<p>接下来就可以下代码了。代码下载完全参照Google的引导流程即可，这里不多说。见<a href="https://source.android.com/source/downloading?hl=zh-cn" target="_blank">下载源码</a>。注意把代码下载到我们前面的挂载点（也就是/Volumes/Android/）就好了。</p>
+
+<h2 id="二-编译代码">二. 编译代码</h2>
+
+<p>在编译之前你得<strong>保证</strong>你的Mac中<strong>已经安装了Xcode</strong>。没有的话直接商店装一下就好了。</p>
+
+<p><strong>坑一</strong></p>
+
+<blockquote>
+  <p>build/core/combo/mac_version.mk:26: none of the installed SDKs (ac_sdk_versions_installed) match supported versions (10.8 10.9 10.10 10.11), trying 10.8 <br>
+  build/core/combo/mac_version.mk:36: no SDK 10.8 at /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk, trying legacy dir <br>
+  build/core/combo/mac_version.mk:40: <strong><em><strong>*******************************************</strong></em></strong> <br>
+  build/core/combo/mac_version.mk:41: * Can not find SDK 10.8 at /Developer/SDKs/MacOSX10.8.sdk <br>
+  build/core/combo/mac_version.mk:42: <strong><em><strong>*******************************************</strong></em></strong> <br>
+  build/core/combo/mac_version.mk:43: <em>*</em> Stop..  Stop. <br>
+  ** Don’t have a product spec for: ‘aosp_dragon’ <br>
+  ** Do you have the right repo manifest?</p>
+</blockquote>
+
+<p>这是在lunch的时候报的错误，错误是说系统的配置是使用10.8-10.11这几个版本的MacSDK，默认先去找10.8版本的SDK，但是我的电脑上<strong>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/</strong>路径下面只有一个10.12的SDK。</p>
+
+<ul><li>解决方法：找到<strong>build/core/combo/mac_version.mk</strong>文件中的<strong>mac_sdk_versions_supported</strong>字段，修改其值为： <br>
+<strong>mac_sdk_versions_supported :=  10.12 10.8 10.9 10.10 10.11</strong> <br>
+让系统去优先找10.12版本的SDK。</li>
+</ul>
+
+<p><strong>坑二</strong> <br>
+如果按照上面的设置，lunch没有问题了，接着make -j20（恨不得-j200）开始编译，可是你会发现刚开始编译没多久就报了这么一个错：</p>
+
+<blockquote>
+  <p>system/core/libcutils/threads.c:38:10: error: ‘syscall’ is deprecated: first deprecated in OS X 10.12 - syscall(2) is unsupported; please switch to a supported interface. For SYS_kdebug_trace use kdebug_signpost(). [-Werror,-Wdeprecated-declarations] <br>
+    return syscall(SYS_thread_selfid); <br>
+           ^ <br>
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/usr/include/unistd.h:733:6: note: ‘syscall’ has been explicitly marked deprecated here <br>
+  int      syscall(int, …); <br>
+           ^</p>
+</blockquote>
+
+<p>这里是说我本地10.12版本的SDK中得<strong>syscall</strong>已经过期了（ 一万头草泥马开始涌现了），好吧，总之又是MacSDK版本的问题，刚刚是把配置文件改成优先使用10.12版本，但可以看到那个配置文件原先默认支持的是10.8-10.11的版本，那不改配置文件，自己下载10.8-10.11中的一个版本的SDK放到<strong>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/</strong>总可以吧。试试呗。</p>
+
+<ul><li>解决方法：<a href="https://github.com/phracker/MacOSX-SDKs" target="_blank">这里</a>可以下载到比较齐全的MacSDKs。下载一个10.11的版本。然后调整配置文件的顺序为： <br>
+<strong>mac_sdk_versions_supported :=  10.11 10.8 10.9 10.10</strong> <br>
+再次make…</li>
+</ul>
+
+<p><strong>坑三</strong></p>
+
+<blockquote>
+  <p>FAILED: setup-jack-server  <br>
+    Jack server installation not found</p>
+</blockquote>
+
+<ul><li>解决方法：到<strong>prebuilts/sdk/tools</strong>目录下执行一下这个命令： <br>
+<strong>./jack-admin install-server jack-launcher.jar jack-server-4.11.ALPHA.jar</strong> <br>
+jack-launcher.jar，jack-server-4.11.ALPHA.jar这两个文件的名字视 prebuilts/sdk/tools 目录下的文件名而定。</li>
+</ul>
+
+<p><strong>坑四</strong></p>
+
+<blockquote>
+  <p>GC overhead limit exceeded <br>
+  Try increasing heap size with java option ‘-Xmx’ <br>
+  Warning: This may have produced partial or corrupted output. <br>
+  ninja: build stopped: subcommand failed. <br>
+  make: <em>*</em> [ninja_wrapper] Error 1</p>
+</blockquote>
+
+<p>出现这个错误是由于电脑内存不足。</p>
+
+<ul><li>解决方法：在命令行分别执行以下三条语句，然后继续编译。 <br>
+<strong>export JACK_SERVER_VM_ARGUMENTS=”-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4g”</strong> <br>
+<strong>./prebuilts/sdk/tools/jack-admin kill-server</strong> <br>
+<strong>./prebuilts/sdk/tools/jack-admin start-server</strong></li>
+</ul>
+
+<p><strong>坑五</strong></p>
+
+<blockquote>
+  <p>FAILED: /bin/bash -c “(prebuilts/sdk/tools/jack-admin install-server prebuilts/sdk/tools/jack-launcher.jar prebuilts/sdk/tools/jack-server-4.8.ALPHA.jar  2&gt;&amp;1 || (exit 0) ) &amp;&amp; (JACK_SERVER_VM_ARGUMENTS=\”-Dfile.encoding=UTF-8 -XX:+TieredCompilation\” prebuilts/sdk/tools/jack-admin start-server 2&gt;&amp;1 || exit 0 ) &amp;&amp; (prebuilts/sdk/tools/jack-admin update server prebuilts/sdk/tools/jack-server-4.8.ALPHA.jar 4.8.ALPHA 2&gt;&amp;1 || exit 0 ) &amp;&amp; (prebuilts/sdk/tools/jack-admin update jack prebuilts/sdk/tools/jacks/jack-2.28.RELEASE.jar 2.28.RELEASE || exit 47; prebuilts/sdk/tools/jack-admin update jack prebuilts/sdk/tools/jacks/jack-3.36.CANDIDATE.jar 3.36.CANDIDATE || exit 47; prebuilts/sdk/tools/jack-admin update jack prebuilts/sdk/tools/jacks/jack-4.7.BETA.jar 4.7.BETA || exit 47 )” <br>
+  Unsupported curl, please use a curl not based on SecureTransport <br>
+  Jack server installation not found <br>
+  Unsupported curl, please use a curl not based on SecureTransport <br>
+  Unsupported curl, please use a curl not based on SecureTransport</p>
+</blockquote>
+
+<p>这个问题是因为本地的curl和Jack编译工具链不兼容。</p>
+
+<ul><li>解决方法：可以<strong>brew install curl –with-openssl</strong>来安装一个基于OpenSSL的curl，接着修改环境变量以使用新的curl: <br>
+<strong>export PATH=<span xmlns="http://www.w3.org/1999/xhtml" class="" rel="43b111926695fa30f5d3839dbe11f412"><span class="MathJax_SVG" id="MathJax-Element-1-Frame" role="textbox" aria-readonly="true" style="font-size: 100%; display: inline-block;"><span><img type="image/png" width="209" height="18" longdesc="__SVG__undefined" src="data:image/png;base64,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" style="margin-top:0;margin-bottom:0;"></span></span></span>PATH</strong> <br>
+<strong>brew –prefix curl</strong>返回通过brew安装的curl的路径信息。</li>
+</ul>
+
+<p><strong>坑六</strong></p>
+
+<blockquote>
+  <p>磁盘空间不够</p>
+</blockquote>
+
+<p>这里官方建议的是25g，可是我一开始的镜像文件是创建了80g。呵呵了… 没关系，那不够大我接着扩呗，咱有的是硬盘（任性）。</p>
+
+<ul><li>解决方法：这里提一下可以直接使用hdiutil工具来resize之前已经创建的镜像文件的大小，没必要重新创建一个： <br>
+<strong>hdiutil resize -size 150g ~/Android.dmg</strong> <br>
+该命令有可能会报错，原因是该镜像已经挂载，无法操作。简单粗暴点就重启下系统然后再resize，完了之后再挂载就可以了。</li>
+</ul>
+
+<p><strong>坑七</strong></p>
+
+<blockquote>
+  <p>In file included from out/target/product/generic/obj/STATIC_LIBRARIES/libext4_intermediates/libipt_ECN.c:11:0: <br>
+  external/iptables/extensions/../include/linux/netfilter_ipv4/ipt_ECN.h:13:37: fatal error: linux/netfilter/xt_DSCP.h: No such file or directory <br>
+   #include &lt;linux/netfilter/xt_DSCP.h&gt; <br>
+                                       ^ <br>
+  compilation terminated. <br>
+  make: <em>*</em> [out/target/product/generic/obj/STATIC_LIBRARIES/libext4_intermediates/libipt_ECN.o] Error 1 <br>
+  make: <em>*</em> Waiting for unfinished jobs….</p>
+</blockquote>
+
+<ul><li>解决方法：在目录<strong>external/iptables/include/linux/netfilter</strong>中创建文件<strong>xt_DSCP.h</strong>。</li>
+</ul>
+
+<p>文件内容：</p>
+
+<pre class="prettyprint hljs-dark"><code class="language-cpp hljs">* based on ipt_FTOS.c (C) <span class="hljs-number">2000</span> by Matthew G. Marsh &lt;mgm@paktronix.com&gt;<br> * This software is distributed under GNU GPL v2, <span class="hljs-number">1991</span><br> *<br> * See RFC2474 <span class="hljs-keyword">for</span> a description of the DSCP field within the IP Header.<br> *<br> * xt_DSCP.h,v <span class="hljs-number">1.7</span> <span class="hljs-number">2002</span>/<span class="hljs-number">03</span>/<span class="hljs-number">14</span> <span class="hljs-number">12</span>:<span class="hljs-number">03</span>:<span class="hljs-number">13</span> laforge Exp<br>*/<br><span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> _XT_DSCP_TARGET_H</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> _XT_DSCP_TARGET_H</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/netfilter/xt_dscp.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/types.h&gt;</span></span><br><br><span class="hljs-comment">/* target info */</span><br><span class="hljs-keyword">struct</span> xt_DSCP_info {<br>        __u8 dscp;<br>};<br><br><span class="hljs-keyword">struct</span> xt_tos_target_info {<br>        __u8 tos_value;<br>        __u8 tos_mask;<br>};<br><br><span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span> <span class="hljs-comment">/* _XT_DSCP_TARGET_H */</span></span><br></code></pre>
+
+<h2 id="终于">终于</h2>
+
+<blockquote>
+  <p><strong>#### make completed successfully (01:02:06 (hh:mm:ss)) ####</strong></p>
+</blockquote>
+
+
+
+<h2 id="关于jack-server">关于Jack Server</h2>
+
+<p>上面遇到的一些问题，一部分原因是Mac的平台特性导致的，还有一部分是由于Android N使用了新的编译工具Jack Server。关于Jack Server这里有一篇文章做了一些介绍。<a href="http://blog.csdn.net/xz10561/article/details/53886691" target="_blank">Jack Server</a></p>
+
+<h2 id="完">完</h2>
+
+<p>谢谢~</p></div></body></html>

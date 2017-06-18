@@ -77,10 +77,10 @@ blockquote {
       display: inline-block !important;
     }
     .gravatar {
-      margin-top: 5px;
-      -webkit-border-radius: 50%;
-      -moz-border-radius: 50%;
-      border-radius: 50%;
+      margin: 0px;
+      -webkit-border-radius: 70%;
+      -moz-border-radius: 70%;
+      border-radius: 70%;
     }
     @media (max-width : 480px) {&:hover + .logo-prompt,
       &:focus + .logo-prompt {

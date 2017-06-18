@@ -1,0 +1,343 @@
+<!DOCTYPE html><html><head><title>[WHW] AccessibilityService In Android</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+.note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
+.note-content .hljs-number, .note-content 
+.hljs-literal, .note-content 
+.hljs-symbol, .note-content 
+.hljs-bullet {color: #6897BB;}
+.note-content .hljs-keyword, .note-content 
+.hljs-selector-tag, .note-content 
+.hljs-deletion {color: #cc7832;}
+.note-content .hljs-variable, .note-content 
+.hljs-template-variable, .note-content 
+.hljs-link {color: #629755;}
+.note-content .hljs-comment, .note-content 
+.hljs-quote {color: #808080;}
+.note-content .hljs-meta {color: #bbb529;}
+.note-content .hljs-string, .note-content 
+.hljs-attribute, .note-content 
+.hljs-addition {color: #6A8759;}
+.note-content .hljs-section, .note-content 
+.hljs-title, .note-content 
+.hljs-type {color: #ffc66d;}
+.note-content .hljs-name, .note-content 
+.hljs-selector-id, .note-content 
+.hljs-selector-class {color: #e8bf6a;}
+.note-content .hljs-emphasis {font-style: italic;}
+.note-content .hljs-strong {font-weight: bold;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h1 id="whw-accessibilityservice-in-android">[WHW] AccessibilityService In Android</h1>
+
+
+
+<h2 id="what">What</h2>
+
+<p><strong>AccessibilityService</strong>是一个辅助类，其本质也是一个<strong>Service</strong>。可以监听我们手机的焦点，窗口内容变化，按钮点击等等的事件。实现它的服务需要在手机的<strong>设置-&gt;辅助功能</strong>里面找到你自己实现的辅助类，然后打开它就可以进行事件的监听了。还可以对监听的对象进行一些脚本的操作。 <br>
+<strong>AccessibilityService</strong>设计的初衷是想为不同能力的人群提供更人性化更友好的用户体验，比如视障，听障，或者年老等特定人群，可以为他们提供特定的事件反馈。它一直在浩瀚的代码田中做一块静静的美代码，直到最近几年它开始受到开发者的青睐，使用的目的却与它设计的初衷有些不太一致。</p>
+
+<hr>
+
+<h2 id="how">How</h2>
+
+
+
+<h3 id="创建">创建</h3>
+
+<p>继承<strong>AccessibilityService</strong>类，实现一个自己的<strong>AccessibilityService</strong>类，其中要实现两个核心的方法:</p>
+
+
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RobService</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AccessibilityService</span> </span>{<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onAccessibilityEvent</span><span class="hljs-params">(AccessibilityEvent event)</span> </span>{   }<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onInterrupt</span><span class="hljs-params">()</span> </span>{  }<br>    }<br></code></pre>
+
+<p>该类常用的方法说明如下,详细内容参见<a href="https://developer.android.com/reference/android/accessibilityservice/AccessibilityService.html" target="_blank">官方文档</a>。</p>
+
+<ul><li><strong>disableSelf()</strong> 禁用当前服务，在服务生命周期内可以通过该方法停止服务。</li>
+<li><strong>getRootInActiveWindow()</strong>   如果配置能够获取窗口内容，则会返回当前活动窗口的根结点。</li>
+<li><strong>setServiceInfo(AccessibilityServiceInfo)</strong>  设置当前服务的配置信息。</li>
+<li><strong>getSeviceInfo()</strong>   获取当前服务的配置信息。</li>
+<li><strong>onAccessibilityEvent(AccessibilityEvent)</strong>  用于处理我们监听的各种事件。</li>
+<li><strong>performGlobalAction(int)</strong>  执行全局操作，比如返回，回到主页，打开最近等操作。</li>
+<li><strong>onKeyEvent(KeyEvent)</strong>  如果允许服务监听按键操作，该方法是按键事件的回调，需要注意，这个过程发生在系统处理按键事件之前。</li>
+<li><strong>onServiceConnected()</strong>  系统成功绑定该服务时被触发，也就是当你在设置中开启相应的服务，系统成功的绑定了该服务时会触发。</li>
+</ul>
+
+
+
+<h3 id="声明">声明</h3>
+
+<p><strong>AccessibilityService</strong>本质上也是一个<strong>Service</strong>，也需要在<strong>AndroidManifest.xml</strong>中声明该服务。需要注意的是，该服务还必须配置指定的<strong>intent-filter</strong>和<strong>perrmission</strong>:</p>
+
+
+
+<pre class="prettyprint"><code class="language-xml hljs">   <span class="hljs-tag">&lt;<span class="hljs-name">service</span><br>        <span class="hljs-attr">android:name</span>=<span class="hljs-string">".RobService"</span><br>        <span class="hljs-attr">android:enabled</span>=<span class="hljs-string">"true"</span><br>        <span class="hljs-attr">android:exported</span>=<span class="hljs-string">"true"</span><br>        <span class="hljs-attr">android:permission</span>=<span class="hljs-string">"android.permission.BIND_ACCESSIBILITY_SERVICE"</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">intent-filter</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">action</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">"android.accessibilityservice.AccessibilityService"</span>/&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">intent-filter</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">service</span>&gt;</span><br></code></pre>
+
+<p>这样，系统才能正确找到该辅助服务。</p>
+
+
+
+<h3 id="配置">配置</h3>
+
+<p>在<strong>AndroidManifest.xml</strong>声明了该服务之后，接下来就需要对该服务进行一些参数配置。该服务能够被配置用来接受指定类型的事件，监听指定的<strong>package</strong>，监听窗口内容变化，监听窗口状态变化，获取事件类型的时间等等。有两种配置方式：</p>
+
+<ul><li><p><strong>方法一:</strong> 通过<strong>meta-data</strong>标签进行配置。 <br>
+在<strong>service</strong>的声明中提供一个<strong>meta-data</strong>标签，然后通过<strong>android:resource</strong>指定相应的配置文件(在<strong>res</strong>目录下创建<strong>xml</strong>目录，并在其中创建配置文件<strong>accessibility.xml</strong>):</p>
+
+<pre class="prettyprint"><code class="language-xml hljs"><span class="hljs-tag">&lt;<span class="hljs-name">service</span><br><span class="hljs-attr">android:name</span>=<span class="hljs-string">".RobService"</span><br><span class="hljs-attr">android:enabled</span>=<span class="hljs-string">"true"</span><br><span class="hljs-attr">android:exported</span>=<span class="hljs-string">"true"</span><br><span class="hljs-attr">android:permission</span>=<span class="hljs-string">"android.permission.BIND_ACCESSIBILITY_SERVICE"</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">intent-filter</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">action</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">"android.accessibilityservice.AccessibilityService"</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">intent-filter</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">meta-data</span><br>    <span class="hljs-attr">android:name</span>=<span class="hljs-string">"android.accessibilityservice"</span><br>    <span class="hljs-attr">android:resource</span>=<span class="hljs-string">"@xml/accessibility"</span>/&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">service</span>&gt;</span><br></code></pre>
+
+<pre class="prettyprint"><code class="language-xml hljs"><span class="php"><span class="hljs-meta">&lt;?</span>xml version=<span class="hljs-string">"1.0"</span> encoding=<span class="hljs-string">"utf-8"</span><span class="hljs-meta">?&gt;</span></span><br><span class="hljs-tag">&lt;<span class="hljs-name">accessibility-service</span> <span class="hljs-attr">xmlns:android</span>=<span class="hljs-string">"http://schemas.android.com/apk/res/android"</span><br>    <span class="hljs-attr">android:accessibilityEventTypes</span>=<span class="hljs-string">"typeAllMask"</span><br>    <span class="hljs-attr">android:accessibilityFeedbackType</span>=<span class="hljs-string">"feedbackGeneric"</span><br>    <span class="hljs-attr">android:accessibilityFlags</span>=<span class="hljs-string">"flagDefault"</span><br>    <span class="hljs-attr">android:canRetrieveWindowContent</span>=<span class="hljs-string">"true"</span><br>     /&gt;</span><br></code></pre>
+
+<blockquote>
+  <p><strong>Note:</strong></p>
+  
+  <ol>
+  <li rel="1">这种方式是在4.0之后才加入的。</li>
+  <li rel="2">这种方式可以配置所有的辅助服务属性。</li></ol>
+</blockquote></li>
+<li><p><strong>方法二</strong>: 通过<strong>setServiceInfo()</strong>方法进行配置。</p>
+
+<p>通过该方法可以在运行期间动态修改服务配置，通常是在<strong>AccessibilityService.onServiceConnected()</strong>进行配置，如下:</p>
+
+<pre class="prettyprint"><code class="language-java hljs"><span class="hljs-meta">@Override</span><br><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onServiceConnected</span><span class="hljs-params">()</span> </span>{<br>    AccessibilityServiceInfo serviceInfo = <span class="hljs-keyword">new</span> AccessibilityServiceInfo();<br>    serviceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;<br>    serviceInfo.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;<br>    serviceInfo.packageNames = <span class="hljs-keyword">new</span> String[]{<span class="hljs-string">"your package name"</span>}; <br>    serviceInfo.notificationTimeout=<span class="hljs-number">100</span>;<br>    setServiceInfo(serviceInfo);<br>}<br></code></pre>
+
+<p><strong>AccessibilityServiceInfo</strong>类内部封装了<strong>AccessibilityService</strong>的配置属性，被用于配置<strong>AccessibilityService</strong>。</p>
+
+<blockquote>
+  <p><strong>Note:</strong> <br>
+  该方法只能用来配置动态属性:<strong>eventTypes</strong>，<strong>feedbackType</strong>，<strong>flags</strong>，<strong>notificaionTimeout</strong>及<strong>packageNames</strong>。</p>
+</blockquote></li>
+<li><p><strong>配置中的重要属性说明</strong>:</p>
+
+<ul>
+<li><strong>accessibilityEventTypes</strong>: 表示该服务对界面中的哪些变化感兴趣，即哪些事件通知。比如窗口打开滑动，焦点变化，长按等。具体的值可以在<strong>AccessibilityEvent</strong>类中查到。如<strong>typeAllMask</strong>表示接受所有的事件通知。</li>
+<li><strong>accessibilityFeedbackType</strong>: 表示反馈方式,比如是语音播放，还是震动。</li>
+<li><strong>canRetrieveWindowContent</strong>: 表示该服务能否访问活动窗口中的内容。也就是如果你希望在服务中获取窗体内容的化，则需要设置其值为<strong>true</strong>。</li>
+<li><strong>notificationTimeout</strong>: 接受事件的时间间隔。</li>
+<li><strong>packageNames</strong>: 表示该服务是用来监听哪个包产生的事件。</li>
+<li>更多的配置属性介绍可参阅<a href="https://developer.android.com/reference/android/accessibilityservice/AccessibilityService.html#SERVICE_META_DATA" target="_blank">官方文档</a>。</li></ul></li>
+</ul>
+
+
+
+<h3 id="使用">使用</h3>
+
+<p>完成上面的配置后，我们的应用就已经具备辅助服务功能，安装到手机上后，需要在<strong>设置-&gt;辅助功能</strong>中找到我们的服务。该服务默认处在关闭状态，手动开启后我们的辅助服务将开始接收它感兴趣的<strong>AccessibilityEvent</strong>。</p>
+
+<p>上面我们说道，<strong>onAccessibilityEvent(AccessibilityEvent)</strong>是辅助服务的核心方法，其中参数<strong>event</strong>封装来自界面相关事件的信息，比如我们可以获得该事件的事件类型，进而根据该类型选择不同的处理方式:</p>
+
+
+
+<pre class="prettyprint"><code class="hljs cs"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onAccessibilityEvent</span>(<span class="hljs-params">AccessibilityEvent <span class="hljs-keyword">event</span></span>) </span>{<br>        <span class="hljs-keyword">int</span> eventType = <span class="hljs-keyword">event</span>.getEventType();<br>        <span class="hljs-keyword">switch</span> (eventType) {<br>            <span class="hljs-keyword">case</span> AccessibilityEvent.TYPE_VIEW_CLICKED:<br>                <span class="hljs-comment">//界面点击</span><br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">case</span> AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED:<br>                <span class="hljs-comment">//界面文字改动</span><br>                <span class="hljs-keyword">break</span>;<br>        }<br>    }<br></code></pre>
+
+<p><strong>说明</strong>： </p>
+
+<ul><li><strong>AccessibilityEvent.TYPE_VIEW_CLICKED</strong>: 点击事件。</li>
+<li><strong>AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED</strong>: 文本改变事件。</li>
+</ul>
+
+<p><strong>部分方法说明</strong>：</p>
+
+<ul><li><strong>getEventType()</strong>: 获取事件类型。</li>
+<li><strong>getSource()</strong>: 获取事件源对应的结点信息(<strong>AccessibilityNodeInfo</strong>)。</li>
+<li><strong>getClassName()</strong>: 获取事件源对应类的类型，比如点击事件是由某个<strong>Button</strong>产生的，那么此时获取的就是<strong>Button</strong>的完整类名。</li>
+<li><strong>getText()</strong>: 获取事件源的文本信息，这里获取的是一个集合对象。其中包含事件源及事件源的<strong>Children</strong>的所有文本信息。如果事件源不是<strong>ViewGroup</strong>，此时获取的集合只有一个元素，就是该事件源的文本内容。</li>
+<li><strong>isEnabled()</strong>: 事件源(对应的界面控件)是否处在可用状态。</li>
+<li><strong>getItemCount()</strong>: 如果事件源是树结构，将返回该树根节点下子节点的数量。</li>
+</ul>
+
+<p>到这里，我们就可以在<strong>onAccessibilityEvent(AccessibilityEvent)</strong>方法中实现我们自己的“黑科技”了。<strong>AccessibilityService</strong>的基本使用就这么简单。更多的使用细节可以参阅<a href="https://developer.android.com/reference/android/accessibilityservice/package-summary.html" target="_blank">官方文档</a></p>
+
+<hr>
+
+
+
+<h2 id="why">Why</h2>
+
+
+
+<h3 id="事件从哪里来">事件从哪里来</h3>
+
+<p>为了简单这里以<strong>AccessibilityEvent.TYPE_VIEW_CLICKED</strong>类型事件为例。 <br>
+<strong>AccessibilityService</strong>既然能够知道我们点击了什么内容，那肯定是在<strong>View</strong>的事件派发过程中做了什么手脚呗，于是撸起袖子翻源码： <br>
+<strong>View.java</strong></p>
+
+
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-comment">/**<br>     * Call this view's OnClickListener, if it is defined.  Performs all normal<br>     * actions associated with clicking: reporting accessibility event, playing<br>     * a sound, etc.<br>     *<br>     * <span class="hljs-doctag">@return</span> True there was an assigned OnClickListener that was called, false<br>     *         otherwise is returned.<br>     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">performClick</span><span class="hljs-params">()</span> </span>{<br>        <span class="hljs-keyword">final</span> <span class="hljs-keyword">boolean</span> result;<br>        <span class="hljs-keyword">final</span> ListenerInfo li = mListenerInfo;<br>        <span class="hljs-keyword">if</span> (li != <span class="hljs-keyword">null</span> &amp;&amp; li.mOnClickListener != <span class="hljs-keyword">null</span>) {<br>            playSoundEffect(SoundEffectConstants.CLICK);<br>            li.mOnClickListener.onClick(<span class="hljs-keyword">this</span>);<br>            result = <span class="hljs-keyword">true</span>;<br>        } <span class="hljs-keyword">else</span> {<br>            result = <span class="hljs-keyword">false</span>;<br>        }<br><br>        <span class="hljs-comment">// 看到了曙光，View通过该方法发送一个AccessibilityEvent</span><br>        sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);<br>        <span class="hljs-keyword">return</span> result;<br>    }<br></code></pre>
+
+<p>几经搜索在<strong>performClick</strong>方法中发现了蛛丝马迹，即上面注释中提到的<strong>sendAccessibilityEvent(int)</strong>方法，下面列出该方法及它调用的几个方法： <br>
+<strong>View.java</strong></p>
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-comment">/**<br>     * Sends an accessibility event of the given type. If accessibility is<br>     * not enabled this method has no effect. The default implementation calls<br>     * {<span class="hljs-doctag">@link</span> #onInitializeAccessibilityEvent(AccessibilityEvent)} first<br>     * to populate information about the event source (this View), then calls<br>     * {<span class="hljs-doctag">@link</span> #dispatchPopulateAccessibilityEvent(AccessibilityEvent)} to<br>     * populate the text content of the event source including its descendants,<br>     * and last calls<br>     * {<span class="hljs-doctag">@link</span> ViewParent#requestSendAccessibilityEvent(View, AccessibilityEvent)}<br>     * on its parent to request sending of the event to interested parties.<br>     * &lt;p&gt;<br>     * If an {<span class="hljs-doctag">@link</span> AccessibilityDelegate} has been specified via calling<br>     * {<span class="hljs-doctag">@link</span> #setAccessibilityDelegate(AccessibilityDelegate)} its<br>     * {<span class="hljs-doctag">@link</span> AccessibilityDelegate#sendAccessibilityEvent(View, int)} is<br>     * responsible for handling this call.<br>     * &lt;/p&gt;<br>     *<br>     * <span class="hljs-doctag">@param</span> eventType The type of the event to send, as defined by several types from<br>     * {<span class="hljs-doctag">@link</span> android.view.accessibility.AccessibilityEvent}, such as<br>     * {<span class="hljs-doctag">@link</span> android.view.accessibility.AccessibilityEvent#TYPE_VIEW_CLICKED} or<br>     * {<span class="hljs-doctag">@link</span> android.view.accessibility.AccessibilityEvent#TYPE_VIEW_HOVER_ENTER}.<br>     *<br>     * <span class="hljs-doctag">@see</span> #onInitializeAccessibilityEvent(AccessibilityEvent)<br>     * <span class="hljs-doctag">@see</span> #dispatchPopulateAccessibilityEvent(AccessibilityEvent)<br>     * <span class="hljs-doctag">@see</span> ViewParent#requestSendAccessibilityEvent(View, AccessibilityEvent)<br>     * <span class="hljs-doctag">@see</span> AccessibilityDelegate<br>     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sendAccessibilityEvent</span><span class="hljs-params">(<span class="hljs-keyword">int</span> eventType)</span> </span>{<br><br>        <span class="hljs-comment">// mAccessibilityDelegate是个代理，一般情况下都是null</span><br>        <span class="hljs-comment">// 后面跟AccessibilityEvent相关的方法都会是这样的模式，先判断代理存在与否，不存在则使用View自己的实现</span><br>        <span class="hljs-comment">// 为了后面描述简单，后面在遇到mAccessibilityDelegate相关的判断逻辑时会直接以“代理判断”带过，并直接分析XXXInternal方法的实现。</span><br>        <span class="hljs-keyword">if</span> (mAccessibilityDelegate != <span class="hljs-keyword">null</span>) {<br>            mAccessibilityDelegate.sendAccessibilityEvent(<span class="hljs-keyword">this</span>, eventType);<br>        } <span class="hljs-keyword">else</span> {<br>            sendAccessibilityEventInternal(eventType);<br>        }<br>    }<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sendAccessibilityEventInternal</span><span class="hljs-params">(<span class="hljs-keyword">int</span> eventType)</span> </span>{<br><br>        <span class="hljs-comment">// 只有当AccessibilityService可用时才会发送AccessibilityEvent</span><br>        <span class="hljs-keyword">if</span> (AccessibilityManager.getInstance(mContext).isEnabled()) {<br><br>            <span class="hljs-comment">// AccessibilityEvent是通过AccessibilityEvent.obtain(eventType)从pools中获取的</span><br>            <span class="hljs-comment">// 类似Message的内部pools机制，更有效的利用系统资源</span><br>            sendAccessibilityEventUnchecked(AccessibilityEvent.obtain(eventType));<br>        }<br>    }<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sendAccessibilityEventUnchecked</span><span class="hljs-params">(AccessibilityEvent event)</span> </span>{<br><br>        <span class="hljs-comment">// 通过一个“代理判断”，最终执行逻辑在sendAccessibilityEventUncheckedInternal中</span><br>        <span class="hljs-keyword">if</span> (mAccessibilityDelegate != <span class="hljs-keyword">null</span>) {<br>            mAccessibilityDelegate.sendAccessibilityEventUnchecked(<span class="hljs-keyword">this</span>, event);<br>        } <span class="hljs-keyword">else</span> {<br>            sendAccessibilityEventUncheckedInternal(event);<br>        }<br>    }<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sendAccessibilityEventUncheckedInternal</span><span class="hljs-params">(AccessibilityEvent event)</span> </span>{<br>        <span class="hljs-keyword">if</span> (!isShown()) {<br>            <span class="hljs-keyword">return</span>;<br>        }<br><br>        <span class="hljs-comment">// 下面是发送一个AccessibilityEvent的三个步骤</span><br>        <span class="hljs-comment">// step 1</span><br>        onInitializeAccessibilityEvent(event);<br>        <span class="hljs-comment">// Only a subset of accessibility events populates text content.</span><br>        <span class="hljs-keyword">if</span> ((event.getEventType() &amp; POPULATING_ACCESSIBILITY_EVENT_TYPES) != <span class="hljs-number">0</span>) {<br><br>            <span class="hljs-comment">// step 2</span><br>            dispatchPopulateAccessibilityEvent(event);<br>        }<br><br>        <span class="hljs-comment">// In the beginning we called #isShown(), so we know that getParent() is not null.</span><br>        <span class="hljs-comment">// step 3</span><br>        getParent().requestSendAccessibilityEvent(<span class="hljs-keyword">this</span>, event);<br>    }<br></code></pre>
+
+<p>在<strong>sendAccessibilityEvent(int)</strong>方法的官方注释里能看到，该方法会发送一个<strong>AccessibilityEvent</strong>，发送一个<strong>AccessibilityEvent</strong>分为三步：</p>
+
+<ol><li rel="1"><strong>onInitializeAccessibilityEvent(AccessibilityEvent)</strong>： 收集关于事件源的信息（主要是填充<strong>AccessibilityEvent</strong>内部的<strong>mSourceNode</strong>）。</li>
+<li rel="2"><strong>dispatchPopulateAccessibilityEvent(AccessibilityEvent)</strong>： 收集事件源的文本内容，如果触发事件的View是一个ViewGroup的话，还会将该步骤派发给该ViewGroup的Children，最终收集到的文本是一个集合。</li>
+<li rel="3"><strong>ViewParent#requestSendAccessibilityEvent(View, AccessibilityEvent)</strong>： 通过向当前<strong>View</strong>的<strong>parent</strong>请求来发送这个<strong>AccessibilityEvent</strong>给所有感兴趣的<strong>AccessibilityService</strong>。</li>
+</ol>
+
+<p>接下来就顺序分析发送<strong>AccessibilityEvent</strong>的三个步骤。</p>
+
+<h3 id="step-1">Step 1</h3>
+
+<p><strong>onInitializeAccessibilityEvent(AccessibilityEvent)</strong>通过一个“代理判断后”最终的实现在<strong>onInitializeAccessibilityEventInternal(AccessibilityEvent)</strong>中： <br>
+<strong>View.java</strong></p>
+
+
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onInitializeAccessibilityEventInternal</span><span class="hljs-params">(AccessibilityEvent event)</span> </span>{<br><br>        <span class="hljs-comment">// 主要关注该方法，step 1的主要逻辑就是填充该event的source信息</span><br>        <span class="hljs-comment">// 注意这里传入的参数为this，也就是当前点击事件发生的View</span><br>        event.setSource(<span class="hljs-keyword">this</span>);<br>        event.setClassName(getAccessibilityClassName());<br>        event.setPackageName(getContext().getPackageName());<br>        event.setEnabled(isEnabled());<br>        event.setContentDescription(mContentDescription);<br><br>        <span class="hljs-keyword">switch</span> (event.getEventType()) {<br>            <span class="hljs-keyword">case</span> AccessibilityEvent.TYPE_VIEW_FOCUSED: {<br>                ArrayList&lt;View&gt; focusablesTempList = (mAttachInfo != <span class="hljs-keyword">null</span>)<br>                        ? mAttachInfo.mTempArrayList : <span class="hljs-keyword">new</span> ArrayList&lt;View&gt;();<br>                getRootView().addFocusables(focusablesTempList, View.FOCUS_FORWARD, FOCUSABLES_ALL);<br>                event.setItemCount(focusablesTempList.size());<br>                event.setCurrentItemIndex(focusablesTempList.indexOf(<span class="hljs-keyword">this</span>));<br>                <span class="hljs-keyword">if</span> (mAttachInfo != <span class="hljs-keyword">null</span>) {<br>                    focusablesTempList.clear();<br>                }<br>            } <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">case</span> AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED: {<br>                CharSequence text = getIterableTextForAccessibility();<br>                <span class="hljs-keyword">if</span> (text != <span class="hljs-keyword">null</span> &amp;&amp; text.length() &gt; <span class="hljs-number">0</span>) {<br>                    event.setFromIndex(getAccessibilitySelectionStart());<br>                    event.setToIndex(getAccessibilitySelectionEnd());<br>                    event.setItemCount(text.length());<br>                }<br>            } <span class="hljs-keyword">break</span>;<br>        }<br>    }<br></code></pre>
+
+<p>该方法主要是对传进来的<strong>AccessibilityEvent</strong>的一些成员做初始换赋值操作。这里主要关注<strong>event.setSource(this)</strong>方法。需要先介绍下<strong>AccessibilityEvent</strong>的结构，<strong>AccessibilityEvent</strong>是派生自<strong>AccessibilityRecord</strong>的，它并没有重写<strong>AccessibilityRecord</strong>的<strong>setSource(View)</strong>方法，所以直接看<strong>AccessibilityRecord.setSource(View)</strong>: <br>
+<strong>AccessibilityRecord.java</strong></p>
+
+
+
+<pre class="prettyprint"><code class="language-java hljs"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AccessibilityRecord</span> </span>{<br><br>    ...<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> UNDEFINED = -<span class="hljs-number">1</span>;<br><br>    <span class="hljs-comment">// setSource就是设置该成员变量</span><br>    AccessibilityNodeInfo mSourceNode;<br><br>    <span class="hljs-comment">// step 2中获取的文本信息会放到这个集合中</span><br>    <span class="hljs-keyword">final</span> List&lt;CharSequence&gt; mText = <span class="hljs-keyword">new</span> ArrayList&lt;CharSequence&gt;();<br><br>    <span class="hljs-keyword">int</span> mConnectionId = UNDEFINED;<br><br>    AccessibilityRecord() {<br>    }<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setSource</span><span class="hljs-params">(View source)</span> </span>{<br>        setSource(source, UNDEFINED);<br>    }<br><br>     <span class="hljs-comment">// 传入的virtualDescendantId == UNDEFINED == -1</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setSource</span><span class="hljs-params">(View root, <span class="hljs-keyword">int</span> virtualDescendantId)</span> </span>{<br>        enforceNotSealed();<br>        <span class="hljs-keyword">boolean</span> important = <span class="hljs-keyword">true</span>;<br>        mSourceWindowId = UNDEFINED;<br>        clearSourceNode();<br>        <span class="hljs-keyword">if</span> (root != <span class="hljs-keyword">null</span>) {<br>            <span class="hljs-keyword">if</span> (virtualDescendantId == UNDEFINED ||<br>                    virtualDescendantId == AccessibilityNodeInfo.UNDEFINED_ITEM_ID) {<br><br>                <span class="hljs-comment">// 因为 virtualDescendantId == UNDEFINED，进入该分支</span><br>                important = root.isImportantForAccessibility();<br><br>                <span class="hljs-comment">// 这里构造一个AccessibilityNodeInfo，这里的root是通过参数传进来的，也就是上一步传进来的发生点击事件的view</span><br>                mSourceNode = root.createAccessibilityNodeInfo();<br>            } <span class="hljs-keyword">else</span> {<br>                AccessibilityNodeProvider provider = root.getAccessibilityNodeProvider();<br>                <span class="hljs-keyword">if</span> (provider != <span class="hljs-keyword">null</span>) {<br>                    mSourceNode = provider.createAccessibilityNodeInfo(virtualDescendantId);<br>                }<br>            }<br><br>            mSourceWindowId = root.getAccessibilityWindowId();<br>        }<br>        setBooleanProperty(PROPERTY_IMPORTANT_FOR_ACCESSIBILITY, important);<br>    }<br><br>    ...<br><br>}<br></code></pre>
+
+<p><strong>setSource(View)</strong>会继续调用<strong>setSource(View, int)</strong>方法，我在代码注释中简单表述了代码的运行逻辑，接下来主要关心<strong>mSourceNode</strong>的构造过程，<strong>createAccessibilityNodeInfo()</strong>经过一个”代理判断”最终执行<strong>createAccessibilityNodeInfoInternal()</strong>方法：</p>
+
+<p><strong>View.java</strong></p>
+
+
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-comment">/**<br>     * <span class="hljs-doctag">@see</span> #createAccessibilityNodeInfo()<br>     *<br>     * <span class="hljs-doctag">@hide</span><br>     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> AccessibilityNodeInfo <span class="hljs-title">createAccessibilityNodeInfoInternal</span><span class="hljs-params">()</span> </span>{<br><br>        <span class="hljs-comment">// getAccessibilityNodeProvider方法同样会经过一个"代理判断"，最终返回null</span><br>        AccessibilityNodeProvider provider = getAccessibilityNodeProvider();<br>        <span class="hljs-keyword">if</span> (provider != <span class="hljs-keyword">null</span>) {<br>            <span class="hljs-keyword">return</span> provider.createAccessibilityNodeInfo(AccessibilityNodeProvider.HOST_VIEW_ID);<br>        } <span class="hljs-keyword">else</span> {<br><br>            <span class="hljs-comment">// 因为得到的provider == null，所以进入该分支</span><br>            AccessibilityNodeInfo info = AccessibilityNodeInfo.obtain(<span class="hljs-keyword">this</span>);<br>            onInitializeAccessibilityNodeInfo(info);<br>            <span class="hljs-keyword">return</span> info;<br>        }<br>    }<br></code></pre>
+
+<blockquote>
+  <p><strong>Note:</strong>  <br>
+  <strong>AccessibilityNodeInfo</strong>跟上面说的到<strong>AccessibilityEvent</strong>一样也采用类似<strong>Message</strong>的<strong>pools</strong>机制来更合理的使用系统资源。</p>
+</blockquote>
+
+<p>代码流程在注释中已标出，<strong>onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo)</strong>经过一个“代理判断”，最终调用<strong>onInitializeAccessibilityNodeInfoInternal(AccessibilityNodeInfo)</strong>： <br>
+<strong>View.java</strong></p>
+
+
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-comment">/**<br>     * <span class="hljs-doctag">@see</span> #onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo)<br>     *<br>     * Note: Called from the default {<span class="hljs-doctag">@link</span> AccessibilityDelegate}.<br>     *<br>     * <span class="hljs-doctag">@hide</span><br>     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onInitializeAccessibilityNodeInfoInternal</span><span class="hljs-params">(AccessibilityNodeInfo info)</span> </span>{<br><br>        <span class="hljs-comment">// 这个方法主要就是在初始化传进来的AccessibilityNodeInfo对象，填充其的各个成员</span><br><br>        <span class="hljs-keyword">if</span> (mAttachInfo == <span class="hljs-keyword">null</span>) {<br>            <span class="hljs-keyword">return</span>;<br>        }<br><br>        Rect bounds = mAttachInfo.mTmpInvalRect;<br><br>        getDrawingRect(bounds);<br>        info.setBoundsInParent(bounds);<br><br>        getBoundsOnScreen(bounds, <span class="hljs-keyword">true</span>);<br>        info.setBoundsInScreen(bounds);<br><br>        <span class="hljs-comment">// 注意</span><br>        <span class="hljs-comment">// 首先，AccessibilityNodeInfo也需要设置parent，那众多的AccessibilityNodeInfo会构成一个AccessibilityNodeInfo Tree</span><br>        <span class="hljs-comment">// AccessibilityNodeInfo Tree是跟View Tree的结构相似</span><br>        <span class="hljs-comment">// 但是，AccessibilityNodeInfo Tree跟View Tree并不是完全一致!</span><br>        <span class="hljs-comment">// 但是，AccessibilityNodeInfo Tree跟View Tree并不是完全一致!!</span><br>        <span class="hljs-comment">// 但是，AccessibilityNodeInfo Tree跟View Tree并不是完全一致!!!</span><br>        <span class="hljs-comment">// 重要的事情说三遍...</span><br>        ViewParent parent = getParentForAccessibility();<br>        <span class="hljs-keyword">if</span> (parent <span class="hljs-keyword">instanceof</span> View) {<br>            info.setParent((View) parent);<br>        }<br><br>        <span class="hljs-keyword">if</span> (mID != View.NO_ID) {<br>            View rootView = getRootView();<br>            <span class="hljs-keyword">if</span> (rootView == <span class="hljs-keyword">null</span>) {<br>                rootView = <span class="hljs-keyword">this</span>;<br>            }<br><br>            View label = rootView.findLabelForView(<span class="hljs-keyword">this</span>, mID);<br>            <span class="hljs-keyword">if</span> (label != <span class="hljs-keyword">null</span>) {<br>                info.setLabeledBy(label);<br>            }<br><br>            <span class="hljs-keyword">if</span> ((mAttachInfo.mAccessibilityFetchFlags<br>                    &amp; AccessibilityNodeInfo.FLAG_REPORT_VIEW_IDS) != <span class="hljs-number">0</span><br>                    &amp;&amp; Resources.resourceHasPackage(mID)) {<br>                <span class="hljs-keyword">try</span> {<br>                    String viewId = getResources().getResourceName(mID);<br>                    info.setViewIdResourceName(viewId);<br>                } <span class="hljs-keyword">catch</span> (Resources.NotFoundException nfe) {<br>                    <span class="hljs-comment">/* ignore */</span><br>                }<br>            }<br>        }<br><br>        <span class="hljs-keyword">if</span> (mLabelForId != View.NO_ID) {<br>            View rootView = getRootView();<br>            <span class="hljs-keyword">if</span> (rootView == <span class="hljs-keyword">null</span>) {<br>                rootView = <span class="hljs-keyword">this</span>;<br>            }<br>            View labeled = rootView.findViewInsideOutShouldExist(<span class="hljs-keyword">this</span>, mLabelForId);<br>            <span class="hljs-keyword">if</span> (labeled != <span class="hljs-keyword">null</span>) {<br>                info.setLabelFor(labeled);<br>            }<br>        }<br><br>        <span class="hljs-keyword">if</span> (mAccessibilityTraversalBeforeId != View.NO_ID) {<br>            View rootView = getRootView();<br>            <span class="hljs-keyword">if</span> (rootView == <span class="hljs-keyword">null</span>) {<br>                rootView = <span class="hljs-keyword">this</span>;<br>            }<br>            View next = rootView.findViewInsideOutShouldExist(<span class="hljs-keyword">this</span>,<br>                    mAccessibilityTraversalBeforeId);<br>            <span class="hljs-keyword">if</span> (next != <span class="hljs-keyword">null</span> &amp;&amp; next.includeForAccessibility()) {<br>                info.setTraversalBefore(next);<br>            }<br>        }<br><br>        <span class="hljs-keyword">if</span> (mAccessibilityTraversalAfterId != View.NO_ID) {<br>            View rootView = getRootView();<br>            <span class="hljs-keyword">if</span> (rootView == <span class="hljs-keyword">null</span>) {<br>                rootView = <span class="hljs-keyword">this</span>;<br>            }<br>            View next = rootView.findViewInsideOutShouldExist(<span class="hljs-keyword">this</span>,<br>                    mAccessibilityTraversalAfterId);<br>            <span class="hljs-keyword">if</span> (next != <span class="hljs-keyword">null</span> &amp;&amp; next.includeForAccessibility()) {<br>                info.setTraversalAfter(next);<br>            }<br>        }<br><br>        info.setVisibleToUser(isVisibleToUser());<br><br>        <span class="hljs-keyword">if</span> ((mAttachInfo != <span class="hljs-keyword">null</span>) &amp;&amp; ((mAttachInfo.mAccessibilityFetchFlags<br>                &amp; AccessibilityNodeInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS) != <span class="hljs-number">0</span>)) {<br>            info.setImportantForAccessibility(isImportantForAccessibility());<br>        } <span class="hljs-keyword">else</span> {<br>            info.setImportantForAccessibility(<span class="hljs-keyword">true</span>);<br>        }<br><br>        info.setPackageName(mContext.getPackageName());<br>        info.setClassName(getAccessibilityClassName());<br>        info.setContentDescription(getContentDescription());<br><br>        info.setEnabled(isEnabled());<br>        info.setClickable(isClickable());<br>        info.setFocusable(isFocusable());<br>        info.setFocused(isFocused());<br>        info.setAccessibilityFocused(isAccessibilityFocused());<br>        info.setSelected(isSelected());<br>        info.setLongClickable(isLongClickable());<br>        info.setContextClickable(isContextClickable());<br>        info.setLiveRegion(getAccessibilityLiveRegion());<br><br>        <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> These make sense only if we are in an AdapterView but all</span><br>        <span class="hljs-comment">// views can be selected. Maybe from accessibility perspective</span><br>        <span class="hljs-comment">// we should report as selectable view in an AdapterView.</span><br>        info.addAction(AccessibilityNodeInfo.ACTION_SELECT);<br>        info.addAction(AccessibilityNodeInfo.ACTION_CLEAR_SELECTION);<br><br>        <span class="hljs-keyword">if</span> (isFocusable()) {<br>            <span class="hljs-keyword">if</span> (isFocused()) {<br>                info.addAction(AccessibilityNodeInfo.ACTION_CLEAR_FOCUS);<br>            } <span class="hljs-keyword">else</span> {<br>                info.addAction(AccessibilityNodeInfo.ACTION_FOCUS);<br>            }<br>        }<br><br>        <span class="hljs-keyword">if</span> (!isAccessibilityFocused()) {<br>            info.addAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS);<br>        } <span class="hljs-keyword">else</span> {<br>            info.addAction(AccessibilityNodeInfo.ACTION_CLEAR_ACCESSIBILITY_FOCUS);<br>        }<br><br>        <span class="hljs-keyword">if</span> (isClickable() &amp;&amp; isEnabled()) {<br>            info.addAction(AccessibilityNodeInfo.ACTION_CLICK);<br>        }<br><br>        <span class="hljs-keyword">if</span> (isLongClickable() &amp;&amp; isEnabled()) {<br>            info.addAction(AccessibilityNodeInfo.ACTION_LONG_CLICK);<br>        }<br><br>        <span class="hljs-keyword">if</span> (isContextClickable() &amp;&amp; isEnabled()) {<br>            info.addAction(AccessibilityAction.ACTION_CONTEXT_CLICK);<br>        }<br><br>        CharSequence text = getIterableTextForAccessibility();<br>        <span class="hljs-keyword">if</span> (text != <span class="hljs-keyword">null</span> &amp;&amp; text.length() &gt; <span class="hljs-number">0</span>) {<br>            info.setTextSelection(getAccessibilitySelectionStart(), getAccessibilitySelectionEnd());<br><br>            info.addAction(AccessibilityNodeInfo.ACTION_SET_SELECTION);<br>            info.addAction(AccessibilityNodeInfo.ACTION_NEXT_AT_MOVEMENT_GRANULARITY);<br>            info.addAction(AccessibilityNodeInfo.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY);<br>            info.setMovementGranularities(AccessibilityNodeInfo.MOVEMENT_GRANULARITY_CHARACTER<br>                    | AccessibilityNodeInfo.MOVEMENT_GRANULARITY_WORD<br>                    | AccessibilityNodeInfo.MOVEMENT_GRANULARITY_PARAGRAPH);<br>        }<br><br>        info.addAction(AccessibilityAction.ACTION_SHOW_ON_SCREEN);<br>        populateAccessibilityNodeInfoDrawingOrderInParent(info);<br>    }<br></code></pre>
+
+<blockquote>
+  <p><strong>Note:</strong> <br>
+  我们实现的<strong>AccessibilityService</strong>中捕获到<strong>AccessibilityEvent</strong>时可以通过<strong>AccessibilityEvent.getSource()</strong>拿到该<strong>event</strong>对应的<strong>AccessibilityNodeInfo</strong>对象来获得更丰富的上下文信息。</p>
+</blockquote>
+
+<p>这个方法是在为传进来的<strong>AccessibilityNodeInfo</strong>初始化各个成员信息。这里主要关注<strong>AccessibilityNodeInfo Tree</strong>的构建，即<strong>AccessibilityNodeInfo</strong>中<strong>Parent</strong>的指向，这个<strong>Parent</strong>的赋值是决定于<strong>View.getParentForAccessibility()</strong>方法的返回值。 <br>
+上面说道<strong>AccessibilityNodeInfo Tree</strong>的结构跟<strong>View Tree</strong>的结构并不完全一致，看下<strong>View.getParentForAccessibility()</strong>的实现你会明白: <br>
+<strong>View.java</strong></p>
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-comment">/**<br>     * Gets the parent for accessibility purposes. Note that the parent for<br>     * accessibility is not necessary the immediate parent. It is the first<br>     * predecessor that is important for accessibility.<br>     *<br>     * <span class="hljs-doctag">@return</span> The parent for accessibility purposes.<br>     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> ViewParent <span class="hljs-title">getParentForAccessibility</span><span class="hljs-params">()</span> </span>{<br>        <span class="hljs-comment">// 该方法的返回值将作为当前View对应的AccessibilityNodeInfo在AccessibilityNodeInfo Tree中的Parent</span><br><br>        <span class="hljs-keyword">if</span> (mParent <span class="hljs-keyword">instanceof</span> View) {<br>            View parentView = (View) mParent;<br><br>            <span class="hljs-comment">// 关键的判断在这里</span><br>            <span class="hljs-keyword">if</span> (parentView.includeForAccessibility()) {<br><br>                <span class="hljs-comment">// 如果进入到这个分支，则该AccessibilityNodeInfo在AccessibilityNodeInfo Tree中与其Parent的关系与对应View在View Tree中与其Parent的关系保持一致</span><br>                <span class="hljs-keyword">return</span> mParent;<br>            } <span class="hljs-keyword">else</span> {<br>                <span class="hljs-comment">// 如果进入到这个分支，则说明当前View的parent被skipped</span><br>                <span class="hljs-comment">// 接下来会递归调用当前View的Parent的getParentForAccessibility()方法</span><br>                <span class="hljs-comment">// 所以返回值有可能是当前AccessibilityNodeInfo对应的View在View Tree中的爷爷甚至祖先结点</span><br>                <span class="hljs-keyword">return</span> mParent.getParentForAccessibility();<br>            }<br>        }<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;<br>    }<br></code></pre>
+
+<p>注释中解释了<strong>AccessibilityNodeInfo Tree</strong>与<strong>View Tree</strong>可能不完全一致的原因，一句话简单说就是在<strong>View Tree</strong>中我是你爸爸，但在<strong>AccessibilityNodeInfo Tree</strong>中有可能我的爸爸才是你的爸爸（即你爷爷变成你爸爸）。虽然有点拗口，但是道理不难懂。 <br>
+具体到底谁是你爸爸，关键看<strong>includeForAccessibility()</strong>这个方法： <br>
+<strong>View.java</strong></p>
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-comment">/**<br>     * Whether to regard this view for accessibility. A view is regarded for<br>     * accessibility if it is important for accessibility or the querying<br>     * accessibility service has explicitly requested that view not<br>     * important for accessibility are regarded.<br>     *<br>     * <span class="hljs-doctag">@return</span> Whether to regard the view for accessibility.<br>     *<br>     * <span class="hljs-doctag">@hide</span><br>     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">includeForAccessibility</span><span class="hljs-params">()</span> </span>{<br>        <span class="hljs-keyword">if</span> (mAttachInfo != <span class="hljs-keyword">null</span>) {<br>            <span class="hljs-keyword">return</span> (mAttachInfo.mAccessibilityFetchFlags<br>                    &amp; AccessibilityNodeInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS) != <span class="hljs-number">0</span><br>                    || isImportantForAccessibility();<br>        }<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>    }<br><br>    <span class="hljs-comment">/**<br>     * Computes whether this view should be exposed for accessibility. In<br>     * general, views that are interactive or provide information are exposed<br>     * while views that serve only as containers are hidden.<br>     *<br>     * <span class="hljs-doctag">@return</span> Whether the view is exposed for accessibility.<br>     * <span class="hljs-doctag">@see</span> #setImportantForAccessibility(int)<br>     * <span class="hljs-doctag">@see</span> #getImportantForAccessibility()<br>     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isImportantForAccessibility</span><span class="hljs-params">()</span> </span>{<br>        <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> mode = (mPrivateFlags2 &amp; PFLAG2_IMPORTANT_FOR_ACCESSIBILITY_MASK)<br>                &gt;&gt; PFLAG2_IMPORTANT_FOR_ACCESSIBILITY_SHIFT;<br>        <span class="hljs-keyword">if</span> (mode == IMPORTANT_FOR_ACCESSIBILITY_NO<br>                || mode == IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>        }<br><br>        <span class="hljs-comment">// Check parent mode to ensure we're not hidden.</span><br>        ViewParent parent = mParent;<br>        <span class="hljs-keyword">while</span> (parent <span class="hljs-keyword">instanceof</span> View) {<br>            <span class="hljs-keyword">if</span> (((View) parent).getImportantForAccessibility()<br>                    == IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {<br>                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>            }<br>            parent = parent.getParent();<br>        }<br><br>        <span class="hljs-keyword">return</span> mode == IMPORTANT_FOR_ACCESSIBILITY_YES || isActionableForAccessibility()<br>                || hasListenersForAccessibility() || getAccessibilityNodeProvider() != <span class="hljs-keyword">null</span><br>                || getAccessibilityLiveRegion() != ACCESSIBILITY_LIVE_REGION_NONE;<br>    }<br></code></pre>
+
+<p>这两个方法就是判断谁是你爸爸的逻辑，看官方的注释解释大致意思是如果当前View是对于<strong>AccessibilityService</strong>来说是重要的，或者<strong>AccessibilityService</strong>设置了<strong>FLAG_INCLUDE_NOT_IMPORTANT_VIEWS</strong>标志，那么你爸爸就还是你爸爸。 <br>
+找到爸爸后，<strong>onInitializeAccessibilityNodeInfoInternal(AccessibilityNodeInfo)</strong>就会把找到的爸爸赋值给当前在初始化的<strong>AccessibilityNodeInfo</strong>，并继续初始化它的其他成员变量。细节部分可参阅源码。 <br>
+初始化完<strong>AccessibilityEvent</strong>和<strong>AccessibilityNodeInfo</strong>的信息后，<strong>Step 1</strong>告一段落。</p>
+
+<h4 id="step-2">Step 2</h4>
+
+<p><strong>step 2</strong>主要是为<strong>event</strong>填充<strong>Text</strong>信息。通过<strong>View.dispatchPopulateAccessibilityEvent(AccessibilityEvent)</strong>实现，该方法也是经过一个“代理判断”后最终进入到<strong>View.dispatchPopulateAccessibilityEventInternal(AccessibilityEvent)</strong>： <br>
+<strong>View.java</strong></p>
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-comment">/**<br>     * <span class="hljs-doctag">@see</span> #dispatchPopulateAccessibilityEvent(AccessibilityEvent)<br>     *<br>     * Note: Called from the default {<span class="hljs-doctag">@link</span> AccessibilityDelegate}.<br>     *<br>     * <span class="hljs-doctag">@hide</span><br>     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">dispatchPopulateAccessibilityEventInternal</span><span class="hljs-params">(AccessibilityEvent event)</span> </span>{<br><br>        <span class="hljs-comment">// 该方法内部通过代理判断后最终进入onPopulateAccessibilityEventInternal方法</span><br>        onPopulateAccessibilityEvent(event);<br><br>        <span class="hljs-comment">// 注意这里的返回值，默认是返回false</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>    }<br></code></pre>
+
+<p>这是该方法在<strong>View.java</strong>中的实现，因为<strong>View</strong>作为一个直接呈现内容的单元，只要负责填充自身的<strong>Text</strong>到<strong>event</strong>就好了，所以这里直接通过<strong>onPopulateAccessibilityEvent(AccessibilityEvent)</strong>方法完成填充<strong>Text</strong>的逻辑。最后返回<strong>false</strong>。</p>
+
+<p>接着看一下<strong>View.onPopulateAccessibilityEventInternal(AccessibilityEvent)</strong>方法是如何实现的： <br>
+<strong>View.java</strong></p>
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-comment">/**<br>     * <span class="hljs-doctag">@see</span> #onPopulateAccessibilityEvent(AccessibilityEvent)<br>     *<br>     * Note: Called from the default {<span class="hljs-doctag">@link</span> AccessibilityDelegate}.<br>     *<br>     * <span class="hljs-doctag">@hide</span><br>     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onPopulateAccessibilityEventInternal</span><span class="hljs-params">(AccessibilityEvent event)</span> </span>{<br>    }<br></code></pre>
+
+<p>没错，一个空方法。因为<strong>View</strong>作为一个高度抽象的控件并无法准确的决定是否往AccessibilityEvent内填充内容，填充什么内容，所以具体的逻辑交由各个不同的<strong>派生View</strong>各自实现。我们不妨来看看<strong>TextView</strong>的<strong>onPopulateAccessibilityEventInternal(AccessibilityEvent)</strong>方法： <br>
+<strong>TextView.java</strong></p>
+
+
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-comment">/** <span class="hljs-doctag">@hide</span> */</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onPopulateAccessibilityEventInternal</span><span class="hljs-params">(AccessibilityEvent event)</span> </span>{<br>        <span class="hljs-keyword">super</span>.onPopulateAccessibilityEventInternal(event);<br><br>        <span class="hljs-keyword">final</span> CharSequence text = getTextForAccessibility();<br>        <span class="hljs-keyword">if</span> (!TextUtils.isEmpty(text)) {<br>            event.getText().add(text);<br>        }<br>    }<br></code></pre>
+
+<p>这里看到在<strong>TextView</strong>中果然实现了该方法，并将该<strong>TextView</strong>的内容加入到<strong>AccessibilityEvent</strong>的文本集合中。</p>
+
+<blockquote>
+  <p><strong>Note:</strong>  <br>
+  <strong>AccessibilityEvent</strong>中文本的保存是以一个集合来存储的，上面分析<strong>Step 1</strong>时也提到过，该集合是<strong>AccessibilityEvent</strong>派生自<strong>AccessibilityRecord</strong>的一个属性。如果该<strong>AccessibilityEvent</strong>对应的是一个<strong>ViewGroup</strong>的话，该集合中会存放<strong>ViewGroup</strong>下所有<strong>Children</strong>的<strong>Text</strong>内容，后面将详细说明。</p>
+</blockquote>
+
+<p>前面看到的是当点击事件发生在<strong>View</strong>上时的处理逻辑，当点击事件发生在<strong>ViewGroup</strong>时，<strong>dispatchPopulateAccessibilityEventInternal</strong>的实现才真正体现了<strong>dispatch</strong>的意义： <br>
+<strong>ViewGroup.java</strong></p>
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-comment">/** <span class="hljs-doctag">@hide</span> */</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">dispatchPopulateAccessibilityEventInternal</span><span class="hljs-params">(AccessibilityEvent event)</span> </span>{<br><br>        <span class="hljs-comment">// 该返回值决定这收集工作的流向，类似View中事件的处理逻辑</span><br>        <span class="hljs-keyword">boolean</span> handled = <span class="hljs-keyword">false</span>;<br>        <span class="hljs-keyword">if</span> (includeForAccessibility()) {<br><br>            <span class="hljs-comment">// 调用View的dispatchPopulateAccessibilityEventInternal收集该ViewGroup自身的文本内容</span><br>            handled = <span class="hljs-keyword">super</span>.dispatchPopulateAccessibilityEventInternal(event);<br>            <span class="hljs-keyword">if</span> (handled) {<br>                <span class="hljs-keyword">return</span> handled;<br>            }<br>        }<br>        <span class="hljs-comment">// Let our children have a shot in populating the event.</span><br>        ChildListForAccessibility children = ChildListForAccessibility.obtain(<span class="hljs-keyword">this</span>, <span class="hljs-keyword">true</span>);<br>        <span class="hljs-keyword">try</span> {<br><br>            <span class="hljs-comment">// 遍历Children，分别调用他们的dispatchPopulateAccessibilityEvent去收集Children的文本内容</span><br>            <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> childCount = children.getChildCount();<br>            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; childCount; i++) {<br>                View child = children.getChildAt(i);<br>                <span class="hljs-keyword">if</span> ((child.mViewFlags &amp; VISIBILITY_MASK) == VISIBLE) {<br>                    handled = child.dispatchPopulateAccessibilityEvent(event);<br>                    <span class="hljs-keyword">if</span> (handled) {<br>                        <span class="hljs-keyword">return</span> handled;<br>                    }<br>                }<br>            }<br>        } <span class="hljs-keyword">finally</span> {<br>            children.recycle();<br>        }<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>    }<br></code></pre>
+
+<p>逻辑相对也比较简单，在注释中有简要说明。最终的结果就是在<strong>AccessibilityEvent</strong>的文本集合中保存了被点击的<strong>ViewGroup</strong>以及其<strong>Children</strong>的所有<strong>Text</strong>。</p>
+
+<blockquote>
+  <p><strong>Note:</strong> <br>
+  这里的派发逻辑跟<strong>Touch</strong>事件的派发逻辑很相似，只要有一个<strong>View</strong>在<strong>dispatchPopulateAccessibilityEventInternal(AccessibilityEvent)</strong>方法中返回<strong>true</strong>，则会结束整个派发流程。（默认返回<strong>false</strong>）。 <br>
+  <strong>dispatchPopulateAccessibilityEventInternal(AccessibilityEvent)</strong>结束后，<strong>AccessibilityEvent</strong>的文本内容收集完毕，<strong>Step 2</strong>告一段落。</p>
+</blockquote>
+
+<h4 id="step-3">Step 3</h4>
+
+<p><strong>Step 3</strong>就是将<strong>AccessibilityEvent</strong>发送出去，<strong>AccessibilityEvent</strong>的发送是通过向<strong>View Tree</strong>中的父节点请求来完成的，即通过调用当前<strong>View</strong>的<strong>Parent</strong>的<strong>requestSendAccessibilityEvent(View, AccessibilityEvent)</strong>方法实现： <br>
+<strong>ViewGroup.java</strong></p>
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">requestSendAccessibilityEvent</span><span class="hljs-params">(View child, AccessibilityEvent event)</span> </span>{<br>        ViewParent parent = mParent;<br>        <span class="hljs-keyword">if</span> (parent == <span class="hljs-keyword">null</span>) {<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>        }<br><br>        <span class="hljs-comment">// onRequestSendAccessibilityEvent内部同样经过代理判断后，最终调用onRequestSendAccessibilityEventInternal，而该方法默认返回true</span><br>        <span class="hljs-keyword">final</span> <span class="hljs-keyword">boolean</span> propagate = onRequestSendAccessibilityEvent(child, event);<br>        <span class="hljs-keyword">if</span> (!propagate) {<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>        }<br>        <span class="hljs-comment">// 最终递归调用parent.requestSendAccessibilityEvent(this, event)</span><br>        <span class="hljs-keyword">return</span> parent.requestSendAccessibilityEvent(<span class="hljs-keyword">this</span>, event);<br>    }<br></code></pre>
+
+<p>这里看到通过一个递归，其实将发送<strong>AccessibilityEvent</strong>的逻辑一直往上扔，直到<strong>View Tree</strong>的根节点。递归最终会调用到<strong>ViewRootImpl.requestSendAccessibilityEvent(View, AccessibilityEvent)</strong>方法中。</p>
+
+<blockquote>
+  <p><strong>Note:</strong> <br>
+  在<strong>ViewRootImpl.setView(View)</strong>中我们设置了根节点<strong>View</strong>的<strong>Parent</strong>为<strong>ViewRootImpl</strong>。所以最终会调用到<strong>ViewRootImpl</strong>中。</p>
+</blockquote>
+
+<p><strong>ViewRootImpl.java</strong></p>
+
+<pre class="prettyprint"><code class="language-java hljs">    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">requestSendAccessibilityEvent</span><span class="hljs-params">(View child, AccessibilityEvent event)</span> </span>{<br>        <span class="hljs-keyword">if</span> (mView == <span class="hljs-keyword">null</span> || mStopped || mPausedForTransition) {<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>        }<br>        <span class="hljs-comment">// Intercept accessibility focus events fired by virtual nodes to keep</span><br>        <span class="hljs-comment">// track of accessibility focus position in such nodes.</span><br>        <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> eventType = event.getEventType();<br>        <span class="hljs-keyword">switch</span> (eventType) {<br>            <span class="hljs-keyword">case</span> AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED: {<br>                <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> sourceNodeId = event.getSourceNodeId();<br>                <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> accessibilityViewId = AccessibilityNodeInfo.getAccessibilityViewId(<br>                        sourceNodeId);<br>                View source = mView.findViewByAccessibilityId(accessibilityViewId);<br>                <span class="hljs-keyword">if</span> (source != <span class="hljs-keyword">null</span>) {<br>                    AccessibilityNodeProvider provider = source.getAccessibilityNodeProvider();<br>                    <span class="hljs-keyword">if</span> (provider != <span class="hljs-keyword">null</span>) {<br>                        <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> virtualNodeId = AccessibilityNodeInfo.getVirtualDescendantId(<br>                                sourceNodeId);<br>                        <span class="hljs-keyword">final</span> AccessibilityNodeInfo node;<br>                        <span class="hljs-keyword">if</span> (virtualNodeId == AccessibilityNodeInfo.UNDEFINED_ITEM_ID) {<br>                            node = provider.createAccessibilityNodeInfo(<br>                                    AccessibilityNodeProvider.HOST_VIEW_ID);<br>                        } <span class="hljs-keyword">else</span> {<br>                            node = provider.createAccessibilityNodeInfo(virtualNodeId);<br>                        }<br>                        setAccessibilityFocus(source, node);<br>                    }<br>                }<br>            } <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">case</span> AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED: {<br>                <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> sourceNodeId = event.getSourceNodeId();<br>                <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> accessibilityViewId = AccessibilityNodeInfo.getAccessibilityViewId(<br>                        sourceNodeId);<br>                View source = mView.findViewByAccessibilityId(accessibilityViewId);<br>                <span class="hljs-keyword">if</span> (source != <span class="hljs-keyword">null</span>) {<br>                    AccessibilityNodeProvider provider = source.getAccessibilityNodeProvider();<br>                    <span class="hljs-keyword">if</span> (provider != <span class="hljs-keyword">null</span>) {<br>                        setAccessibilityFocus(<span class="hljs-keyword">null</span>, <span class="hljs-keyword">null</span>);<br>                    }<br>                }<br>            } <span class="hljs-keyword">break</span>;<br><br><br>            <span class="hljs-keyword">case</span> AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED: {<br>                handleWindowContentChangedEvent(event);<br>            } <span class="hljs-keyword">break</span>;<br>        }<br><br>        <span class="hljs-comment">// 通过AccessibilityManager来发送该辅助服务事件</span><br>        mAccessibilityManager.sendAccessibilityEvent(event);<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;<br>    }<br></code></pre>
+
+<p>该方法中前面的逻辑从官方注释上看是针对由虚拟结点触发的辅助服务焦点事件做了一个拦截处理，这里不是我们分析的重点。到方法的最后<strong>AccessibilityEvent</strong>由<strong>AccessibilityManager</strong>完成发送。（憋了那么久，终于发车了。。。）</p>
+
+
+
+<h4 id="事件到哪里去">事件到哪里去</h4>
+
+<p><strong>AccessibilityManager</strong>是<strong>AccessibilityManagerService</strong>服务在<strong>Client</strong>端的代理的一个<strong>Wrapper</strong>。有点类似<strong>ActivityManager</strong>与<strong>ActivityManagerService</strong>的关系。从这里能够看出<strong>AccessibilityEvent</strong>通过应用进程的初始化加工后最终发送给了<strong>system_server</strong>进程由 <br>
+<strong>AccessibilityManagerService</strong>服务来管理分配。<strong>AccessibilityManagerService</strong>内部管理了所有应用实现的<strong>AccessibilityService</strong>，它会将该事件发送给已打开并绑定成功的<strong>AccessibilityService</strong>来处理。倘若这个时候我们实现的<strong>AccessibilityService</strong>是被打开的，那么<strong>AccessibilityManagerService</strong>将向我们实现的<strong>AccessibilityService</strong>发送一个<strong>AccessibilityEvent</strong>。</p>
+
+
+
+<h4 id="小结">小结</h4>
+
+<ul><li><strong>AccessibilityEvent</strong>由产生事件的<strong>View</strong>负责构造并初始化。</li>
+<li><strong>AccessibilityEvent</strong>由产生事件的<strong>View</strong>开始向<strong>parent</strong>节点请求发送，最终交由<strong>ViewRootImpl</strong>将事件通过<strong>binder</strong>机制发送给<strong>system_server</strong>处理。</li>
+<li>虽然其他类型的<strong>AccessibilityEvent</strong>的事件源或者某些细节与<strong>TYPE_VIEW_CLICK</strong>类型的事件可能有所差别，但是大致流程其实是不变的：<strong>从某个事件源产生事件后-&gt;初始化该事件信息-&gt;最终将事件发送给system_server处理</strong>。</li>
+</ul>
+
+<hr>
+
+
+
+<h2 id="总结">总结</h2>
+
+<p>本文从<strong>WHW</strong>三个角度试图将<strong>AccessibilityService</strong>讲解的更清楚些。<strong>Why</strong>能够帮助我们更深入的理解<strong>AccessibilityService</strong>，并运用到实际有需要的项目中去。更多的是站在应用层的角度并结合了一个比较简单的<strong>TYPE_VIEW_CLICK</strong>事件类型去解释。目的在于由浅入深理解整个大致流程。很多细节部分并没有一一说明，毕竟源码才是最好的老师<strong>（RTFSC）</strong>。希望能够给大家有所帮助，如果有错误的地方也欢迎大牛指正。后面有时间的话会站在系统层的角度基于<strong>AccessibilityManagerService</strong>再做一次学习记录。</p>
+
+<p>谢谢~</p>
+
+<blockquote>
+  <p>条件允许的话尽量把新的，没用过的东西都按<strong>WHW</strong>的模式走一遍，记录下来，对自己也是一个积累沉淀的过程。</p>
+</blockquote>
+
+<hr>
+
+
+
+<h2 id="参考">参考</h2>
+
+<p><a href="https://developer.android.com/reference/android/accessibilityservice/AccessibilityService.html" target="_blank">https://developer.android.com/reference/android/accessibilityservice/AccessibilityService.html</a> <br>
+<a href="http://www.jianshu.com/p/4cd8c109cdfb" target="_blank">http://www.jianshu.com/p/4cd8c109cdfb</a> <br>
+<a href="http://blog.csdn.net/jwzhangjie/article/details/47205299" target="_blank">http://blog.csdn.net/jwzhangjie/article/details/47205299</a></p></div></body></html>

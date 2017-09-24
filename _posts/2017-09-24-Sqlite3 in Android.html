@@ -1,0 +1,470 @@
+<!DOCTYPE html><html><head><title>Sqlite3 in Android</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+.note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
+.note-content .hljs-number, .note-content 
+.hljs-literal, .note-content 
+.hljs-symbol, .note-content 
+.hljs-bullet {color: #6897BB;}
+.note-content .hljs-keyword, .note-content 
+.hljs-selector-tag, .note-content 
+.hljs-deletion {color: #cc7832;}
+.note-content .hljs-variable, .note-content 
+.hljs-template-variable, .note-content 
+.hljs-link {color: #629755;}
+.note-content .hljs-comment, .note-content 
+.hljs-quote {color: #808080;}
+.note-content .hljs-meta {color: #bbb529;}
+.note-content .hljs-string, .note-content 
+.hljs-attribute, .note-content 
+.hljs-addition {color: #6A8759;}
+.note-content .hljs-section, .note-content 
+.hljs-title, .note-content 
+.hljs-type {color: #ffc66d;}
+.note-content .hljs-name, .note-content 
+.hljs-selector-id, .note-content 
+.hljs-selector-class {color: #e8bf6a;}
+.note-content .hljs-emphasis {font-style: italic;}
+.note-content .hljs-strong {font-weight: bold;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h1 id="sqlite3-in-android">Sqlite3 in Android</h1>
+
+
+
+<h3 id="about-sqlite">About Sqlite</h3>
+
+<p>Sqlite 是一个软件库，实现了自给自足的、无服务器的、零配置的、事务性的 轻量化 SQL 数据库引擎。Sqlite 是在世界上最广泛部署的 SQL 数据库引擎，更多关于 Sqlite 的细节可以参阅<a href="https://www.sqlite.org/about.html" target="_blank">官方文档</a>。 <br>
+对应到 Android 来看，使用的 Sqlite 的版本跟 Android 版本之间是存在依赖关系的，如下表：</p>
+
+
+
+<p><img longdesc="./QQ20170924-192503.png" alt="Alt text" title="" type="image/png" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANgAAADlCAYAAAAxxDmeAAAKpGlDQ1BJQ0MgUHJvZmlsZQAASImVlwdQU9kax8+96Y2WEDqE3qR3kF5Dlw42QgIhlBgCQcGuLCqwoqiIgKLoCoiCawFkLYgoFhYBBewLsggo62IBCyp7kUd4+9689+b9Z745v/nuud/57sk5M/8AQL7JEghSYCkAUvkZwhBvN0ZUdAwDNwjQQAbIARNAY7HTBa7Bwf4A0fz4d031AWh2vGc0W+vfn/9XSXPi09kAQMEIx3HS2akIn0PiNFsgzAAAxUHymqszBLO8HWGaEGkQ4fJZ5s7x6VmOm+O273PCQtwRfgAAnsxiCbkAkH5H8oxMNhepQ0YjbMrn8PgIWyLsxE5kIeuQkWdgUWrqqlk+jLBe3D/V4f6tZpy4JovFFfPct3wX3oOXLkhhZf2f2/G/lZoiml9DAwlyotAnZHY9ZM+qk1f5iZkfFxg0zzzOXE+znCjyCZ9ndrp7zDxzWB5+8yxKDnedZ5Zw4V1eBjNsnoWrQsT1+SmB/uL68Uwxx6d7hs5zAs+LOc/ZiWGR85zJiwic5/TkUL+FOe7ivFAUIu45Qegl/sbU9IXe2KyFtTISw3wWeogS98OJ9/AU5/nh4vmCDDdxTUFK8EL/Kd7ifHpmqPjdDOSAzXMSyzd4oU6weH8ADwQAFmBnxK+ZPVfAfZUgS8jjJmYwXJFbEs9g8tnGixjmpmY2AMzeubmf9B39+12C6LcXcmktANjlIUnuQo6lCcCFFwBQpxZymm+R47ALgEtdbJEwcy43e9QBBhCBJKABBaAKNIEeMALmwBo4ABfgCXxBEAgD0WAFYINEkAqEYDVYBzaDXJAPdoF9oBRUgKOgGpwCZ0AjuAiughvgDugCveAxGADD4BWYAFNgGoIgHESBqJACpAZpQ4aQOWQLOUGekD8UAkVDsRAX4kMiaB20FcqHiqBS6AhUA/0MXYCuQregbughNAiNQW+hzzAKJsM0WAXWgU1gW9gV9oPD4OUwF06Ds+EceCdcAlfCJ+EG+Cp8B+6FB+BX8CQKoEgoOkodZYSyRbmjglAxqASUELUBlYcqRlWi6lDNqHbUPdQAahz1CY1FU9EMtBHaAe2DDkez0WnoDegCdCm6Gt2AbkPfQw+iJ9DfMBSMMsYQY49hYqIwXMxqTC6mGHMccx5zHdOLGcZMYbFYOlYXa4P1wUZjk7BrsQXYg9h6bAu2GzuEncThcAo4Q5wjLgjHwmXgcnEHcCdxV3A9uGHcRzwJr4Y3x3vhY/B8/BZ8Mf4E/jK+Bz+CnyZIEbQJ9oQgAoeQRSgkHCM0E+4ShgnTRGmiLtGRGEZMIm4mlhDriNeJT4jvSCSSBsmOtITEI20ilZBOk26SBkmfyDJkA7I7eRlZRN5JriK3kB+S31EoFB2KCyWGkkHZSamhXKM8o3yUoEoYSzAlOBIbJcokGiR6JF5LEiS1JV0lV0hmSxZLnpW8KzkuRZDSkXKXYkltkCqTuiDVLzUpTZU2kw6STpUukD4hfUt6VAYnoyPjKcORyZE5KnNNZoiKompS3als6lbqMep16jANS9OlMWlJtHzaKVonbUJWRtZSNkJ2jWyZ7CXZATqKrkNn0lPohfQz9D76ZzkVOVe5eLkdcnVyPXIf5JXkXeTj5fPk6+V75T8rMBQ8FZIVdis0KjxVRCsaKC5RXK14SPG64rgSTclBia2Up3RG6ZEyrGygHKK8VvmocofypIqqireKQOWAyjWVcVW6qotqkupe1cuqY2pUNSc1ntpetStqLxmyDFdGCqOE0caYUFdW91EXqR9R71Sf1tDVCNfYolGv8VSTqGmrmaC5V7NVc0JLTStAa51WrdYjbYK2rXai9n7tdu0POro6kTrbdBp1RnXldZm62bq1uk/0KHrOeml6lXr39bH6tvrJ+gf1uwxgAyuDRIMyg7uGsKG1Ic/woGH3Iswiu0X8RZWL+o3IRq5GmUa1RoPGdGN/4y3GjcavTbRMYkx2m7SbfDO1Mk0xPWb62EzGzNdsi1mz2VtzA3O2eZn5fQuKhZfFRosmizeWhpbxlocsH1hRrQKstlm1Wn21trEWWtdZj9lo2cTalNv029Jsg20LbG/aYezc7DbaXbT7ZG9tn2F/xv5PByOHZIcTDqOLdRfHLz62eMhRw5HleMRxwInhFOt02GnAWd2Z5Vzp/NxF04XjctxlxFXfNcn1pOtrN1M3odt5tw/u9u7r3Vs8UB7eHnkenZ4ynuGepZ7PvDS8uF61XhPeVt5rvVt8MD5+Prt9+pkqTDazhjnha+O73rfNj+wX6lfq99zfwF/o3xwAB/gG7Al4EqgdyA9sDAJBzKA9QU+DdYPTgn9Zgl0SvKRsyYsQs5B1Ie2h1NCVoSdCp8LcwgrDHofrhYvCWyMkI5ZF1ER8iPSILIociDKJWh91J1oxmhfdFIOLiYg5HjO51HPpvqXDy6yW5S7rW667fM3yWysUV6SsuLRSciVr5dlYTGxk7InYL6wgViVrMo4ZVx43wXZn72e/4rhw9nLG4h3ji+JHEhwTihJGuY7cPdyxROfE4sRxnjuvlPcmySepIulDclByVfJMSmRKfSo+NTb1Al+Gn8xvW6W6as2qboGhIFcwkGafti9tQugnPJ4OpS9Pb8qgIeamQ6Qn+kE0mOmUWZb5cXXE6rNrpNfw13RkGWTtyBrJ9sr+aS16LXtt6zr1dZvXDa53XX9kA7QhbkPrRs2NORuHN3lvqt5M3Jy8+dctpluKtrzfGrm1OUclZ1PO0A/eP9TmSuQKc/u3OWyr2I7eztveucNix4Ed3/I4ebfzTfOL878UsAtu/2j2Y8mPMzsTdnYWWhce2oXdxd/Vt9t5d3WRdFF20dCegD0Nexl78/a+37dy361iy+KK/cT9ov0DJf4lTQe0Duw68KU0sbS3zK2svly5fEf5h4Ocgz2HXA7VVahU5Fd8Psw7/OCI95GGSp3K4qPYo5lHXxyLONb+k+1PNccVj+cf/1rFrxqoDqluq7GpqTmhfKKwFq4V1Y6dXHay65THqaY6o7oj9fT6/NPgtOj0y59jf+4743em9azt2bpz2ufKz1PP5zVADVkNE42JjQNN0U3dF3wvtDY7NJ//xfiXqovqF8suyV4qvEy8nHN55kr2lckWQcv4Ve7VodaVrY+vRV2737akrfO63/WbN7xuXGt3bb9y0/HmxVv2ty7ctr3deMf6TkOHVcf5X61+Pd9p3dlw1+ZuU5ddV3P34u7LPc49V+953Ltxn3n/Tm9gb3dfeN+D/mX9Aw84D0Yfpjx88yjz0fTjTU8wT/KeSj0tfqb8rPI3/d/qB6wHLg16DHY8D33+eIg99Or39N+/DOe8oLwoHlEbqRk1H7045jXW9XLpy+FXglfT47l/SP9R/lrv9bk/Xf7smIiaGH4jfDPztuCdwruq95bvWyeDJ59NpU5Nf8j7qPCx+pPtp/bPkZ9Hpld/wX0p+ar/tfmb37cnM6kzMwKWkPXdCqCQgBMSAHhbBQAlGvEOXQAQJeY88XdBcz7+O4H/xHO++busAahyASB8EwD+iEc5hIQ2wmRknLVEYS4AtrAQxz+UnmBhPleLjDhLzMeZmXcqAOCaAfgqnJmZPjgz8/UY0uxDAFrS5rz4rLDIP5TTmFnqUN0A/lV/AW8kAWwwqR4qAAAf60lEQVR4Ae2dCdRVVfnGNwpqqGEKmYIDKoIyaKJozgKVJgqllrIy0myZIpHLoTAXmkODlEkry7FlaoukIqdVamqaTKImikoyaaUVAWYiUlbw5/fy35dzz3enM917vnued63DPcM+e3j2fvZ0Pt6ny4033rjeyVqOwMiRI93DDz/c8nwoA+khQJ1ull50ikkICIEwAiJYGBFdC4EUERDBUgRTUQmBMAIiWBgRXQuBFBEQwVIEU1EJgTACIlgYEV0LgRQREMFSBFNRCYEwAiJYGBFdC4EUERDBUgRTUQmBMAK5Idjuu+/u+vbtG85fw9ddunSpGTZp/DUjz8nDzTffvGZOwKgeTtUi2Gyz3DSValmseD9ueStGFuNm1xjvlF7Zfvvt3ZgxY9yjjz7qXn311dL9OCcQADBeeeWVOK+7ESNGuH//+9/uiSeeqPh+I/HXKs+hhx7qBgwYUIqbtFatWuWefvppt3LlSrt/3HHHuTfeeMM9+eSTpXBZn2y99dZu0KBBjvK9973vdf/4xz/cM888U4bjdttt5w488EDXp08fy87rr79u+Sast0984hNuyZIl7vnnn/e3Sr8DBw50HNOnT7d7xPevf/3LjlKgBk769evnwHHatGnu3XffLXvj8MMPd+B/7733lt1PelGvXSSNv977ibol3+D69+9fL53Mn9PQn3vuuUTp1CoPo8OKFSvcz372Mzt++9vfuv/973/uhBNOcNtuu62lS5h6o0iiDFZ4+aMf/ah7//vf7x555BF35513updeesnxN3C77LKLhd5qq63cscceaw16xowZjmPt2rV2j2feunbt6qqNUkuXLnWPPfaYD+o+8pGPuD333LN03ejJH//4R8OHziBopLvXXnuVdQrB50nO02gXSdKPTTAPyuzZs60yu3fvXpYPQKSn+8AHPuD2228/awTBAIxWgPrBD37QwgSfbbPNNm7vvfe2Hpl3fQPecsst3R577OH2339/t9NOOwVfcbzznve8p3SvVvylQIGTeuUh6H//+1+3evVqO/7yl784SLZ+/fpEU9tAFiKfbrHFFq5nz55uwYIFNopCHAj2pz/9ye26664WH/hCnt/9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" class=""></p>
+
+<p>Android 也提供了很方便的编程接口去使用 Sqlite 数据库，详情可参阅<a href="https://developer.android.com/reference/android/database/sqlite/package-summary.html" target="_blank">官方文档</a>。 <br>
+与此同时，Android SDK 和 Android 模拟器都包含了一个用于方便操作 Sqlite 数据库的命令行工具—— <strong>sqlite3</strong> ，该工具在某种程度上可以提升我们开发和调试的效率，更甚者可以做一些有意思的事情（文末简单介绍）。所以本文就详细介绍一下 sqlite3 的使用。</p>
+
+<h3 id="usage">Usage</h3>
+
+<p>前面也说到在 Android SDK 及 Android 模拟器中都包含该 sqlite3 工具，所以这里分别对应了两种使用场景：</p>
+
+<h4 id="1android-sdk">1.Android SDK</h4>
+
+<p>在这种场景下需要先将手机内部需要操作的 db 文件 pull 到本机上，然后可以使用 Android SDK 的 platform-tools/ 目录下的 sqlite3 工具来打开或者操作从手机 pull 到本机的数据库。</p>
+
+<h4 id="2in-shell">2.in shell</h4>
+
+<p>在 Android 模拟器中是可以直接使用 sqlite3 工具的，你只需要 adb shell ，之后再模拟器的 shell 中直接就可以使用 sqlite3 命令来操作指定的数据库文件。一般情况下量产的手机真机 shell 中是没有自带 sqlite3 工具的，如果需要，其实可以安装对应真机版本和ABI的模拟器，将 sqlite3 从模拟器中导出后再导入真机的 /system/xbin/ 目录下使用。</p>
+
+<h4 id="details">Details</h4>
+
+<p>不管上面哪种使用场景，使用 sqlite3 的方法是一样的，下面就详细介绍下如何使用 sqlite3 工具来完成一系列的 db 操作。</p>
+
+<h6 id="运行sqlite3">运行sqlite3</h6>
+
+<p>直接运行 sqlite3 即可启动程序：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">root@generic_x86:/ # sqlite3
+</div><div class="hljs-line"><span class="hljs-symbol">SQLite</span> version <span class="hljs-number">3.8</span><span class="hljs-number">.10</span><span class="hljs-number">.2</span> <span class="hljs-number">2015</span><span class="hljs-number">-05</span><span class="hljs-number">-20</span> <span class="hljs-number">18</span>:<span class="hljs-number">17</span>:<span class="hljs-number">19</span>
+</div><div class="hljs-line"><span class="hljs-symbol">Enter</span> <span class="hljs-string">".help"</span> for usage hints.
+</div><div class="hljs-line"><span class="hljs-symbol">Connected</span> to a transient in-memory database.
+</div><div class="hljs-line"><span class="hljs-symbol">Use</span> <span class="hljs-string">".open FILENAME"</span> to reopen on a persistent database.
+</div><div class="hljs-line">sqlite&gt;
+</div></code></pre>
+
+<p>这时候 sqlite3 会打印出当前的版本，并提示你使用 .open 命令打开指定的数据库：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">sqlite&gt; .open /data/data/com.android.launcher3/databases/launcher.db
+</div></code></pre>
+
+<p>如此一来，就成功启动了sqlite3 并打开了指定的数据库。</p>
+
+<p>当然也可以直接将数据库文件的路径作为运行 sqlite3 命令的参数，从而直接启动 sqlite3 并打开指定的数据库:</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">root@generic_x86:/ # sqlite3 /data/data/com.android.launcher3/databases/launcher.db
+</div><div class="hljs-line"><span class="hljs-symbol">SQLite</span> version <span class="hljs-number">3.8</span><span class="hljs-number">.10</span><span class="hljs-number">.2</span> <span class="hljs-number">2015</span><span class="hljs-number">-05</span><span class="hljs-number">-20</span> <span class="hljs-number">18</span>:<span class="hljs-number">17</span>:<span class="hljs-number">19</span>
+</div><div class="hljs-line"><span class="hljs-symbol">Enter</span> <span class="hljs-string">".help"</span> for usage hints.
+</div><div class="hljs-line">sqlite&gt;
+</div></code></pre>
+
+<p>启动 sqlite3 并打开指定的数据库之后，可以通过 sqlite3 内置的 .tables 命令列出当前数据库中的所有表：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">sqlite&gt; .tables
+</div><div class="hljs-line">android_metadata  favorites         workspaceScreens
+</div></code></pre>
+
+<p>这里看到我打开的是 launcher app 的数据库，该数据库中目前建了三张表，其中 android_metadata 表是系统自动生成的，用于记录用户的使用语言。</p>
+
+<p>之后便可以输入 SQL 语句操作数据库中的表了。</p>
+
+<blockquote>
+  <p><strong>Note : </strong> SQL 语句需要以分号结束。</p>
+</blockquote>
+
+<h5 id="点命令集">点命令集</h5>
+
+<p>通常情况下，比如针对 SQL 语句，sqlite3 的工作只是读取我们输入的语句并且将它们传递给 SQLite 库去执行。但是当输入的一行以点 (.) 开头时（比如上面有提到的 .open 和 .tables ），这一行将被交由 sqlite3 程序自身来解释，这些点命令集通常被用于设置或完成 sqlite3 程序自身的一些功能。可以在打开 sqlite3 程序后通过 .help 命令来获取所有可用的点命令集的列表：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">sqlite&gt; .help
+</div><div class="hljs-line">.backup ?<span class="hljs-symbol">DB</span>? <span class="hljs-symbol">FILE</span>      <span class="hljs-symbol">Backup</span> <span class="hljs-symbol">DB</span> (default <span class="hljs-string">"main"</span>) to <span class="hljs-symbol">FILE</span>
+</div><div class="hljs-line">.bail on|off           <span class="hljs-symbol">Stop</span> after hitting an error.  <span class="hljs-symbol">Default</span> <span class="hljs-symbol">OFF</span>
+</div><div class="hljs-line">.binary on|off         <span class="hljs-symbol">Turn</span> binary output on or off.  <span class="hljs-symbol">Default</span> <span class="hljs-symbol">OFF</span>
+</div><div class="hljs-line">.clone <span class="hljs-symbol">NEWDB</span>           <span class="hljs-symbol">Clone</span> data into <span class="hljs-symbol">NEWDB</span> from the existing database
+</div><div class="hljs-line">.databases             <span class="hljs-symbol">List</span> names and files of attached databases
+</div><div class="hljs-line">.dbinfo ?<span class="hljs-symbol">DB</span>?           <span class="hljs-symbol">Show</span> status information about the database
+</div><div class="hljs-line">.dump ?<span class="hljs-symbol">TABLE</span>? ...      <span class="hljs-symbol">Dump</span> the database in an <span class="hljs-symbol">SQL</span> text format
+</div><div class="hljs-line">                         <span class="hljs-symbol">If</span> <span class="hljs-symbol">TABLE</span> specified, only dump tables matching
+</div><div class="hljs-line">                         <span class="hljs-symbol">LIKE</span> pattern <span class="hljs-symbol">TABLE</span>.
+</div><div class="hljs-line">.echo on|off           <span class="hljs-symbol">Turn</span> command echo on or off
+</div><div class="hljs-line">.eqp on|off            <span class="hljs-symbol">Enable</span> or disable automatic <span class="hljs-symbol">EXPLAIN</span> <span class="hljs-symbol">QUERY</span> <span class="hljs-symbol">PLAN</span>
+</div><div class="hljs-line">.exit                  <span class="hljs-symbol">Exit</span> this program
+</div><div class="hljs-line">.explain ?on|off?      <span class="hljs-symbol">Turn</span> output mode suitable for <span class="hljs-symbol">EXPLAIN</span> on or off.
+</div><div class="hljs-line">                         <span class="hljs-symbol">With</span> no args, it turns <span class="hljs-symbol">EXPLAIN</span> on.
+</div><div class="hljs-line">.fullschema            <span class="hljs-symbol">Show</span> schema and the content of sqlite_stat tables
+</div><div class="hljs-line">.headers on|off        <span class="hljs-symbol">Turn</span> display of headers on or off
+</div><div class="hljs-line">.help                  <span class="hljs-symbol">Show</span> this message
+</div><div class="hljs-line">.import <span class="hljs-symbol">FILE</span> <span class="hljs-symbol">TABLE</span>     <span class="hljs-symbol">Import</span> data from <span class="hljs-symbol">FILE</span> into <span class="hljs-symbol">TABLE</span>
+</div><div class="hljs-line">.indexes ?<span class="hljs-symbol">TABLE</span>?       <span class="hljs-symbol">Show</span> names of all indexes
+</div><div class="hljs-line">                         <span class="hljs-symbol">If</span> <span class="hljs-symbol">TABLE</span> specified, only show indexes for tables
+</div><div class="hljs-line">                         matching <span class="hljs-symbol">LIKE</span> pattern <span class="hljs-symbol">TABLE</span>.
+</div><div class="hljs-line">.limit ?<span class="hljs-symbol">LIMIT</span>? ?<span class="hljs-symbol">VAL</span>?   <span class="hljs-symbol">Display</span> or change the value of an <span class="hljs-symbol">SQLITE_LIMIT</span>
+</div><div class="hljs-line">.log <span class="hljs-symbol">FILE</span>|off          <span class="hljs-symbol">Turn</span> logging on or off.  <span class="hljs-symbol">FILE</span> can be stderr/stdout
+</div><div class="hljs-line">.mode <span class="hljs-symbol">MODE</span> ?<span class="hljs-symbol">TABLE</span>?     <span class="hljs-symbol">Set</span> output mode where <span class="hljs-symbol">MODE</span> is one of:
+</div><div class="hljs-line">                         ascii    <span class="hljs-symbol">Columns</span>/rows delimited by <span class="hljs-number">0x1F</span> and <span class="hljs-number">0x1E</span>
+</div><div class="hljs-line">                         csv      <span class="hljs-symbol">Comma</span>-separated values
+</div><div class="hljs-line">                         column   <span class="hljs-symbol">Left</span>-aligned columns.  (<span class="hljs-symbol">See</span> .width)
+</div><div class="hljs-line">                         html     <span class="hljs-symbol">HTML</span> &lt;table&gt; code
+</div><div class="hljs-line">                         insert   <span class="hljs-symbol">SQL</span> insert statements for <span class="hljs-symbol">TABLE</span>
+</div><div class="hljs-line">                         line     <span class="hljs-symbol">One</span> value per line
+</div><div class="hljs-line">                         list     <span class="hljs-symbol">Values</span> delimited by .separator strings
+</div><div class="hljs-line">                         tabs     <span class="hljs-symbol">Tab</span>-separated values
+</div><div class="hljs-line">                         tcl      <span class="hljs-symbol">TCL</span> list elements
+</div><div class="hljs-line">.nullvalue <span class="hljs-symbol">STRING</span>      <span class="hljs-symbol">Use</span> <span class="hljs-symbol">STRING</span> in place of <span class="hljs-symbol">NULL</span> values
+</div><div class="hljs-line">.once <span class="hljs-symbol">FILENAME</span>         <span class="hljs-symbol">Output</span> for the next <span class="hljs-symbol">SQL</span> command only to <span class="hljs-symbol">FILENAME</span>
+</div><div class="hljs-line">.open ?<span class="hljs-symbol">FILENAME</span>?       <span class="hljs-symbol">Close</span> existing database and reopen <span class="hljs-symbol">FILENAME</span>
+</div><div class="hljs-line">.output ?<span class="hljs-symbol">FILENAME</span>?     <span class="hljs-symbol">Send</span> output to <span class="hljs-symbol">FILENAME</span> or stdout
+</div><div class="hljs-line">.print <span class="hljs-symbol">STRING</span>...       <span class="hljs-symbol">Print</span> literal <span class="hljs-symbol">STRING</span>
+</div><div class="hljs-line">.prompt <span class="hljs-symbol">MAIN</span> <span class="hljs-symbol">CONTINUE</span>  <span class="hljs-symbol">Replace</span> the standard prompts
+</div><div class="hljs-line">.quit                  <span class="hljs-symbol">Exit</span> this program
+</div><div class="hljs-line">.read <span class="hljs-symbol">FILENAME</span>         <span class="hljs-symbol">Execute</span> <span class="hljs-symbol">SQL</span> in <span class="hljs-symbol">FILENAME</span>
+</div><div class="hljs-line">.restore ?<span class="hljs-symbol">DB</span>? <span class="hljs-symbol">FILE</span>     <span class="hljs-symbol">Restore</span> content of <span class="hljs-symbol">DB</span> (default <span class="hljs-string">"main"</span>) from <span class="hljs-symbol">FILE</span>
+</div><div class="hljs-line">.save <span class="hljs-symbol">FILE</span>             <span class="hljs-symbol">Write</span> in-memory database into <span class="hljs-symbol">FILE</span>
+</div><div class="hljs-line">.scanstats on|off      <span class="hljs-symbol">Turn</span> sqlite3_stmt_scanstatus() metrics on or off
+</div><div class="hljs-line">.schema ?<span class="hljs-symbol">TABLE</span>?        <span class="hljs-symbol">Show</span> the <span class="hljs-symbol">CREATE</span> statements
+</div><div class="hljs-line">                         <span class="hljs-symbol">If</span> <span class="hljs-symbol">TABLE</span> specified, only show tables matching
+</div><div class="hljs-line">                         <span class="hljs-symbol">LIKE</span> pattern <span class="hljs-symbol">TABLE</span>.
+</div><div class="hljs-line">.separator <span class="hljs-symbol">COL</span> ?<span class="hljs-symbol">ROW</span>?   <span class="hljs-symbol">Change</span> the column separator and optionally the row
+</div><div class="hljs-line">                         separator for both the output mode and .import
+</div><div class="hljs-line">.shell <span class="hljs-symbol">CMD</span> <span class="hljs-symbol">ARGS</span>...     <span class="hljs-symbol">Run</span> <span class="hljs-symbol">CMD</span> <span class="hljs-symbol">ARGS</span>... in a system shell
+</div><div class="hljs-line">.show                  <span class="hljs-symbol">Show</span> the current values for various settings
+</div><div class="hljs-line">.stats on|off          <span class="hljs-symbol">Turn</span> stats on or off
+</div><div class="hljs-line">.system <span class="hljs-symbol">CMD</span> <span class="hljs-symbol">ARGS</span>...    <span class="hljs-symbol">Run</span> <span class="hljs-symbol">CMD</span> <span class="hljs-symbol">ARGS</span>... in a system shell
+</div><div class="hljs-line">.tables ?<span class="hljs-symbol">TABLE</span>?        <span class="hljs-symbol">List</span> names of tables
+</div><div class="hljs-line">                         <span class="hljs-symbol">If</span> <span class="hljs-symbol">TABLE</span> specified, only list tables matching
+</div><div class="hljs-line">                         <span class="hljs-symbol">LIKE</span> pattern <span class="hljs-symbol">TABLE</span>.
+</div><div class="hljs-line">.timeout <span class="hljs-symbol">MS</span>            <span class="hljs-symbol">Try</span> opening locked tables for <span class="hljs-symbol">MS</span> milliseconds
+</div><div class="hljs-line">.timer on|off          <span class="hljs-symbol">Turn</span> <span class="hljs-symbol">SQL</span> timer on or off
+</div><div class="hljs-line">.trace <span class="hljs-symbol">FILE</span>|off        <span class="hljs-symbol">Output</span> each <span class="hljs-symbol">SQL</span> statement as it is run
+</div><div class="hljs-line">.vfsname ?<span class="hljs-symbol">AUX</span>?         <span class="hljs-symbol">Print</span> the name of the <span class="hljs-symbol">VFS</span> stack
+</div><div class="hljs-line">.width <span class="hljs-symbol">NUM1</span> <span class="hljs-symbol">NUM2</span> ...   <span class="hljs-symbol">Set</span> column widths for <span class="hljs-string">"column"</span> mode
+</div><div class="hljs-line">                         <span class="hljs-symbol">Negative</span> values right-justify
+</div></code></pre>
+
+<blockquote>
+  <p><strong>Note : </strong>点命令集的输入格式遵循以下约束：</p>
+  
+  <ul><li>点命令集的命令必须以” . “开头，而且” . “前面不允许存在空格。</li>
+  <li>一行内只允许存在一个完整的点命令集的命令。</li>
+  <li>点命令集无法识别注释。</li>
+  <li>点命令集不允许出现在一个 SQL 语句中。</li>
+  </ul>
+</blockquote>
+
+<p>下面我们挑几个点命令集详细说明一下，其他的大家也可以参考 .help 的输出结合实践看一下。</p>
+
+<p><strong>.open</strong> <br>
+上面也提到过，用于重新打开一个数据库文件。</p>
+
+<p><strong>.tables</strong> <br>
+上面也提到过，用于打印出当前打开的数据库中存在的表。</p>
+
+<p><strong>.headers on/off</strong> <br>
+用来控制是否在输出查询结果时展示表头的列名信息。</p>
+
+<p><strong>.mode &amp; .separator</strong> <br>
+sqlite3 程序内部可以以多种不同的格式展示查询结果：</p>
+
+<ul><li><strong>csv</strong></li>
+<li><strong>column</strong></li>
+<li><strong>html</strong></li>
+<li><strong>insert</strong></li>
+<li><strong>line</strong></li>
+<li><strong>list</strong></li>
+<li><strong>quote</strong></li>
+<li><strong>tabs</strong></li>
+<li><strong>tcl</strong></li>
+</ul>
+
+<p>可以使用 .mode 这个点命令指定其中任一格式输出。不指定的话默认以 “list” 格式输出。</p>
+
+<p><strong>1.list mode</strong> <br>
+该格式输出内容如下：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">sqlite&gt; .headers on
+</div><div class="hljs-line">sqlite&gt; select * from favorites;
+</div><div class="hljs-line">// 下面这行输出信息为.headers on命令导致的结果，这里看到将每列对应的列名展示出来。如果不显示的执行.headers on，默认是出于off状态的。
+</div><div class="hljs-line"><span class="hljs-symbol">_id</span>|title|intent|container|screen|cellX|cellY|spanX|spanY|itemType|appWidgetId|isShortcut|iconType|iconPackage|iconResource|icon|uri|displayMode|appWidgetProvider|modified|restored|profileId|rank|options
+</div><div class="hljs-line"><span class="hljs-number">1</span>|||<span class="hljs-number">-100</span>|<span class="hljs-number">2</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">2</span>|<span class="hljs-number">2</span>|<span class="hljs-number">4</span>|<span class="hljs-number">4</span>||||||||com.android.deskclock/com.android.alarmclock.<span class="hljs-symbol">AnalogAppWidgetProvider</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">2</span>|<span class="hljs-symbol">Camera</span>|#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;component=com.android.camera/.<span class="hljs-symbol">Camera</span>;end|<span class="hljs-number">-100</span>|<span class="hljs-number">2</span>|<span class="hljs-number">0</span>|<span class="hljs-number">3</span>|<span class="hljs-number">1</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">-1</span>|||||||||<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">3</span>|<span class="hljs-symbol">Settings</span>|#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;component=com.android.settings/.<span class="hljs-symbol">Settings</span>;end|<span class="hljs-number">-100</span>|<span class="hljs-number">3</span>|<span class="hljs-number">2</span>|<span class="hljs-number">3</span>|<span class="hljs-number">1</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">-1</span>|||||||||<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">4</span>|<span class="hljs-symbol">Phone</span>|#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;package=com.android.dialer;component=com.android.dialer/.<span class="hljs-symbol">DialtactsActivity</span>;end|<span class="hljs-number">-101</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">1</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">-1</span>|||||||||<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div></code></pre>
+
+<p>每一行的内容输出在同一行，每一列用 ” | ” 符号隔开。通过 .separator 点命令可以指定每列的分割符（默认为 ” | ” ）：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">sqlite&gt; .headers off
+</div><div class="hljs-line">sqlite&gt;.separator ^
+</div><div class="hljs-line">sqlite&gt; select * from favorites;
+</div><div class="hljs-line">// 上面又显示执行了.headers off命令关闭了表头信息的输出，所以此处没有展示表头信息。
+</div><div class="hljs-line"><span class="hljs-number">1</span>^^^<span class="hljs-number">-100</span>^<span class="hljs-number">2</span>^<span class="hljs-number">1</span>^<span class="hljs-number">0</span>^<span class="hljs-number">2</span>^<span class="hljs-number">2</span>^<span class="hljs-number">4</span>^<span class="hljs-number">4</span>^^^^^^^^com.android.deskclock/com.android.alarmclock.<span class="hljs-symbol">AnalogAppWidgetProvider</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">2</span>^<span class="hljs-symbol">Camera</span>^#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;component=com.android.camera/.<span class="hljs-symbol">Camera</span>;end^<span class="hljs-number">-100</span>^<span class="hljs-number">2</span>^<span class="hljs-number">0</span>^<span class="hljs-number">3</span>^<span class="hljs-number">1</span>^<span class="hljs-number">1</span>^<span class="hljs-number">0</span>^<span class="hljs-number">-1</span>^^^^^^^^^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">3</span>^<span class="hljs-symbol">Settings</span>^#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;component=com.android.settings/.<span class="hljs-symbol">Settings</span>;end^<span class="hljs-number">-100</span>^<span class="hljs-number">3</span>^<span class="hljs-number">2</span>^<span class="hljs-number">3</span>^<span class="hljs-number">1</span>^<span class="hljs-number">1</span>^<span class="hljs-number">0</span>^<span class="hljs-number">-1</span>^^^^^^^^^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">4</span>^<span class="hljs-symbol">Phone</span>^#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;package=com.android.dialer;component=com.android.dialer/.<span class="hljs-symbol">DialtactsActivity</span>;end^<span class="hljs-number">-101</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">1</span>^<span class="hljs-number">1</span>^<span class="hljs-number">0</span>^<span class="hljs-number">-1</span>^^^^^^^^^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>^<span class="hljs-number">0</span>
+</div><div class="hljs-line">sqlite&gt;
+</div></code></pre>
+
+<p>上面的例子将每列的分割符指定为 ” ^ ” ，sqlite3 输出的查询结果将会以 ” ^ ” 来分割每一列内容。</p>
+
+<p><strong>2.line mode</strong> <br>
+该格式的输出内容如下：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">sqlite&gt; .mode line
+</div><div class="hljs-line">sqlite&gt; select * from favorites;
+</div><div class="hljs-line">              <span class="hljs-symbol">_id</span> = <span class="hljs-number">1</span>
+</div><div class="hljs-line">            title =
+</div><div class="hljs-line">           intent =
+</div><div class="hljs-line">        container = <span class="hljs-number">-100</span>
+</div><div class="hljs-line">           screen = <span class="hljs-number">2</span>
+</div><div class="hljs-line">            cellX = <span class="hljs-number">1</span>
+</div><div class="hljs-line">            cellY = <span class="hljs-number">0</span>
+</div><div class="hljs-line">            spanX = <span class="hljs-number">2</span>
+</div><div class="hljs-line">            spanY = <span class="hljs-number">2</span>
+</div><div class="hljs-line">         itemType = <span class="hljs-number">4</span>
+</div><div class="hljs-line">      appWidgetId = <span class="hljs-number">4</span>
+</div><div class="hljs-line">       isShortcut =
+</div><div class="hljs-line">         iconType =
+</div><div class="hljs-line">      iconPackage =
+</div><div class="hljs-line">     iconResource =
+</div><div class="hljs-line">             icon =
+</div><div class="hljs-line">              uri =
+</div><div class="hljs-line">      displayMode =
+</div><div class="hljs-line">appWidgetProvider = com.android.deskclock/com.android.alarmclock.<span class="hljs-symbol">AnalogAppWidgetProvider</span>
+</div><div class="hljs-line">         modified = <span class="hljs-number">0</span>
+</div><div class="hljs-line">         restored = <span class="hljs-number">0</span>
+</div><div class="hljs-line">        profileId = <span class="hljs-number">0</span>
+</div><div class="hljs-line">             rank = <span class="hljs-number">0</span>
+</div><div class="hljs-line">          options = <span class="hljs-number">0</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line">              <span class="hljs-symbol">_id</span> = <span class="hljs-number">2</span>
+</div><div class="hljs-line">            title = <span class="hljs-symbol">Camera</span>
+</div><div class="hljs-line">           intent = #<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;component=com.android.camera/.<span class="hljs-symbol">Camera</span>;end
+</div><div class="hljs-line">        container = <span class="hljs-number">-100</span>
+</div><div class="hljs-line">           screen = <span class="hljs-number">2</span>
+</div><div class="hljs-line">            cellX = <span class="hljs-number">0</span>
+</div><div class="hljs-line">            cellY = <span class="hljs-number">3</span>
+</div><div class="hljs-line">            spanX = <span class="hljs-number">1</span>
+</div><div class="hljs-line">            spanY = <span class="hljs-number">1</span>
+</div><div class="hljs-line">         itemType = <span class="hljs-number">0</span>
+</div><div class="hljs-line">      appWidgetId = <span class="hljs-number">-1</span>
+</div><div class="hljs-line">       isShortcut =
+</div><div class="hljs-line">         iconType =
+</div><div class="hljs-line">      iconPackage =
+</div><div class="hljs-line">     iconResource =
+</div><div class="hljs-line">             icon =
+</div><div class="hljs-line">              uri =
+</div><div class="hljs-line">      displayMode =
+</div><div class="hljs-line">appWidgetProvider =
+</div><div class="hljs-line">         modified = <span class="hljs-number">0</span>
+</div><div class="hljs-line">         restored = <span class="hljs-number">0</span>
+</div><div class="hljs-line">        profileId = <span class="hljs-number">0</span>
+</div><div class="hljs-line">             rank = <span class="hljs-number">0</span>
+</div><div class="hljs-line">          options = <span class="hljs-number">0</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line">              <span class="hljs-symbol">_id</span> = <span class="hljs-number">3</span>
+</div><div class="hljs-line">            title = <span class="hljs-symbol">Settings</span>
+</div><div class="hljs-line">           intent = #<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;component=com.android.settings/.<span class="hljs-symbol">Settings</span>;end
+</div><div class="hljs-line">        container = <span class="hljs-number">-100</span>
+</div><div class="hljs-line">           screen = <span class="hljs-number">3</span>
+</div><div class="hljs-line">            cellX = <span class="hljs-number">2</span>
+</div><div class="hljs-line">            cellY = <span class="hljs-number">3</span>
+</div><div class="hljs-line">            spanX = <span class="hljs-number">1</span>
+</div><div class="hljs-line">            spanY = <span class="hljs-number">1</span>
+</div><div class="hljs-line">         itemType = <span class="hljs-number">0</span>
+</div><div class="hljs-line">      appWidgetId = <span class="hljs-number">-1</span>
+</div><div class="hljs-line">       isShortcut =
+</div><div class="hljs-line">         iconType =
+</div><div class="hljs-line">      iconPackage =
+</div><div class="hljs-line">     iconResource =
+</div><div class="hljs-line">             icon =
+</div><div class="hljs-line">              uri =
+</div><div class="hljs-line">      displayMode =
+</div><div class="hljs-line">appWidgetProvider =
+</div><div class="hljs-line">         modified = <span class="hljs-number">0</span>
+</div><div class="hljs-line">         restored = <span class="hljs-number">0</span>
+</div><div class="hljs-line">        profileId = <span class="hljs-number">0</span>
+</div><div class="hljs-line">             rank = <span class="hljs-number">0</span>
+</div><div class="hljs-line">          options = <span class="hljs-number">0</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line">              <span class="hljs-symbol">_id</span> = <span class="hljs-number">4</span>
+</div><div class="hljs-line">            title = <span class="hljs-symbol">Phone</span>
+</div><div class="hljs-line">           intent = #<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;package=com.android.dialer;component=com.android.dialer/.<span class="hljs-symbol">DialtactsActivity</span>;end
+</div><div class="hljs-line">        container = <span class="hljs-number">-101</span>
+</div><div class="hljs-line">           screen = <span class="hljs-number">0</span>
+</div><div class="hljs-line">            cellX = <span class="hljs-number">0</span>
+</div><div class="hljs-line">            cellY = <span class="hljs-number">0</span>
+</div><div class="hljs-line">            spanX = <span class="hljs-number">1</span>
+</div><div class="hljs-line">            spanY = <span class="hljs-number">1</span>
+</div><div class="hljs-line">         itemType = <span class="hljs-number">0</span>
+</div><div class="hljs-line">      appWidgetId = <span class="hljs-number">-1</span>
+</div><div class="hljs-line">       isShortcut =
+</div><div class="hljs-line">         iconType =
+</div><div class="hljs-line">      iconPackage =
+</div><div class="hljs-line">     iconResource =
+</div><div class="hljs-line">             icon =
+</div><div class="hljs-line">              uri =
+</div><div class="hljs-line">      displayMode =
+</div><div class="hljs-line">appWidgetProvider =
+</div><div class="hljs-line">         modified = <span class="hljs-number">0</span>
+</div><div class="hljs-line">         restored = <span class="hljs-number">0</span>
+</div><div class="hljs-line">        profileId = <span class="hljs-number">0</span>
+</div><div class="hljs-line">             rank = <span class="hljs-number">0</span>
+</div><div class="hljs-line">          options = <span class="hljs-number">0</span>
+</div></code></pre>
+
+<p>可以看到 line 模式将表中的每行信息以 ” 列名 = value ” 的形式输出，数据库中每一行的所有信息输出完毕后用一行空行隔开。其他几种输出模式大家也可以自己去尝试一下，这里就不一一列举了。在平时开发或者调试过程中当需要对数据做不同的处理时可能使用不同的输出模式会给你带来很大的方便。</p>
+
+<p><strong>.output</strong> <br>
+默认情况下，sqlite3 是将查询的结果输出到标准输出流。我们可以在使用 .output 命令时通过一个表示输出文件路径的参数将输出重定向到一个指定的文件。如果 .output 没有传参数，那么输出结果将恢复到标准输出流。如下所示：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">sqlite&gt; .output /sdcard/db_query.txt
+</div><div class="hljs-line">sqlite&gt; select * from favorites;
+</div><div class="hljs-line">sqlite&gt;
+</div></code></pre>
+
+<p>上面的例子中将输出重定向到了 /sdcard/db_query.txt 文件中，所以可以看到当执行查询动作时 sqlite3 内部并没有像往常一样将查询结果打印出来，而此时看一下 /sdcard/db_query.txt 文件的内容：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">root@generic_x86:/ # cat /sdcard/db_query.txt
+</div><div class="hljs-line"><span class="hljs-symbol">_id</span>|title|intent|container|screen|cellX|cellY|spanX|spanY|itemType|appWidgetId|isShortcut|iconType|iconPackage|iconResource|icon|uri|displayMode|appWidgetProvider|modified|restored|profileId|rank|options
+</div><div class="hljs-line"><span class="hljs-number">1</span>|||<span class="hljs-number">-100</span>|<span class="hljs-number">2</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">2</span>|<span class="hljs-number">2</span>|<span class="hljs-number">4</span>|<span class="hljs-number">4</span>||||||||com.android.deskclock/com.android.alarmclock.<span class="hljs-symbol">AnalogAppWidgetProvider</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">2</span>|<span class="hljs-symbol">Camera</span>|#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;component=com.android.camera/.<span class="hljs-symbol">Camera</span>;end|<span class="hljs-number">-100</span>|<span class="hljs-number">2</span>|<span class="hljs-number">0</span>|<span class="hljs-number">3</span>|<span class="hljs-number">1</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">-1</span>|||||||||<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">3</span>|<span class="hljs-symbol">Settings</span>|#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;component=com.android.settings/.<span class="hljs-symbol">Settings</span>;end|<span class="hljs-number">-100</span>|<span class="hljs-number">3</span>|<span class="hljs-number">2</span>|<span class="hljs-number">3</span>|<span class="hljs-number">1</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">-1</span>|||||||||<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">4</span>|<span class="hljs-symbol">Phone</span>|#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;package=com.android.dialer;component=com.android.dialer/.<span class="hljs-symbol">DialtactsActivity</span>;end|<span class="hljs-number">-101</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">1</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">-1</span>|||||||||<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div></code></pre>
+
+<p>可以看到查询结果被重定向到了指定的文件中。 <br>
+如果想要将输出恢复到标准输出流，使用不带参数的 .output 命令即可:</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">sqlite&gt; .output
+</div><div class="hljs-line">sqlite&gt; select * from favorites;
+</div><div class="hljs-line"><span class="hljs-number">1</span>|||<span class="hljs-number">-100</span>|<span class="hljs-number">2</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">2</span>|<span class="hljs-number">2</span>|<span class="hljs-number">4</span>|<span class="hljs-number">4</span>||||||||com.android.deskclock/com.android.alarmclock.<span class="hljs-symbol">AnalogAppWidgetProvider</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">2</span>|<span class="hljs-symbol">Camera</span>|#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;component=com.android.camera/.<span class="hljs-symbol">Camera</span>;end|<span class="hljs-number">-100</span>|<span class="hljs-number">2</span>|<span class="hljs-number">0</span>|<span class="hljs-number">3</span>|<span class="hljs-number">1</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">-1</span>|||||||||<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">3</span>|<span class="hljs-symbol">Settings</span>|#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;component=com.android.settings/.<span class="hljs-symbol">Settings</span>;end|<span class="hljs-number">-100</span>|<span class="hljs-number">3</span>|<span class="hljs-number">2</span>|<span class="hljs-number">3</span>|<span class="hljs-number">1</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">-1</span>|||||||||<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">4</span>|<span class="hljs-symbol">Phone</span>|#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;package=com.android.dialer;component=com.android.dialer/.<span class="hljs-symbol">DialtactsActivity</span>;end|<span class="hljs-number">-101</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">1</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">-1</span>|||||||||<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line">
+</div></code></pre>
+
+<blockquote>
+  <p><strong>Note : </strong>这里我导出的是 txt 文件。但是结合前面的 .mode 命令，可以通过 .mode csv 设置为 csv 模式后通过 .output /path/xxx.csv 直接导出一个 csv 文件。</p>
+</blockquote>
+
+<p><strong>.import</strong> <br>
+该命令可以导入一个 csv 文件到数据库的一个表中。该命令有两个参数，一个参数指定要导入的 csv 文件，另一个参数指定需要将数据导入到哪个表中。注意在调用 .import 命令前需要先使用 .mode csv 命令将当前模式切换到 csv 模式，这将避免程序将输入文件解释为其他类型的文件。如下例：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">sqlite&gt; .mode csv
+</div><div class="hljs-line">sqlite&gt; .import /sdcard/backup.csv favorites
+</div></code></pre>
+
+<p>该例子将 /sdcard/backup.csv 文件作为数据源，导入到当前数据库的 favorites 表中。</p>
+
+<blockquote>
+  <p><strong>Note : </strong> 导入数据时可能会遇到两种场景：</p>
+  
+  <ul><li>表 favorites 不存在: <br>
+  若需要导入数据的表不存在，那么会自动创建该表，并且 csv 文件中的第一行内容将作为该表的表头来填充。第二行内容开始才作为该表的实际数据内容来填充。</li>
+  <li>表 favorites 已经存在: <br>
+  若需要导入数据的表已经存在，那么 csv 文件的内容都将作为该表的实际数据内容来填充。</li>
+  </ul>
+</blockquote>
+
+<p><strong>.dump</strong> <br>
+这个命令可以用来实现数据库的备份及恢复，用例如下：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">root@generic_x86:/ # sqlite3 data/data/com.android.launcher3/databases/launcher.db  .dump &gt; /sdcard/dump_backup.txt
+</div></code></pre>
+
+<p>首先注意与上面说到的命令不同，此时是在启动 sqlite3 时除了传递了一个要打开的数据库文件路径外，后面直接跟了 .dump 点命令，并将输出的内容通过 ” &gt; ” 重定向到 /sdcard/dump_backup.txt 。该命令调用完成后会生成 /sdcard/dump_backup.txt ，在该文本文件中使用 SQL 语句记录了 data/data/com.android.launcher3/databases/launcher.db 数据库的内容。 <br>
+现在我们尝试使用备份的文本文件恢复数据库：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">root@generic_x86:/ # cat /sdcard/dump_backup.txt | sqlite3 /sdcard/backup.db
+</div><div class="hljs-line">root@generic_x86:/ #
+</div></code></pre>
+
+<p>首先通过 cat 命令读取 /sdcard/dump_backup.txt 文件的内容，然后通过管道连接 sqlite3 程序，并指定一个新建的数据库路径，该数据库将以 /sdcard/dump_backup.txt 的内容来构建恢复。 <br>
+运行完上面的命令后:</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">root@generic_x86:/sdcard # ls -l
+</div><div class="hljs-line">drwxrwx--x root     sdcard_rw          <span class="hljs-number">2017</span><span class="hljs-number">-09</span><span class="hljs-number">-10</span> <span class="hljs-number">22</span>:<span class="hljs-number">34</span> <span class="hljs-symbol">Alarms</span>
+</div><div class="hljs-line">drwxrwx--x root     sdcard_rw          <span class="hljs-number">2017</span><span class="hljs-number">-09</span><span class="hljs-number">-10</span> <span class="hljs-number">22</span>:<span class="hljs-number">34</span> <span class="hljs-symbol">Android</span>
+</div><div class="hljs-line">drwxrwx--x root     sdcard_rw          <span class="hljs-number">2017</span><span class="hljs-number">-09</span><span class="hljs-number">-10</span> <span class="hljs-number">22</span>:<span class="hljs-number">34</span> <span class="hljs-symbol">DCIM</span>
+</div><div class="hljs-line">drwxrwx--x root     sdcard_rw          <span class="hljs-number">2017</span><span class="hljs-number">-09</span><span class="hljs-number">-10</span> <span class="hljs-number">22</span>:<span class="hljs-number">34</span> <span class="hljs-symbol">Download</span>
+</div><div class="hljs-line">drwxrwx--x root     sdcard_rw          <span class="hljs-number">2017</span><span class="hljs-number">-09</span><span class="hljs-number">-10</span> <span class="hljs-number">22</span>:<span class="hljs-number">34</span> <span class="hljs-symbol">Movies</span>
+</div><div class="hljs-line">drwxrwx--x root     sdcard_rw          <span class="hljs-number">2017</span><span class="hljs-number">-09</span><span class="hljs-number">-10</span> <span class="hljs-number">22</span>:<span class="hljs-number">34</span> <span class="hljs-symbol">Music</span>
+</div><div class="hljs-line">drwxrwx--x root     sdcard_rw          <span class="hljs-number">2017</span><span class="hljs-number">-09</span><span class="hljs-number">-10</span> <span class="hljs-number">22</span>:<span class="hljs-number">34</span> <span class="hljs-symbol">Notifications</span>
+</div><div class="hljs-line">drwxrwx--x root     sdcard_rw          <span class="hljs-number">2017</span><span class="hljs-number">-09</span><span class="hljs-number">-10</span> <span class="hljs-number">22</span>:<span class="hljs-number">34</span> <span class="hljs-symbol">Pictures</span>
+</div><div class="hljs-line">drwxrwx--x root     sdcard_rw          <span class="hljs-number">2017</span><span class="hljs-number">-09</span><span class="hljs-number">-10</span> <span class="hljs-number">22</span>:<span class="hljs-number">34</span> <span class="hljs-symbol">Podcasts</span>
+</div><div class="hljs-line">drwxrwx--x root     sdcard_rw          <span class="hljs-number">2017</span><span class="hljs-number">-09</span><span class="hljs-number">-10</span> <span class="hljs-number">22</span>:<span class="hljs-number">34</span> <span class="hljs-symbol">Ringtones</span>
+</div><div class="hljs-line">-rw-rw---- root     sdcard_rw    <span class="hljs-number">15360</span> <span class="hljs-number">2017</span><span class="hljs-number">-09</span><span class="hljs-number">-24</span> <span class="hljs-number">18</span>:<span class="hljs-number">05</span> backup.db
+</div><div class="hljs-line">-rw-rw---- root     sdcard_rw    <span class="hljs-number">19664</span> <span class="hljs-number">2017</span><span class="hljs-number">-09</span><span class="hljs-number">-24</span> <span class="hljs-number">17</span>:<span class="hljs-number">57</span> dump_backup.txt
+</div><div class="hljs-line">root@generic_x86:/sdcard #
+</div></code></pre>
+
+<p>可以看到 backup.db 被成功构建。</p>
+
+<p><strong>小结 ：</strong>还有很多其他的点命令就不一一说明了，大家可以参阅<a href="http://www.sqlite.org/cli.html" target="_blank">官方文档</a>，不过最好还是建议大家动手试一试。其实sqlite3这个小工具用起来也很简单，它的威力可大可小，还看你怎么样运用它。</p>
+
+<h5 id="彩蛋">彩蛋</h5>
+
+<p>占用了客官那么多时间，先说声谢谢~最后扔一个相关的小彩蛋出来吧。 <br>
+为了方便 sqlite3 在脚本中使用，sqlite3 在设计时就支持以下方式直接执行 SQL 语句：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">root@generic_x86:/ # sqlite3 /data/data/com.android.launcher3/databases/launcher.db <span class="hljs-string">"select * from favorites"</span>
+</div><div class="hljs-line"><span class="hljs-number">1</span>|||<span class="hljs-number">-100</span>|<span class="hljs-number">2</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">2</span>|<span class="hljs-number">2</span>|<span class="hljs-number">4</span>|<span class="hljs-number">4</span>||||||||com.android.deskclock/com.android.alarmclock.<span class="hljs-symbol">AnalogAppWidgetProvider</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">2</span>|<span class="hljs-symbol">Camera</span>|#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;component=com.android.camera/.<span class="hljs-symbol">Camera</span>;end|<span class="hljs-number">-100</span>|<span class="hljs-number">2</span>|<span class="hljs-number">0</span>|<span class="hljs-number">3</span>|<span class="hljs-number">1</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">-1</span>|||||||||<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">3</span>|<span class="hljs-symbol">Settings</span>|#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;component=com.android.settings/.<span class="hljs-symbol">Settings</span>;end|<span class="hljs-number">-100</span>|<span class="hljs-number">3</span>|<span class="hljs-number">2</span>|<span class="hljs-number">3</span>|<span class="hljs-number">1</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">-1</span>|||||||||<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">4</span>|<span class="hljs-symbol">Phone</span>|#<span class="hljs-symbol">Intent</span>;action=android.intent.action.<span class="hljs-symbol">MAIN</span>;category=android.intent.category.<span class="hljs-symbol">LAUNCHER</span>;launchFlags=<span class="hljs-number">0x10200000</span>;package=com.android.dialer;component=com.android.dialer/.<span class="hljs-symbol">DialtactsActivity</span>;end|<span class="hljs-number">-101</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">1</span>|<span class="hljs-number">1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">-1</span>|||||||||<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>|<span class="hljs-number">0</span>
+</div><div class="hljs-line">root@generic_x86:/ #
+</div></code></pre>
+
+<p>当在命令行执行 sqlite3 传递两个参数时，第二个参数将作为一个被 SQL 语句被 sqlite3 直接交给 Sqlite 库执行，至于操作的表来自哪里，则由第一个参数指定的 db 文件确定。 <br>
+为什么说这是颗彩蛋呢？ <br>
+首先，这东西可以脚本化执行，那不是爽歪歪，各种自动化XXX立即涌上心头。 <br>
+其次，试想一下，只要我能拿到 root 权限，我就能访问 data/data/ 下的所有应用数据，且不说如何 root ，就算基于已 root 的用户，通过 sqlite3 将能够实现直接静默修改系统配置的“流氓”需求。比如……静默打开辅助服务（一阵淫笑）…. <br>
+当然，这么“流氓”的事情，我一般不做的。 <br>
+也许有同学会问，我已经拿到了 root 权限还这么周折干什么，直接调用系统的 API 修改数据库不就行了？其实不然， root 权限与 Android 的权限是两套不同的权限机制，拿到 root 权限，意味着我对系统中的所有资源都有控制权，但是 Android 的很多敏感 API 在调用时检测的是基于 Android 的权限机制检查。所以这里只能转个弯绕路走。 <br>
+最后补充一下如果用户手机已经 root ，我的应用直接执行 sqlite3 /data/data/com.android.launcher3/databases/launcher.db “select * from favorites” 这样的命令是会失败的，因为手机 root 并不以为着我的应用也被授予 root 权限了，我的应用没有被授予 root 权限，则在我的应用中不允许访问其他应用的数据，所以得请求以 root 身份来运行该命令：</p>
+
+<pre class="prettyprint"><code class="language-prolog hljs"><div class="hljs-line">su -c sqlite3 /data/data/com.android.launcher3/databases/launcher.db <span class="hljs-string">"select * from favorites"</span>
+</div></code></pre>
+
+<p>这时候用户界面一般会弹出授予 root 权限的窗口，只要用户点击确定，那就妥了… <br>
+当然这个方案得考虑兼容性工作，毕竟不同 Android 版本需要对应的 sqlite3 。</p>
+
+<h3 id="参考">参考</h3>
+
+<p><a href="https://developer.android.com/reference/android/database/sqlite/package-summary.html" target="_blank">https://developer.android.com/reference/android/database/sqlite/package-summary.html</a> <br>
+<a href="https://developer.android.com/studio/command-line/sqlite3.html" target="_blank">https://developer.android.com/studio/command-line/sqlite3.html</a> <br>
+<a href="http://www.sqlite.org/cli.html" target="_blank">http://www.sqlite.org/cli.html</a></p></div></body></html>

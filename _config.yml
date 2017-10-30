@@ -32,6 +32,8 @@ github_username:    suojingchao # Your GitHub username here
 #  - jekyll-sitemap
 
 
+comments: true
+
 
 defaults:
   -

@@ -1,0 +1,65 @@
+<!DOCTYPE html><html><head><title>Untitled</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+.note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
+.note-content .hljs-number, .note-content 
+.hljs-literal, .note-content 
+.hljs-symbol, .note-content 
+.hljs-bullet {color: #6897BB;}
+.note-content .hljs-keyword, .note-content 
+.hljs-selector-tag, .note-content 
+.hljs-deletion {color: #cc7832;}
+.note-content .hljs-variable, .note-content 
+.hljs-template-variable, .note-content 
+.hljs-link {color: #629755;}
+.note-content .hljs-comment, .note-content 
+.hljs-quote {color: #808080;}
+.note-content .hljs-meta {color: #bbb529;}
+.note-content .hljs-string, .note-content 
+.hljs-attribute, .note-content 
+.hljs-addition {color: #6A8759;}
+.note-content .hljs-section, .note-content 
+.hljs-title, .note-content 
+.hljs-type {color: #ffc66d;}
+.note-content .hljs-name, .note-content 
+.hljs-selector-id, .note-content 
+.hljs-selector-class {color: #e8bf6a;}
+.note-content .hljs-emphasis {font-style: italic;}
+.note-content .hljs-strong {font-weight: bold;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+<blockquote>
+  <p>这周朋友圈内很多人分享一个机器学习相关的课程，接着就不了了之了。让我想到iPhoneX首发当天的一个段子： <br>
+  【iOS使用技巧分享】 <br>
+  今天拿到iPhoneX的朋友注意了，iPhoneX在开机后不需要发朋友圈也是可以正常使用的，大家多试试。</p>
+</blockquote>
+
+<p><strong>1.Annotation</strong> </p>
+
+<ul><li>几个定义注解的元注解： <br>
+1.@Target表示该注解修饰的对象范围，比如FIELD用于表示该注解用于修饰成员变量，TYPE用于表示该注解用于描述类，接口，METHOD用于表示该注解用于描述方法等等。 <br>
+2.@Retention表示注解的声明周期，SOURCE表示尽在源文件有效；CLASS表示在字节码文件中有效；RUNTIME表示该注解运行时有效。</li>
+</ul>
+
+<p><strong>2.AnnotationProcessor</strong></p>
+
+<ul><li>AnnotationProcessor用于自定义针对注解的处理逻辑，我们实现的Processor需要继承AnnotationProcessor并重写4个方法： <br>
+init(ProcessingEnvironment processingEnv) 参数ProcessingEnvironment 提供了Element，Filer，Messager等工具。 <br>
+getSupportedAnnotationTypes() 指定注解处理器是注册给那一个注解的，返回一个字符串的集合。 <br>
+getSupportedSourceVersion() 指定Java版本。 <br>
+process(Set&lt;? extends TypeElement&gt; annotations, RoundEnvironment roundEnv) 在这里扫描和处理你的注解并完成自己的processor的逻辑，信息都在参数RoundEnvironment 里了。</li>
+<li>打包注解处理器的时候需要一个特殊的文件 javax.annotation.processing.Processor 在 META-INF/services 路径下，其内容是处理器的合法全称，多个处理器之间用换行符隔开。</li>
+</ul>
+
+<p><strong>3.网络通讯相关知识</strong></p>
+
+<ul><li>https利用非对称加密来传输秘钥（防窥探）。</li>
+<li>https利用CA证书来确认身份（防篡改）。</li>
+<li>CA证书链，只要信任证书链中的一个证书结点，其链上后续的证书都被信任。</li>
+<li>发现了<a href="https://program-think.blogspot.com" target="_blank">编程随想</a>这头大牛的博客，对他的博文非常感兴趣（当且仅当博文类型==IT），写的很直白易懂。值得关注（需要科学上网）。</li>
+<li>Tor的小白理解：洋葱路由通过三重代理模型实现了匿名访问网络资源，同时利用p2p搭建了一套互联网无法直接搜索到的“暗网资源”</li>
+</ul>
+
+<p><strong>4.Kotlin持续深入学习中</strong></p></div></body></html>

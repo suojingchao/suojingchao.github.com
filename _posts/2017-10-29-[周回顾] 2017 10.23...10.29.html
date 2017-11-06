@@ -1,0 +1,75 @@
+<!DOCTYPE html><html><head><title>Untitled</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+.note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
+.note-content .hljs-number, .note-content 
+.hljs-literal, .note-content 
+.hljs-symbol, .note-content 
+.hljs-bullet {color: #6897BB;}
+.note-content .hljs-keyword, .note-content 
+.hljs-selector-tag, .note-content 
+.hljs-deletion {color: #cc7832;}
+.note-content .hljs-variable, .note-content 
+.hljs-template-variable, .note-content 
+.hljs-link {color: #629755;}
+.note-content .hljs-comment, .note-content 
+.hljs-quote {color: #808080;}
+.note-content .hljs-meta {color: #bbb529;}
+.note-content .hljs-string, .note-content 
+.hljs-attribute, .note-content 
+.hljs-addition {color: #6A8759;}
+.note-content .hljs-section, .note-content 
+.hljs-title, .note-content 
+.hljs-type {color: #ffc66d;}
+.note-content .hljs-name, .note-content 
+.hljs-selector-id, .note-content 
+.hljs-selector-class {color: #e8bf6a;}
+.note-content .hljs-emphasis {font-style: italic;}
+.note-content .hljs-strong {font-weight: bold;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+<blockquote>
+  <p>作为一个程序猿，每周因为工作或者自己兴趣的原因，都会或多或少接触一些自己之前不太熟悉的知识点。但如果不做归纳总结可能很快又忘记了。所以从这周开始坚持每周日对自己上一周新get到的知识点做概括总结。就当做一个归档吧。</p>
+  
+  <p>一件简单的事情一直做下去，于是就变得不简单了。</p>
+</blockquote>
+
+<p><strong>1.初探Retrofit</strong> </p>
+
+<ul><li>Java接口对应一个Restful API 接口</li>
+<li>通过动态代理构造一个Call对象完成同步(execute)或异步(enqueue)的请求</li>
+<li>网络通讯底层完全依赖Okhttp提供</li>
+</ul>
+
+<p><strong>2.Okhttp</strong></p>
+
+<ul><li>通过动态代理构造一个Call对象完成同步(execute)或异步(enqueue)的请求</li>
+<li>底层的网络通讯依赖Okio完成高效的io</li>
+<li>Okhttp的请求处理巧妙的使用拦截器来实现，默认的拦截器完成请求重组，连接，发送请求等功能，开发者可以自定义两类拦截器并添加到默认的拦截器列表中，我把它们称作请求拦截器和响应拦截器，请求拦截器作用于请求发送之前，响应拦截器作用于请求发送之后，我们可以在自己定义的拦截器中完成除常规请求流程之外的业务功能需求。</li>
+</ul>
+
+<p><strong>3.Okio</strong></p>
+
+<ul><li>Source和Sink接口分别对应输入与输出流，他们分都有多种实现</li>
+<li>RealBufferSource和RealBufferSink分别是Source和Sink的多种实现中的一种，其内部通过Buffer类来操作内存</li>
+<li>Buffer设计很精妙。内部以Segment为单位来管理内存，多个Segment以双向链表的形态存在</li>
+<li>Segment设计参考了Java nio的buffer，一个Segment默认数据容量空间为为8k。内部通过不同的索引表示内存数据的不同状态(比如当前位置，总容量等等)，并且支持当前Segment与其前置Segment公用同一个数据空间(split)，或当前Segment的数据写入前置Segment的数据空间(compact)以节约内存</li>
+<li>SegmentsPool类似Message的管理，内部以一个池的形式管理Segment</li>
+</ul>
+
+<p><strong>4.svg</strong></p>
+
+<ul><li>以类似Xml的格式存在</li>
+<li>常用标签 Path</li>
+<li>在Android L中加入了VectorDrawable来帮助实现svg图片</li>
+<li>将属性动画作用到VectorDrawable的pathData属性来实现svg动画</li>
+</ul>
+
+<p><strong>5.gradle进阶</strong></p>
+
+<ul><li>Gradle基于groovy，groovy与Java一样是运行于JVM之上的</li>
+<li>build.gradle在构建过程中对应一个project对象，我们可以自定义Extension来为原生的project对象扩展一些配置属性，然后在build.gradle文件中apply自定义Extension的插件后就可以对其中扩展的属性赋值，接着在构建过程中Extension会去读取build.gradle中配置的属性值做相应处理。比如常见的android {}块及其内部的块属性都是在Android定义的Extension中定义的，所以我们要使用这些块必须apply Android提供的相应插件，接着Android实现的Extension在构建时读取了这些块配置的属性值，并完成其构建的逻辑</li>
+<li>Gradle提供了很多hook，我们可以通过这些hook来干预构建工作流程</li>
+</ul></div></body></html>

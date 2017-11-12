@@ -1,0 +1,76 @@
+<!DOCTYPE html><html><head><title>Untitled</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+.note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
+.note-content .hljs-number, .note-content 
+.hljs-literal, .note-content 
+.hljs-symbol, .note-content 
+.hljs-bullet {color: #6897BB;}
+.note-content .hljs-keyword, .note-content 
+.hljs-selector-tag, .note-content 
+.hljs-deletion {color: #cc7832;}
+.note-content .hljs-variable, .note-content 
+.hljs-template-variable, .note-content 
+.hljs-link {color: #629755;}
+.note-content .hljs-comment, .note-content 
+.hljs-quote {color: #808080;}
+.note-content .hljs-meta {color: #bbb529;}
+.note-content .hljs-string, .note-content 
+.hljs-attribute, .note-content 
+.hljs-addition {color: #6A8759;}
+.note-content .hljs-section, .note-content 
+.hljs-title, .note-content 
+.hljs-type {color: #ffc66d;}
+.note-content .hljs-name, .note-content 
+.hljs-selector-id, .note-content 
+.hljs-selector-class {color: #e8bf6a;}
+.note-content .hljs-emphasis {font-style: italic;}
+.note-content .hljs-strong {font-weight: bold;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+<blockquote>
+  <p>这周把项目里的新需求尝试用Kotlin来码了，顿时感觉java像一个老态龙钟的婆婆… <br>
+  周末巧逢双十一大战，说来惭愧，其实我貌似从来没有参与过。 <br>
+  考虑到下个月要去英国与阔别三个月的我家那位重逢，赶快抓紧买了个冬衣。嗯~体验还不错。哈哈 <br>
+  另外肯定免不了趁着这势头买几本书咯，买了4本书，其中有两本都是关于机器学习与运用的，嗯，接下来的几周业余时间应该主要都扑在这上面咯</p>
+</blockquote>
+
+<p><strong>1.温故知新–vsync</strong> </p>
+
+<ul><li><p>以前只有个概念，为了保证60fps帧率，vsync每隔16ms发送一次，Android在收到vsync后开始swapbuffer并开始绘制下一帧数据。但是vsync是由谁发出来的，如此设计的缘由，并不是很清楚，于是专门去查了一下。 <br>
+基础知识： <br>
+1.屏幕刷新率和帧率。屏幕刷新率是指的显示设备刷新的速率。帧率则是指的GPU生成帧的速率。 <br>
+2.填充一帧的数据时一般是从上往下从左往右挨个像素值填充的 <br>
+当没有vsync时，如果帧率高于屏幕刷新率，则有可能导致一个屏幕刷新的单位时间内，GPU往同一个buffer中完成了多次像素数据的写入，导致后面的写入覆盖了前一次的写入，但前一次的写入又因为还没有到屏幕刷新时间而没有被上屏展示。比如当前屏幕刷新率是60hz，即每秒刷新60次，也就是16毫秒需要刷新一次，此时如果帧率高于60fps，如果帧率达到120fps，即每秒生成120帧，算下来差不多8毫秒产生一帧数据。这种情况下倘若从0毫秒开始计算，到第8毫秒的时候GPU已经将待显示的buffer填充完成，但是我们看不到屏幕有更新，因为屏幕需要16毫秒才刷新一次。当时间来到16毫秒时，GPU又会开始填充buffer <br>
+，与此同时屏幕也会开始刷新，在极端情况下如果此时GPU几经覆盖了一部分上一次填充的buffer，但有一部分buffer中的像素数据还没来的及被新的像素覆盖，显示设备如果此时把buffer中的数据上屏显示，我们在屏幕上看到的就是一个被撕裂的画面。“tearing”就发生了。</p></li>
+<li><p>所以vsync最初的设计就是为了避免这种屏幕撕裂，vsync信号由显示设备发出，显示设备的刷新频率是恒定的，一般为60hz。而GPU在收到vsync信号后才开始做下一帧的渲染准备，所以vsync实际上就是通过将帧率同步到屏幕刷新的速率来避免屏幕撕裂现象的发生。当然光靠vsync还不够，这里还同时引入了双重缓存机制（Double Buffer）。</p></li>
+<li>在某些场景下可能甚至会开三重缓存（Triple Buffer），目的是尽量提高CPU和GPU的工作效率，但是buffer开的多了会引起一个副作用—-从用户输入到显示的延迟时间可能会变长。</li>
+</ul>
+
+<p><strong>2.Kotlin object</strong></p>
+
+<ul><li>用于声明一个对象，比如： <br>
+1.普通内部类的对象 <br>
+2.匿名内部类的对象 <br>
+3.单例对象</li>
+</ul>
+
+<p><strong>3.Kotlin companion object</strong></p>
+
+<ul><li>用于声明类似java中的static作用域，如 <br>
+companion object { <br>
+} <br>
+companion object后面可以跟一个名字，如果省略名字则默认名为Companion</li>
+</ul>
+
+<p><strong>4.Kotlin coroutine</strong></p>
+
+<ul><li>这是我目前为止对Kotlin最感兴趣的地方，也是1.1才加入的新特性—-协程。 <br>
+其实同在其他语言的协程类似，协程在线程的基础上又抽象了一层，将业务代码块封装为协程，协程将可以分配到同一个线程甚至不同的线程运行。</li>
+<li>协程基于状态机实现的挂起操作是非阻塞的，相比线程的阻塞效率是有一定提升的。</li>
+<li>Kotlin通过CoroutineContext提供了不同的协程上下文配置，其中包括协程运行的线程，可以自定义协程运行于哪一个线程，这不在有系统决定，而由我们自己决定。</li>
+<li>Kotlin通过suspend关键字来修饰“挂起方法”，“挂起方法”只能在协程或其他的“挂起方法”中执行。</li>
+<li>更多协程API见<a href="https://github.com/Kotlin/kotlin-coroutines/blob/master/kotlin-coroutines-informal.md" target="_blank">官方文档</a>。</li>
+</ul></div></body></html>

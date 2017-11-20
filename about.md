@@ -3,7 +3,10 @@ layout: page
 title: About
 ---
 
-Welcome.
+tuchong: https://tuchong.com/287970/
+
+
+
 
 Who can stop me is me.
 

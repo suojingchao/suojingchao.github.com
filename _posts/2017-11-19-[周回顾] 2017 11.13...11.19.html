@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><title>[周回顾] 2017 11.13…11.19</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+<!DOCTYPE html><html><head><title>Untitled</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
 .note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
 
 .note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
@@ -30,16 +30,16 @@
                         
                     
 
-
 <blockquote>
   <p>这周发生的大事件有点多  嗯… <br>
   最激动也是最遗憾的就是Kotlin的老爸Andrey Breslav来我大鹅厂分享了，我还抢到名额了。可是因为手上工作原因最终没去成….哎 擦肩而过。 <br>
   紧接着第二天奔赴北京参加了2017 droidcon 大会。其实当时主要是奔着几个讲师和一点情怀去的，大会上的几个讲师分享的内容比如DataBinding，APT，AOP移动端的应用等等其实都是比较陈旧的点了。另外几位特殊关注的大大的分享也跟其博客内容基本相符。说句实话，比预期差了不少…不过作为一个Android开发者的大Party。气氛还是有的！</p>
 </blockquote>
 
-<ul><li>Charles使用 <br>
+<ul><li><p>Charles使用 <br>
 Charles是一个抓包工具，可以方便的抓取http/https的数据包，Charles基本的抓包原理是将抓包主机作为客户端的代理来实现的。 <br>
-针对https的数据包则利用了中间人攻击的原理： <br>
+针对https的数据包则利用了中间人攻击的原理：</p>
+
 <ol>
 <li rel="1">为客户端安装Charles的证书。</li>
 <li rel="2">对于真正的服务端来说，Charles扮演一个客户端，对于真正的客户端来说，Charles扮演一个服务端。</li>
@@ -48,10 +48,23 @@ Charles是一个抓包工具，可以方便的抓取http/https的数据包，Cha
 <li rel="5">服务端的回应被Charles代理服务器截获，Charles从服务端的证书中提取公钥，接着将自己的证书转发给客户端。</li>
 <li rel="6">此时客户端收到的数据包中包含的证书是Charles的证书，其中的公钥是Charles的公钥，此时如果客户端侧没有对服务端证书做验证，并且信任Charles的证书（第一步已经为客户端安装了Charles证书）。那么客户端不会觉得有任何不妥，将生成的密钥用Charles的公钥加密后发送给服务端。</li>
 <li rel="7">Charles截获发送密钥的数据包，利用自己的私钥解开后获悉密钥，后续的数据包将可以利用该密钥来做密文翻译。</li>
-<li rel="8">Charles将密钥用之前截获并保存的服务端公钥加密后继续发送给服务端。</li></ol></li>
-</ul>
+<li rel="8">Charles将密钥用之前截获并保存的服务端公钥加密后继续发送给服务端。</li></ol>
 
-<blockquote>
-  <p>在这个过程中，服务端和客户端都不会感知到中间人Charles的存在。 <br>
-  当然如果客户端对服务端的证书有特殊的认证逻辑，可能会导致Charles的证书并不被客户端信任，导致抓不到https数据包。</p>
-</blockquote></div></body></html>
+<p>在这个过程中，服务端和客户端都不会感知到中间人Charles的存在。 <br>
+当然如果客户端对服务端的证书有特殊的认证逻辑，可能会导致Charles的证书并不被客户端信任，导致抓不到https数据包。</p></li>
+<li><p>RN <br>
+上周看了下ReactNative的基本使用。这东西出来那么久了，还是不温不火…略显尴尬啊。跨平台初衷和方向固然是好的，但是没有一个大的平台去支撑推广，还是有一定难度啊。</p>
+
+<ul>
+<li>本质 <br>
+不同于Cordova等hybrid跨平台方案，RN本质不是web，而是通过js来写原生控件。</li>
+<li>JSX让代码中嵌入结构标记。</li>
+<li>RN中ES6运用了大量的ES6新语法特性。</li>
+<li>组件 <br>
+在RN中一个APP的界面其实就是由许多组件构成，在组件中必须有一个render方法返回用于渲染的JSX语句。 <br>
+组件中可以有属性，属性是赋值后不会变动的。 <br>
+组件中可以有状态，状态是允许在运行时动态改变的。</li></ul>
+
+<p>等等等等…… <br>
+<a href="http://reactnative.cn/docs/0.50/handling-touches.html#content" target="_blank">RN学习文档</a>其实都有比较全的基本介绍，要我说接触学习一门语言，就用它码个东西出来，七七八八也就掌握的差不多了。</p></li>
+</ul></div></body></html>

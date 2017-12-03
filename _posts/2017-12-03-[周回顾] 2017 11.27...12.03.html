@@ -1,0 +1,59 @@
+<!DOCTYPE html><html><head><title>Untitled</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+.note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
+.note-content .hljs-number, .note-content 
+.hljs-literal, .note-content 
+.hljs-symbol, .note-content 
+.hljs-bullet {color: #6897BB;}
+.note-content .hljs-keyword, .note-content 
+.hljs-selector-tag, .note-content 
+.hljs-deletion {color: #cc7832;}
+.note-content .hljs-variable, .note-content 
+.hljs-template-variable, .note-content 
+.hljs-link {color: #629755;}
+.note-content .hljs-comment, .note-content 
+.hljs-quote {color: #808080;}
+.note-content .hljs-meta {color: #bbb529;}
+.note-content .hljs-string, .note-content 
+.hljs-attribute, .note-content 
+.hljs-addition {color: #6A8759;}
+.note-content .hljs-section, .note-content 
+.hljs-title, .note-content 
+.hljs-type {color: #ffc66d;}
+.note-content .hljs-name, .note-content 
+.hljs-selector-id, .note-content 
+.hljs-selector-class {color: #e8bf6a;}
+.note-content .hljs-emphasis {font-style: italic;}
+.note-content .hljs-strong {font-weight: bold;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+<p></p>
+
+<blockquote>
+  <p>上周的周回顾没有写，主要是上周花了比较多的时间在准备ppt上（参加大北理珠的一个科协小年会）师弟师妹很给力，感受到了他们那份激情！</p>
+</blockquote>
+
+<p><strong>Robots协议</strong> </p>
+
+<ul><li>网站与爬虫之间的“君子协议”。其通过在网站配置一个robots.txt文件来告知爬虫不允许爬取网站内的哪些内容。</li>
+<li>该协议并不是需要强制遵循的，一般只有各大搜索引擎会遵循该协议。像我们工作中遇到的去爬取一下某某网站的内容一般都直接忽略robots.txt的存在。</li>
+</ul>
+
+<p><strong>跨平台</strong></p>
+
+<ul><li><p>flutter <br>
+一个采用Dart（一个神奇的语言）来实现的跨平台应用开发SDK，它的Hot Reload特性被吹得神乎其乎，找天有空了再仔细研究一下这个东东。</p></li>
+<li><p>RN（React Native） <br>
+严格来看RN编写的并不是hybrid app，而只是通过js这个语言来编写应用程序，而真正运行时确是调用的native组件。 <br>
+使用上面无非就是基于ES6的新语法特性，不熟悉的话得熟悉下ES6了。 <br>
+比较好奇的是js与native的通信过程，这点接下来还要继续搞清楚。</p></li>
+</ul>
+
+<p><strong>js 单线程异步的理解</strong></p>
+
+<ul><li>之前做Android应用开发，后面做Framework，对js的理解一直停留在大学时学的那点点。最近在研究RN于是又把js捡起来玩了玩。</li>
+<li>之前很困惑js不是不存在多线程吗，那何来异步之说？原来这个问题是基于浏览器来看待的。js单线程是语言特性，但是js的运行环境（比如浏览器）是由多线程的，js专门运行在其中一个线程，当在js中发起一个异步调用时，浏览器会利用其它专门负责相应任务的线程去工作，当异步调用完成时通过向js线程的任务队列中post一个回调事件来通知js线程。</li>
+</ul></div></body></html>

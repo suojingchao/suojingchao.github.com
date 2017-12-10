@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><title>Untitled</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+.note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
+.note-content .hljs-number, .note-content 
+.hljs-literal, .note-content 
+.hljs-symbol, .note-content 
+.hljs-bullet {color: #6897BB;}
+.note-content .hljs-keyword, .note-content 
+.hljs-selector-tag, .note-content 
+.hljs-deletion {color: #cc7832;}
+.note-content .hljs-variable, .note-content 
+.hljs-template-variable, .note-content 
+.hljs-link {color: #629755;}
+.note-content .hljs-comment, .note-content 
+.hljs-quote {color: #808080;}
+.note-content .hljs-meta {color: #bbb529;}
+.note-content .hljs-string, .note-content 
+.hljs-attribute, .note-content 
+.hljs-addition {color: #6A8759;}
+.note-content .hljs-section, .note-content 
+.hljs-title, .note-content 
+.hljs-type {color: #ffc66d;}
+.note-content .hljs-name, .note-content 
+.hljs-selector-id, .note-content 
+.hljs-selector-class {color: #e8bf6a;}
+.note-content .hljs-emphasis {font-style: italic;}
+.note-content .hljs-strong {font-weight: bold;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+<p></p>
+
+<blockquote>
+  <p>这几天又被燕姿姐姐单曲循环了~~~ 好了，听着 天天年年 来总结下这周的学习。</p>
+</blockquote>
+
+<p><strong>ES6学习</strong> </p>
+
+<ul><li>Generator函数 <br>
+ES6提供的一种异步编程解决方案，语法行为非常溜，运行机制就类似一个状态机似的。主要有两个特征： <br>
+1.定义的时候function关键字与函数名之间有一个星号。 <br>
+2.另外函数体内使用yield表达式定义不同的“状态”。 <br>
+调用Generator函数时返回的是一个指向内部状态的指针对象，通过调用该指针对象的next方法使得该指针指向下一个状态对象。 <br>
+换句话说，Generator函数是一个可以分段执行的函数。</li>
+<li>Class关键字 <br>
+其主要是ES6中定义一个类的语法糖，使得定义一个类的行为看上去与其他面向对象语言（Java，C++）等一致。通过ES6之前的function定义类基本都能实现相同的功能。</li>
+<li>let与const <br>
+let用于声明变量，类似var，但是let声明的变量只在let语句所在的代码块内有效。另外let声明的变量不存在变量提升的概念，即一定是先声明，后使用。 <br>
+const用于声明一个常量，其本质上是指变量指向的内存地址不变，对于普通类型来说，该内存地址存储的就是变量值，这时候就等同于值不可变的常量。但是对于复合数据类型，变量指向的内存地址保存的只是一个指针，所以此时const只能保证该指针固定，至于指针指向的数据是否改变是无法保证的。</li>
+</ul>
+
+<p><strong>网络学习</strong></p>
+
+<ul><li>NAT超时 <br>
+  简单理解，由于ip地址资源有限，我们平常上网使用的ip地址都是内网地址，而当需要访问内网之外的资源时就需要在内网环境中有一台具备NAT功能的路由器帮助我们完成NAT（网络地址转换），即将内网的地址转换成一个公网的ip地址，内网的设备才能与外网的设备通信。但网络运营商在一条建立好的链路上一段时间没有数据通讯时会淘汰对应NAT表中的对应项，这时候相当于路由器不再维护我们内网设备的内网ip和对应外网ip的映射关系，导致连接断开。这里的“一段时间”即NAT超时。 <br>
+  虽然理论上认为只要在设备与服务器之间建立起一条TCP连接后，这条连接就是可靠的了。实则不然，这条连接可能由于NAT超时而断开。 <br>
+不同运营商和网络环境下NAT超时时间也不一致，少则几分钟多则几十分钟。</li>
+<li>心跳保活 <br>
+理想情况下要保证一条TCP长连接真正不断开，至少得避免NAT超时对它的影响，也就是我们常说的心跳包间隔必须小于NAT超时时间。 <br>
+这里就衍生出了微信使用的比较优秀的动态NAT超时计算方案。</li>
+<li>webSocket <br>
+webSocket是基于TCP的一种新的网络协议，它可以实现服务端和客户端的全双工通信，重点是，它允许服务端主动发送信息给客户端。 <br>
+在没有webSocket之前，要实现类似服务端push功能，只能客户端通过http来轮询服务端，因为http是基于request与response的协议。这对客户端的性能和网络带宽来说都有额外的开销，而webSocket就是为了完美解决类似问题而诞生。</li>
+</ul>
+
+<p><strong>邪门歪道</strong> <br>
+那天看到一个有趣的玩意儿，因为RGB像素值（0-255）的范围同ascii码表示字符的范围刚好匹配，可以将写的代码用ascii码表示分组后分别用RGB色值“画出来”。嗯嗯嗯 可以试试哦</p>
+
+<p><strong>算法</strong> <br>
+最近又开始刷Leetcode了~坚持下去！</p></div></body></html>

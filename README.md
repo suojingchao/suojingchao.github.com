@@ -1,21 +1,14 @@
-# The Plain v3.0
+# Welcome
 
-The Plain is a minimalist Jekyll theme, designed to focus on writing that really matters to you and your audience. Everything else is just a distraction. Nothing more other than useful and understandable information sharing. I have made a final update to this theme. This theme is suit best for personal blog type, but not limited to. P/S: This theme is originally inspired from Leonard Lamprecht's original [Jekyll theme](https://github.com/leo/leo.github.io) (thanks!).
+**Who can stop me is me!**
 
-[**Live Demo**](http://heiswayi.github.io/the-plain/)
+### 关于小二样
 
-### Screenshot
+小二样13年参加工作，一直从事Android开发。
+曾就职于珠海佳米科技，魅族科技。目前在腾讯工作。依然在继续研究Android的道路上哐哧哐哧...
 
-![The Plain Screenshot](http://i.imgur.com/8ZXhjfV.png)
+### 版权声明
+本站所有博文均原创，转载请务必注明作者以及原文出处链接，且不得篡改原文内容。
 
-### Philosophy
 
-> Minimalism is a masterpiece of tranquility. -- Heiswayi Nrird
 
-### License
-
-[MIT](LICENSE.md)
-
-### Credits
-
-Many thanks to this theme [contributors](https://github.com/heiswayi/the-plain/graphs/contributors) that help fixing bugs or enhance this theme source code.

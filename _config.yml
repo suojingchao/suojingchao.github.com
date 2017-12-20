@@ -33,7 +33,7 @@ github_username:    suojingchao # Your GitHub username here
 
 
 comments: true
-
+intensedebate_comments: true
 
 defaults:
   -

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><title>一图解惑之Android管理Provider结构</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+<!DOCTYPE html><html><head><title>一图解惑之Android管理ContentProvider结构</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
 .note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
 
 .note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
@@ -32,9 +32,7 @@
 
 
 
-<h1 id="一图解惑之android管理provider结构">一图解惑之Android管理Provider结构</h1>
-
-
+<h1 id="一图解惑之android管理contentprovider结构">一图解惑之Android管理ContentProvider结构</h1>
 
 <h2 id="准备">准备</h2>
 
@@ -113,12 +111,6 @@ mProvidersByClassPerUser:  <br>
 
 <pre class="prettyprint"><code class="language-powershell hljs"><div class="hljs-line">ACTIVITY MANAGER CONTENT PROVIDERS (dumpsys activity providers)
 </div><div class="hljs-line">  Published single-user content providers (by class):
-</div><div class="hljs-line">  * ContentProviderRecord{e3794b5 u0 com.android.providers.telephony/.CarrierProvider}
-</div><div class="hljs-line">    package=com.android.providers.telephony <span class="hljs-keyword">process</span>=com.android.phone
-</div><div class="hljs-line">    proc=ProcessRecord{<span class="hljs-number">53</span>e806c <span class="hljs-number">1540</span>:com.android.phone/<span class="hljs-number">1001</span>}
-</div><div class="hljs-line">    uid=<span class="hljs-number">1001</span> provider=android.content.ContentProviderProxy@cf9ad63
-</div><div class="hljs-line">    singleton=true
-</div><div class="hljs-line">    authority=carrier_information
 </div><div class="hljs-line">  * ContentProviderRecord{<span class="hljs-number">6</span>da87f4 u0 com.android.providers.settings/.SettingsProvider}
 </div><div class="hljs-line">    package=com.android.providers.settings <span class="hljs-keyword">process</span>=system
 </div><div class="hljs-line">    proc=ProcessRecord{<span class="hljs-number">1</span>c0b52f <span class="hljs-number">907</span>:system/<span class="hljs-number">1000</span>}
@@ -154,14 +146,8 @@ mProvidersByClassPerUser:  <br>
 </div><div class="hljs-line">      -&gt; <span class="hljs-number">3892</span>:com.tencent.mm:appbrand0/u0a129 s1/<span class="hljs-number">1</span> u0/<span class="hljs-number">0</span> +<span class="hljs-number">1</span>h51m37s766ms
 </div><div class="hljs-line">      -&gt; <span class="hljs-number">32527</span>:com.vip.zb/u0a201 s1/<span class="hljs-number">1</span> u0/<span class="hljs-number">0</span> +<span class="hljs-number">1</span>h0m10s366ms
 </div><div class="hljs-line">      -&gt; <span class="hljs-number">9189</span>:com.android.vending/u0a59 s1/<span class="hljs-number">1</span> u0/<span class="hljs-number">0</span> +<span class="hljs-number">58</span>m1s728ms
-</div><div class="hljs-line">      -&gt; <span class="hljs-number">11603</span>:com.evernote/u0a135 s1/<span class="hljs-number">1</span> u0/<span class="hljs-number">0</span> +<span class="hljs-number">2</span>m7s712ms
-</div><div class="hljs-line">  * ContentProviderRecord{<span class="hljs-number">833</span>d74d u0 android/com.android.server.am.DumpHeapProvider}
-</div><div class="hljs-line">    package=android <span class="hljs-keyword">process</span>=system
-</div><div class="hljs-line">    proc=ProcessRecord{<span class="hljs-number">1</span>c0b52f <span class="hljs-number">907</span>:system/<span class="hljs-number">1000</span>}
-</div><div class="hljs-line">    uid=<span class="hljs-number">1000</span> provider=android.content.ContentProvider<span class="hljs-variable">$Transport</span>@<span class="hljs-number">64</span>c9f8a
-</div><div class="hljs-line">    singleton=true
-</div><div class="hljs-line">    authority=com.android.server.heapdump  
-</div><div class="hljs-line">    ---此处省略一堆---
+</div><div class="hljs-line">      -&gt; <span class="hljs-number">11603</span>:com.evernote/u0a135 s1/<span class="hljs-number">1</span> u0/<span class="hljs-number">0</span> +<span class="hljs-number">2</span>m7s712ms 
+</div><div class="hljs-line">    ---此处省略一堆ContentProviderRecord---
 </div><div class="hljs-line">
 </div><div class="hljs-line">  Published user <span class="hljs-number">0</span> content providers (by class):
 </div><div class="hljs-line">  * ContentProviderRecord{<span class="hljs-number">3835601</span> u0 com.google.android.gms/.auth.api.credentials.be.persistence.TemporaryValueProvider}
@@ -169,34 +155,20 @@ mProvidersByClassPerUser:  <br>
 </div><div class="hljs-line">    proc=ProcessRecord{ea68992 <span class="hljs-number">2586</span>:com.google.android.gms/u0a40}
 </div><div class="hljs-line">    uid=<span class="hljs-number">10040</span> provider=android.content.ContentProviderProxy@a2fbf8c
 </div><div class="hljs-line">    authority=com.google.android.gms.auth.api.credentials.be.persistence.TemporaryValueProvider
-</div><div class="hljs-line">  * ContentProviderRecord{<span class="hljs-number">3</span>f47fe8 u0 com.google.android.gms/.subscribedfeeds.GmsSubscribedFeedsProvider}
-</div><div class="hljs-line">    package=com.google.android.gms <span class="hljs-keyword">process</span>=com.google.android.gms
-</div><div class="hljs-line">    proc=ProcessRecord{ea68992 <span class="hljs-number">2586</span>:com.google.android.gms/u0a40}
-</div><div class="hljs-line">    uid=<span class="hljs-number">10040</span> provider=android.content.ContentProviderProxy@<span class="hljs-number">4</span>f966d5
-</div><div class="hljs-line">    authority=com.google.android.gms.subscribedfeeds
-</div><div class="hljs-line">  * ContentProviderRecord{<span class="hljs-number">1792</span>f1b u0 com.google.android.gms/.matchstick.data.AppDataProvider}
-</div><div class="hljs-line">    package=com.google.android.gms <span class="hljs-keyword">process</span>=com.google.android.gms
-</div><div class="hljs-line">    proc=ProcessRecord{ea68992 <span class="hljs-number">2586</span>:com.google.android.gms/u0a40}
-</div><div class="hljs-line">    uid=<span class="hljs-number">10040</span> provider=android.content.ContentProviderProxy@<span class="hljs-number">943</span>deea
-</div><div class="hljs-line">    authority=com.google.android.gms.matchstick.appdataprovider
-</div><div class="hljs-line">    ---此处省略一堆---
+</div><div class="hljs-line">    ---此处省略一堆ContentProviderRecord---
 </div><div class="hljs-line">
 </div><div class="hljs-line">  Single-user authority to provider mappings:
 </div><div class="hljs-line">  settings: <span class="hljs-number">6</span>da87f4/com.android.providers.settings/.SettingsProvider
-</div><div class="hljs-line">  com.android.server.heapdump: <span class="hljs-number">833</span>d74d/android/com.android.server.am.DumpHeapProvider
-</div><div class="hljs-line">  carrier_information: e3794b5/com.android.providers.telephony/.CarrierProvider
-</div><div class="hljs-line">  ---此处省略一堆---
+</div><div class="hljs-line">  ---此处省略一堆name: ComponentName---
 </div><div class="hljs-line">
 </div><div class="hljs-line">  User <span class="hljs-number">0</span> authority to provider mappings: 
-</div><div class="hljs-line">  com.google.android.gms.subscribedfeeds: <span class="hljs-number">3</span>f47fe8/com.google.android.gms/.subscribedfeeds.GmsSubscribedFeedsProvider
-</div><div class="hljs-line">  com.google.android.gms.matchstick.appdataprovider: <span class="hljs-number">1792</span>f1b/com.google.android.gms/.matchstick.data.AppDataProvider
 </div><div class="hljs-line">  com.google.android.gms.auth.api.credentials.be.persistence.TemporaryValueProvider: <span class="hljs-number">3835601</span>/com.google.android.gms/.auth.api.credentials.be.persistence.TemporaryValueProvider
-</div><div class="hljs-line">  ---此处省略一堆---
+</div><div class="hljs-line">  ---此处省略一堆name: ComponentName---
 </div><div class="hljs-line">
 </div><div class="hljs-line">
 </div></code></pre>
 
-<p>由于系统中运行的ContentProvider太多，这里的dump结果我省略了一些。它的内容其实很简单，就是对ProviderMap中的四个集合做遍历并dump信息。整个dump内容也因此分为四大段。 <br>
+<p>由于系统中运行的ContentProvider太多，这里的dump结果我省略了做了缩减。它的内容其实很简单，就是对ProviderMap中的四个集合做遍历并dump信息。整个dump内容也因此也分为四大段。 <br>
 简要说明：</p>
 
 <ul><li>Published single-user content providers (by class):  <br>
@@ -208,6 +180,7 @@ mSingletonByName集合中的记录。</li>
 <li>User 0 authority to provider mappings:  <br>
 mProvidersByNamePerUser集合中的记录。</li>
 <li>上面的例子中看到ComponentName为com.android.providers.settings/.SettingsProvider的ContentProvider打印出的Connections就是对应于ContentProviderRecord中的connections成员。可以看到系统中访问设置的ContentProvider的客户端有很多。</li>
+<li>ByClass的集合dump的是每个ContentProviderRecord的具体信息。ByName的集合dump的是key: value形式，其中key是定义该ContentProvider时指定的authority，value是该描述该ContentProvider的ComponentName。</li>
 <li>具体每个字段的含义可以直接参考ProviderMap的源码，这里就不一一解释了。</li>
 </ul>
 

@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><title>Untitled</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+.note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
+.note-content .hljs-number, .note-content 
+.hljs-literal, .note-content 
+.hljs-symbol, .note-content 
+.hljs-bullet {color: #6897BB;}
+.note-content .hljs-keyword, .note-content 
+.hljs-selector-tag, .note-content 
+.hljs-deletion {color: #cc7832;}
+.note-content .hljs-variable, .note-content 
+.hljs-template-variable, .note-content 
+.hljs-link {color: #629755;}
+.note-content .hljs-comment, .note-content 
+.hljs-quote {color: #808080;}
+.note-content .hljs-meta {color: #bbb529;}
+.note-content .hljs-string, .note-content 
+.hljs-attribute, .note-content 
+.hljs-addition {color: #6A8759;}
+.note-content .hljs-section, .note-content 
+.hljs-title, .note-content 
+.hljs-type {color: #ffc66d;}
+.note-content .hljs-name, .note-content 
+.hljs-selector-id, .note-content 
+.hljs-selector-class {color: #e8bf6a;}
+.note-content .hljs-emphasis {font-style: italic;}
+.note-content .hljs-strong {font-weight: bold;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+<blockquote>
+  <p>最近在鼓捣树莓派，把周回顾的节奏给搞乱啦@#$%^&amp;* 我的目标是做一个机器猫出来陪我家猫（包子）玩耍，就酱 <br>
+  我决定先专心鼓捣树莓派，对于一个搞软件出生从没搞过硬件的小二样来说，确实有好多东西学习（感觉像挖到了宝藏）。周回顾的节奏也先调整为以我的研发成果阶段为周期吧。今天先总结下目前的进展，顺便提醒自己，回顾可别拉下拉！！！</p>
+</blockquote>
+
+<ul><li><p>做什么 <br>
+我打算做一个机器猫，它拥有最基本的能力是：能跑，能看，能说，能听。后续有什么想法还可以持续给他进化…</p></li>
+<li><p>客户端 <br>
+小二样俺是做Android的，So 客户端首选Android。</p></li>
+<li><p>服务器 <br>
+树莓派连接到家里的路由器，作为一个服务器装在机器猫身上。</p></li>
+<li><p>实现 <br>
+能跑：通过树莓派通过发送PWM控制轮子的转动，需要两组PWM，一组控制一边的轮子，这样可以通过调整PWM的占空比和频率导致一边轮子转速高于另一边来实现转弯。 <br>
+能看：在树莓派上安装mjpg-streamer。一个现成的远程视屏解决方案，通过在树莓派的指定端口运行该server来打开摄像头并实时拍摄。客户端可以访问相应的mjpg-streamer的端口来获取视频流或截图快照。这里也涉及到PWM的使用，通过控制PWM的占空比和频率来实现摄像头云台的转动。 <br>
+能说：我的机器猫目前还不能说话…（待我给他背个小音箱去） <br>
+能听：目前我的机器猫也不会听话…（待我给他装副耳朵） <br>
+心脏：原本打算给他背个充电宝，后面再淘宝买了对特斯拉同款电池（感觉比充电宝轻一点），先凑合着用吧。 <br>
+控制：局域网内so easy。不用多说直接访问内网ip:port就可以了。但是为了我能在外面随时用机器猫来调戏我家包子（顺便偷窥她），我实现内网穿透的方案是这样的：小米路由器开DMZ或者端口转发，这个配置简单。但是光这样不行，小米路由器的公网ip是会变的。那这里解决方案有很多，比如类似花生壳的动态域名解析服务，但是因为我有一台固定ip的腾讯云服务器，放着也是放着，想先试试用那台服务器来做个转发发试试，全当绕路锻炼身体~~~</p></li>
+</ul></div></body></html>

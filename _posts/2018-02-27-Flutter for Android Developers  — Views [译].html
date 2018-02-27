@@ -1,0 +1,465 @@
+<!DOCTYPE html><html><head><title>Flutter for Android Developers - Views [译]</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+.note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
+.note-content .hljs-number, .note-content 
+.hljs-literal, .note-content 
+.hljs-symbol, .note-content 
+.hljs-bullet {color: #6897BB;}
+.note-content .hljs-keyword, .note-content 
+.hljs-selector-tag, .note-content 
+.hljs-deletion {color: #cc7832;}
+.note-content .hljs-variable, .note-content 
+.hljs-template-variable, .note-content 
+.hljs-link {color: #629755;}
+.note-content .hljs-comment, .note-content 
+.hljs-quote {color: #808080;}
+.note-content .hljs-meta {color: #bbb529;}
+.note-content .hljs-string, .note-content 
+.hljs-attribute, .note-content 
+.hljs-addition {color: #6A8759;}
+.note-content .hljs-section, .note-content 
+.hljs-title, .note-content 
+.hljs-type {color: #ffc66d;}
+.note-content .hljs-name, .note-content 
+.hljs-selector-id, .note-content 
+.hljs-selector-class {color: #e8bf6a;}
+.note-content .hljs-emphasis {font-style: italic;}
+.note-content .hljs-strong {font-weight: bold;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h1 id="flutter-for-android-developers-views-译">Flutter for Android Developers - Views [译]</h1>
+
+
+
+<h2 id="先说两句">先说两句</h2>
+
+<p>关于Flutter就不多介绍了，它同样是一个致力于开发跨平台移动应用的SDK，使用Dart语言。Dart是Google家的语言，虽然比较低调，但也确实不算难用，学起来也不难。Flutter的实现参考了不少RN的思路。更多关于Flutter可参阅<a href="https://flutter.io" target="_blank">官方网站</a></p>
+
+<p>前几天Google发布了Dart2了，并且听说Google内部部分应用早已经转用Flutter实现。我这琢磨着Flutter是不是得开始把玩一下了。于是开始一顿瞎操作。过程中在官网发现了<a href="https://flutter.io/flutter-for-android/#what-is-the-equivalent-of-a-view-in-flutter" target="_blank">这篇</a>结合Android对比Flutter的文档，对之前做Android的同学挺有帮助的，于是决定译之并重新整理为一个系列，也算是一个小结。这系列的文章更适合对Dart和Flutter已经有所了解的Android Developers。</p>
+
+<p>华丽分割线后，这系列文章正式开始</p>
+
+<hr>
+
+<h2 id="view在flutter中等价于什么">View在Flutter中等价于什么</h2>
+
+<ul><li><strong>in Android</strong> <br>
+<ol>
+<li rel="1">View是屏幕上可见的基础元素，我们屏幕上的Button，Toolbars等等，每个东西都是一个View。</li>
+<li rel="2">系统可以修改整个View的层级结构中的任意一个View。</li>
+<li rel="3">一个View被画完之后它不会重绘，除非invalidate方法被调用。</li></ol></li>
+<li><strong>in Flutter</strong> <br>
+<ol>
+<li rel="1">View等价于Widget。这是Flutter中的一个概念。</li>
+<li rel="2">Widget是不可修改的，以至于Widget变得非常的轻量。</li>
+<li rel="3">Widget只维持一帧，每一帧Flutter框架都会重新创建一个由Widget实例组成的树。</li></ol></li>
+</ul>
+
+<h2 id="怎么更新widgets">怎么更新Widgets</h2>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>我们可以直接修改View的属性来更新它们。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>Widget是不可修改的，我们没法直接去更新它们，取而代之我们可以用Widget的State来实现更新。</li></ul></li>
+</ul>
+
+<p>在Flutter中Widget分为两个类型：</p>
+
+<p><strong>1.StatelessWidget</strong> <br>
+一个StatelessWidget没有任何状态信息。当你正在描述的界面元素不依赖于任何除了自身对象内的配置外的其他东西时，StatelessWidgets就刚好派上用场。 <br>
+比如在Android中我们将logo用一个ImageView来展示。这个logo在运行的过程中将不会再改变，因此放到Flutter中的话，我们将用一个StatelessWidget来实现它。</p>
+
+<p><strong>2.StatefulWidget</strong> <br>
+如果你想在运行的过程中动态的改变界面，比如在想网络请求了数据之后，或者应用与用户发生了一系列交互之后。这个时候就必须要使用带有状态信息的StatefulWidget，它可以告知Flutter框架Widget的状态已经更新进而促使Flutter框架去更新Widget。</p>
+
+<blockquote>
+  <p><strong>Note:</strong> <br>
+  StatelessWidget和StatefulWidget的核心逻辑是相同的，就是他们在每一帧都被rebuild，不同的是StatefulWidget有一个State对象来保存状态信息，然后在帧与帧之间它可以通过这个State对象来恢复之前保存的状态信息。</p>
+</blockquote>
+
+<p>如果你还比较疑惑，那么可以简单记下这个规则：如果用户会与一个Widget交互，那么这个Widget就用StatefulWidget。如果一个Widget响应了一个交互事件，但是只要包含它的Parent Widget没有响应这个交互事件的话，它的Parent Widget依然是StatelessWidget。</p>
+
+<p>接下来我们看下怎样使用StatelessWidget。一个最常见的StatelessWidget就是Text Widget。如果你去看Text Widget的实现的话你会发现他是StatelessWidget的一个子类。</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">new</span> Text(
+</div><div class="hljs-line">  <span class="hljs-string">'I like Flutter!'</span>,
+</div><div class="hljs-line">  style: <span class="hljs-keyword">new</span> TextStyle(fontWeight: FontWeight.bold),
+</div><div class="hljs-line">);
+</div></code></pre>
+
+<p>就像你看到的一样，Text Widget没有与它关联的State信息，它只是简单的渲染通过构造函数传递给它的信息。 <br>
+但是如果我们想使<strong>“I like Flutter!”</strong>动态的改变，比如通过点击一个FloatingActionButton，该怎么办呢？ <br>
+其实很简单，我们可以通过将Text Widget包裹在一个StatefulWidget里面来实现，当FloatingActionButton点击的时候更新StatefulWidget中的状态信息。 <br>
+代码如下：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'package:flutter/material.dart'</span>;
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">void</span> main() {
+</div><div class="hljs-line">  runApp(<span class="hljs-keyword">new</span> SampleApp());
+</div><div class="hljs-line">}
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-comment">// This widget is the root of your application.</span>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MaterialApp(
+</div><div class="hljs-line">      title: <span class="hljs-string">'Sample App'</span>,
+</div><div class="hljs-line">      theme: <span class="hljs-keyword">new</span> ThemeData(
+</div><div class="hljs-line">        primarySwatch: Colors.blue,
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      home: <span class="hljs-keyword">new</span> SampleAppPage(),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleAppPage</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatefulWidget</span> </span>{
+</div><div class="hljs-line">  SampleAppPage({Key key}) : <span class="hljs-keyword">super</span>(key: key);
+</div><div class="hljs-line">
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  _SampleAppPageState createState() =&gt; <span class="hljs-keyword">new</span> _SampleAppPageState();
+</div><div class="hljs-line">}
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">_SampleAppPageState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">State</span>&lt;<span class="hljs-title">SampleAppPage</span>&gt; </span>{
+</div><div class="hljs-line">  <span class="hljs-comment">// Default placeholder text</span>
+</div><div class="hljs-line">  <span class="hljs-built_in">String</span> textToShow = <span class="hljs-string">"I Like Flutter"</span>;
+</div><div class="hljs-line">
+</div><div class="hljs-line">  <span class="hljs-keyword">void</span> _updateText() {
+</div><div class="hljs-line">    setState(() {
+</div><div class="hljs-line">      <span class="hljs-comment">// update the text</span>
+</div><div class="hljs-line">      textToShow = <span class="hljs-string">"Flutter is Awesome!"</span>;
+</div><div class="hljs-line">    });
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(
+</div><div class="hljs-line">      appBar: <span class="hljs-keyword">new</span> AppBar(
+</div><div class="hljs-line">        title: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Sample App"</span>),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      body: <span class="hljs-keyword">new</span> Center(child: <span class="hljs-keyword">new</span> Text(textToShow)),
+</div><div class="hljs-line">      floatingActionButton: <span class="hljs-keyword">new</span> FloatingActionButton(
+</div><div class="hljs-line">        onPressed: _updateText,
+</div><div class="hljs-line">        tooltip: <span class="hljs-string">'Update Text'</span>,
+</div><div class="hljs-line">        child: <span class="hljs-keyword">new</span> Icon(Icons.update),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>上面的代码中可以看到我们将展示<strong>“I Like Flutter”</strong>的Text Widget在了一个继承于State的_SampleAppPageState类中渲染。我们自定义了一个继承于StatefulWidget的类SampleAppPage，它是一个StatefulWidget，与它关联的State就是_SampleAppPageState。当FloatingActionButton被点击时会回调_updateText方法，_updateText方法通过调用State类的setState方法来修改Text Widget的内容。setState由于修改了状态信息会触发Flutter框架对Widget的更新。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中Widgets Tree是不可变的，并且每一帧Widget都会rebuild。无法直接更新Widget。所以需要使用StatefulWidget来记录State，记录的State可以在帧与帧之间共享（在下一帧时恢复上一帧保存的State信息）。通过改变State来触发Flutter更新Widget。</p>
+
+<h2 id="怎样对widgets布局xml布局文件在哪里">怎样对Widgets布局，xml布局文件在哪里</h2>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>我们一般通过xml来写布局。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>我们通过Widget Tree来写我们的布局。</li></ul></li>
+</ul>
+
+<p>这有一个例子描述了怎样在屏幕上展示一个Widget，并且给他添加一些padding。</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line">override
+</div><div class="hljs-line">Widget build(BuildContext context) {
+</div><div class="hljs-line">  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(
+</div><div class="hljs-line">    appBar: <span class="hljs-keyword">new</span> AppBar(
+</div><div class="hljs-line">      title: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Sample App"</span>),
+</div><div class="hljs-line">    ),
+</div><div class="hljs-line">    body: <span class="hljs-keyword">new</span> Center(
+</div><div class="hljs-line">      child: <span class="hljs-keyword">new</span> MaterialButton(
+</div><div class="hljs-line">        onPressed: () {},
+</div><div class="hljs-line">        child: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Hello'</span>),
+</div><div class="hljs-line">        padding: <span class="hljs-keyword">new</span> EdgeInsets.only(left: <span class="hljs-number">10.0</span>, right: <span class="hljs-number">10.0</span>),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">    ),
+</div><div class="hljs-line">  );
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>这里看到其实在Flutter中是没有xml布局文件的存在了，取而代之的是直接在override的build方法中去布局，这其实有点类似RN，这里的build方法就类似RN中的render方法，只不过RN通过JSX使得render方法中通过xml语法来完成布局，而Flutter则是完全通过Dart语法来完成布局。可读性上我个人还是更喜欢Flutter，xml与js混写还是觉得有点别扭。 <br>
+<a href="https://flutter.io/widgets/layout" target="_blank">这里</a>列出了Flutter提供的所有的布局。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中不存在xml的布局形式，Widget的布局在build方法中直接构建。</p>
+
+<h2 id="怎么从布局中添加或者删除一个组件">怎么从布局中添加或者删除一个组件</h2>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>我们可以调用addChild或者removeChild方法去动态的添加或者删除一个ViewGroup中的View。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>因为widget是不可变的所以不能直接的addChild或者removeChild。但是可以传递一个返回Widget的方法给它的Parent，然后通过一个boolean值在该方法中控制要返回的Widget。</li></ul></li>
+</ul>
+
+<p>下面的代码展示了如何通过点击FloatingActionButton来触发在两个Widget之间切换：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'package:flutter/material.dart'</span>;
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">void</span> main() {
+</div><div class="hljs-line">  runApp(<span class="hljs-keyword">new</span> SampleApp());
+</div><div class="hljs-line">}
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-comment">// This widget is the root of your application.</span>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MaterialApp(
+</div><div class="hljs-line">      title: <span class="hljs-string">'Sample App'</span>,
+</div><div class="hljs-line">      theme: <span class="hljs-keyword">new</span> ThemeData(
+</div><div class="hljs-line">        primarySwatch: Colors.blue,
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      home: <span class="hljs-keyword">new</span> SampleAppPage(),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleAppPage</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatefulWidget</span> </span>{
+</div><div class="hljs-line">  SampleAppPage({Key key}) : <span class="hljs-keyword">super</span>(key: key);
+</div><div class="hljs-line">
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  _SampleAppPageState createState() =&gt; <span class="hljs-keyword">new</span> _SampleAppPageState();
+</div><div class="hljs-line">}
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">_SampleAppPageState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">State</span>&lt;<span class="hljs-title">SampleAppPage</span>&gt; </span>{
+</div><div class="hljs-line">  <span class="hljs-comment">// Default value for toggle</span>
+</div><div class="hljs-line">  <span class="hljs-built_in">bool</span> toggle = <span class="hljs-keyword">true</span>;
+</div><div class="hljs-line">  <span class="hljs-keyword">void</span> _toggle() {
+</div><div class="hljs-line">    setState(() {
+</div><div class="hljs-line">      toggle = !toggle;
+</div><div class="hljs-line">    });
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">
+</div><div class="hljs-line">  _getToggleChild() {
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (toggle) {
+</div><div class="hljs-line">      <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Toggle One'</span>);
+</div><div class="hljs-line">    } <span class="hljs-keyword">else</span> {
+</div><div class="hljs-line">      <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MaterialButton(onPressed: () {}, child: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Toggle Two'</span>));
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(
+</div><div class="hljs-line">      appBar: <span class="hljs-keyword">new</span> AppBar(
+</div><div class="hljs-line">        title: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Sample App"</span>),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      body: <span class="hljs-keyword">new</span> Center(
+</div><div class="hljs-line">        child: _getToggleChild(),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      floatingActionButton: <span class="hljs-keyword">new</span> FloatingActionButton(
+</div><div class="hljs-line">        onPressed: _toggle,
+</div><div class="hljs-line">        tooltip: <span class="hljs-string">'Update Text'</span>,
+</div><div class="hljs-line">        child: <span class="hljs-keyword">new</span> Icon(Icons.update),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>代码也比较简单，关键在于_SampleAppPageState的build方法中Center的构造方法中的child参数传的是一个_getToggleChild方法。该方法通过一个toggle变量来决定返回给Center的是一个怎样的Widget。而toggle的赋值同样是由点击FloatingActionButton后调用setState来改变的。也就是说将toggle作为SampleAppPage的状态保存下来，在展示的时候由toggle的值来动态决定要展示的是什么Widget。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中不能直接动态的去添加或者删除一个Widget到Widgets Tree中，因为Flutter中的Widget是不可变的。但我们可以依赖StatefulWidget根据State的不同来灵活的构建不同的Widget。</p>
+
+<h2 id="怎样对一个widget做动画">怎样对一个Widget做动画</h2>
+
+<ul><li><strong>in Android</strong> <br>
+<ul>
+<li>我们可以通过通过xml文件或者调用View.animate()方法创建一个动画。</li></ul></li>
+<li><strong>in Flutter</strong> <br>
+<ul>
+<li>我们将需要做动画的Widget包裹到一个Transition中来实现。</li></ul></li>
+</ul>
+
+<p>像Android一样，在Flutter中我们也有AnimationController和Interpolator，Interpolator通过继承Animation类实现，比如下面例子中用到的CurvedAnimation。我们传递AnimationController和Animation到一个Widget中，然后通过AnimationController来启动动画。 <br>
+下面的例子展示了使用FadeTransition来实现当按下按钮时将展示Logo的FlutterLogo Widget淡出的效果：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'package:flutter/material.dart'</span>;
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">void</span> main() {
+</div><div class="hljs-line">  runApp(<span class="hljs-keyword">new</span> FadeAppTest());
+</div><div class="hljs-line">}
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">FadeAppTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-comment">// This widget is the root of your application.</span>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MaterialApp(
+</div><div class="hljs-line">      title: <span class="hljs-string">'Fade Demo'</span>,
+</div><div class="hljs-line">      theme: <span class="hljs-keyword">new</span> ThemeData(
+</div><div class="hljs-line">        primarySwatch: Colors.blue,
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      home: <span class="hljs-keyword">new</span> MyFadeTest(title: <span class="hljs-string">'Fade Demo'</span>),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyFadeTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatefulWidget</span> </span>{
+</div><div class="hljs-line">  MyFadeTest({Key key, <span class="hljs-keyword">this</span>.title}) : <span class="hljs-keyword">super</span>(key: key);
+</div><div class="hljs-line">  <span class="hljs-keyword">final</span> <span class="hljs-built_in">String</span> title;
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  _MyFadeTest createState() =&gt; <span class="hljs-keyword">new</span> _MyFadeTest();
+</div><div class="hljs-line">}
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">_MyFadeTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">State</span>&lt;<span class="hljs-title">MyFadeTest</span>&gt; <span class="hljs-title">with</span> <span class="hljs-title">TickerProviderStateMixin</span> </span>{
+</div><div class="hljs-line">  AnimationController controller;
+</div><div class="hljs-line">  CurvedAnimation curve;
+</div><div class="hljs-line">
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  <span class="hljs-keyword">void</span> initState() {
+</div><div class="hljs-line">    controller = <span class="hljs-keyword">new</span> AnimationController(duration: <span class="hljs-keyword">const</span> <span class="hljs-built_in">Duration</span>(milliseconds: <span class="hljs-number">2000</span>), vsync: <span class="hljs-keyword">this</span>);
+</div><div class="hljs-line">    curve = <span class="hljs-keyword">new</span> CurvedAnimation(parent: controller, curve: Curves.easeIn);
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(
+</div><div class="hljs-line">      appBar: <span class="hljs-keyword">new</span> AppBar(
+</div><div class="hljs-line">        title: <span class="hljs-keyword">new</span> Text(widget.title),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      body: <span class="hljs-keyword">new</span> Center(
+</div><div class="hljs-line">          child: <span class="hljs-keyword">new</span> Container(
+</div><div class="hljs-line">              child: <span class="hljs-keyword">new</span> FadeTransition(
+</div><div class="hljs-line">                  opacity: curve,
+</div><div class="hljs-line">                  child: <span class="hljs-keyword">new</span> FlutterLogo(
+</div><div class="hljs-line">                    size: <span class="hljs-number">100.0</span>,
+</div><div class="hljs-line">                  )))),
+</div><div class="hljs-line">      floatingActionButton: <span class="hljs-keyword">new</span> FloatingActionButton(
+</div><div class="hljs-line">        tooltip: <span class="hljs-string">'Fade'</span>,
+</div><div class="hljs-line">        child: <span class="hljs-keyword">new</span> Icon(Icons.brush),
+</div><div class="hljs-line">        onPressed: () {
+</div><div class="hljs-line">          controller.forward();
+</div><div class="hljs-line">        },
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>整个Widget Tree还是跟之前类似，MaterialApp的构造函数中home参数传入的依然是我们自定义的一个继承自StatefulWidget的MyFadeTest，_MyFadeTest是其对应的State，其中定义了AnimationController和CurvedAnimation，AnimationController用于控制动画，CurvedAnimation是一个插值器实现。接着在build方法中通过将我们需要动画的FlutterLogo Widget包裹在一个FadeTransition中来让FlutterLogo Widget产生动画，最后在按下FloatingActionButton的回调中使用AnimationController.forward()方法来触发动画。 <br>
+<a href="https://flutter.io/widgets/animation/" target="_blank">这里</a>或者<a href="https://flutter.io/tutorials/animation" target="_blank">那里</a>查看更多关于动画的具体细节。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中也有AnimationController和插值器，通过AnimationController来控制动画的播放，插值器改变动画播放的加速度。 <br>
+使用时先构造AnimationController，然后将构造好的AnimationController作为参数构造插值器，最后将构造好的插值器作为参数构造Transition。之后就可以通过AnimationController来控制Transition中包含的Widget的动画执行。</p>
+
+<h2 id="怎样使用canvas去画内容">怎样使用Canvas去画内容</h2>
+
+<ul><li><strong>in Android</strong> <br>
+<ul>
+<li>我们可以用Canvas去画一些自定义的图形在屏幕上。</li></ul></li>
+<li><strong>in Flutter</strong> <br>
+<ul>
+<li>CustomPaint和CustomPainter这两个类可以帮助我们在Canvas上作画。</li></ul></li>
+</ul>
+
+<p>下面的代码实现一个可自由签名的Widget:</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'package:flutter/material.dart'</span>;
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SignaturePainter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">CustomPainter</span> </span>{
+</div><div class="hljs-line">  SignaturePainter(<span class="hljs-keyword">this</span>.points);
+</div><div class="hljs-line">  <span class="hljs-keyword">final</span> <span class="hljs-built_in">List</span>&lt;Offset&gt; points;
+</div><div class="hljs-line">  <span class="hljs-keyword">void</span> paint(Canvas canvas, Size size) {
+</div><div class="hljs-line">    Paint paint = <span class="hljs-keyword">new</span> Paint()
+</div><div class="hljs-line">      ..color = Colors.black
+</div><div class="hljs-line">      ..strokeCap = StrokeCap.round
+</div><div class="hljs-line">      ..strokeWidth = <span class="hljs-number">5.0</span>;
+</div><div class="hljs-line">    <span class="hljs-keyword">for</span> (<span class="hljs-built_in">int</span> i = <span class="hljs-number">0</span>; i &lt; points.length - <span class="hljs-number">1</span>; i++) {
+</div><div class="hljs-line">      <span class="hljs-keyword">if</span> (points[i] != <span class="hljs-keyword">null</span> &amp;&amp; points[i + <span class="hljs-number">1</span>] != <span class="hljs-keyword">null</span>)
+</div><div class="hljs-line">        canvas.drawLine(points[i], points[i + <span class="hljs-number">1</span>], paint);
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">  <span class="hljs-built_in">bool</span> shouldRepaint(SignaturePainter other) =&gt; other.points != points;
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Signature</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatefulWidget</span> </span>{
+</div><div class="hljs-line">  SignatureState createState() =&gt; <span class="hljs-keyword">new</span> SignatureState();
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SignatureState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">State</span>&lt;<span class="hljs-title">Signature</span>&gt; </span>{
+</div><div class="hljs-line">  <span class="hljs-built_in">List</span>&lt;Offset&gt; _points = &lt;Offset&gt;[];
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> GestureDetector(
+</div><div class="hljs-line">      onPanUpdate: (DragUpdateDetails details) {
+</div><div class="hljs-line">        setState(() {
+</div><div class="hljs-line">          RenderBox referenceBox = context.findRenderObject();
+</div><div class="hljs-line">          Offset localPosition =
+</div><div class="hljs-line">          referenceBox.globalToLocal(details.globalPosition);
+</div><div class="hljs-line">          _points = <span class="hljs-keyword">new</span> <span class="hljs-built_in">List</span>.from(_points)..add(localPosition);
+</div><div class="hljs-line">        });
+</div><div class="hljs-line">      },
+</div><div class="hljs-line">      onPanEnd: (DragEndDetails details) =&gt; _points.add(<span class="hljs-keyword">null</span>),
+</div><div class="hljs-line">      child: <span class="hljs-keyword">new</span> CustomPaint(painter: <span class="hljs-keyword">new</span> SignaturePainter(_points)),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DemoApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  Widget build(BuildContext context) =&gt; <span class="hljs-keyword">new</span> Scaffold(body: <span class="hljs-keyword">new</span> Signature());
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-keyword">void</span> main() =&gt; runApp(<span class="hljs-keyword">new</span> MaterialApp(home: <span class="hljs-keyword">new</span> DemoApp()));
+</div></code></pre>
+
+<p>可以看到CustomPaint和CustomPainter搭配使用来实现了向Canvas上绘制自定义内容的目的。首先自定义SignaturePainter继承于CustomPainter，并重写paint方法，在本例中paint方法首先采用链式写法构造一个Paint实例paint，接着遍历points列表的内容来画线。points列表是构造SignaturePainter时传入的，里面保存了触摸屏幕的事件点的信息。其他部分其实与之前的结构都差不多。关键在SignatureState的build方法中返回的是一个GestureDetector，这是一个能够帮助我们捕获手势信息的Widget，在它的构造函数中child参数传入的是一个CustomPaint，CustomPaint的构造函数又传入了一个我们自定义的SignaturePainter，并且将手势捕获事件时捕获到的_points列表在这个时候传递给SignaturePainter。于是CustomPaint就和CustomPainter产生化学反应，相互配合完成在Canvas上作画的效果。</p>
+
+<p>效果如下：</p>
+
+<p><img longdesc="./oGRD0.gif" alt="Alt text" title="" type="image/gif" src="data:image/gif;base64,R0lGODlh8ACgAPcfKwAAACQAAEgAAGwAAJAAALQAANgAAPwAAAAkACQkAEgkAGwkAJAkALQkANgkAPwkAABIACRIAEhIAGxIAJBIALRIANhIAPxIAABsACRsAEhsAGxsAJBsALRsANhsAPxsAACQACSQAEiQAGyQAJCQALSQANiQAPyQAAC0ACS0AEi0AGy0AJC0ALS0ANi0APy0AADYACTYAEjYAGzYAJDYALTYANjYAPzYAAD8ACT8AEj8AGz8AJD8ALT8ANj8APz8AAAAVSQAVUgAVWwAVZAAVbQAVdgAVfwAVQAkVSQkVUgkVWwkVZAkVbQkVdgkVfwkVQBIVSRIVUhIVWxIVZBIVbRIVdhIVfxIVQBsVSRsVUhsVWxsVZBsVbRsVdhsVfxsVQCQVSSQVUiQVWyQVZCQVbSQVdiQVfyQVQC0VSS0VUi0VWy0VZC0VbS0Vdi0Vfy0VQDYVSTYVUjYVWzYVZDYVbTYVdjYVfzYVQD8VST8VUj8VWz8VZD8VbT8Vdj8Vfz8VQAAqiQAqkgAqmwAqpAAqrQAqtgAqvwAqgAkqiQkqkgkqmwkqpAkqrQkqtgkqvwkqgBIqiRIqkhIqmxIqpBIqrRIqthIqvxIqgBsqiRsqkhsqmxsqpBsqrRsqthsqvxsqgCQqiSQqkiQqmyQqpCQqrSQqtiQqvyQqgC0qiS0qki0qmy0qpC0qrS0qti0qvy0qgDYqiTYqkjYqmzYqpDYqrTYqtjYqvzYqgD8qiT8qkj8qmz8qpD8qrT8qtj8qvz8qgAA/yQA/0gA/2wA/5AA/7QA/9gA//wA/wAk/yQk/0gk/2wk/5Ak/7Qk/9gk//wk/wBI/yRI/0hI/2xI/5BI/7RI/9hI//xI/wBs/yRs/0hs/2xs/5Bs/7Rs/9hs//xs/wCQ/ySQ/0iQ/2yQ/5CQ/7SQ/9iQ//yQ/wC0/yS0/0i0/2y0/5C0/7S0/9i0//y0/wDY/yTY/0jY/2zY/5DY/7TY/9jY//zY/wD8/yT8/0j8/2z8/5D8/7T8/9j8//z8/yH/C05FVFNDQVBFMi4wAwEAAAAh+QQEBQAfACwAAAAA8ACgAAAI/wB//RsokODAfwURHkzIcKFDgxAVRmw48aHEixQxWszIcaPHiiA1huw48qPIkyRPDrR3kOXKljBfyvznkmZMmzNr6ry5MyfPnz6D4hzakyhQo0KLKj26NCnTpzMTHrw4VarFqlOvao2INSvVrV+5grUqtmzYs2TRelXrNa3btW/bZm2KtC7du1Dt5sXrtK9ev3z/Cg5M+GjKwyYRl1yMMrFjxoobQ34suXLky3P3aga8eXDnwpxDexYNerTpmmtTq17NurXr17Bjy55Nu7bt215L6/7Mm3Tv0793+x4uGPPk45YpG0+OfLlz5dCbUyYuHDj14Niva7fOPXDcrN+7gv+HS16u+fHnxasfWx69+/Vmw7NPP/+91ur4s3fXn397//1+PSfdgMwVKKCB0SFI4IHL+cffgw5GCOCE/1WH24UYZqjhhhx2mGGFEFIYIogSkihiVAkymOKKC7Ko4IsqtohciSPWSOONJ+ZYnXzxtQcfW/b1SJ+QQQL5I49G1nekj0reZ6OOT5ooZZRUygijizFeaWWWXGI5HZQ4ThlmlWCWiZqHaKap5ppssimmmWS+KWecnXW5pZd35qnlnna+OOafcAI6p6B1MknkkkMmeWiTizaq6KNIRmoopJkRammgmA6a6U19doonn596qmefl2pqKp2lPtnmqqy26uqrm6b/KmustJooKqijhqprrrzuOeupv6Ja62+SJlpskcciiuykyTJKqbHMRjsVsMMGa221xe2K67a3dquttyFdS+24wpLrF6zopqvuuq6Zi6278JbL6bf09gout/XiK1a84srb76XNOhrws8tCa3DBCCursLPN8vuuvw9fe+/E+VJsb8Um/Rvxxg5ryu7HIIfcascQk6yxrRhfrLK+LFvsJ8clx3wymQPXLG3CDN+8sMA653zwwibDPPPQ3LlsdMotI30v0UE3LTN3Ikct9dQXOs3001Znu/LRWyvtda9Xhy302N71zPPPPuN8ttoE79x22utlLTfWdAf4ddJd54333hmJ/z2333VTLfjghKv2N9mBH14T13zfzfjjXyqe+ORi24z22m5bzrbmmZv99r6UIw545Y6Xrjfkp0ceuuSjb1z467BPzbrotGeNeuOp5477y7P3vrqwnMMtPObDf2588MSD3rrvyz95+/Om785489TXDnHs2GevLvPWV68p9LqDL/3d3v9ePqDIH+95+uyv7/7lb3Mvv/llim9/9PcTeH73/Lur/f8AbNP89jdA0+RvfOHDH/n6R78Cfu99m4Ng5+DXPgpKsHhWcWADN4ijA3pQgQnUHwMJyEFMBfCEKNyQBknIwrp8MIQIjOHSRkjDFdbvgslTnwV3GEEeTrCH9rGhEP9LSJcXyhCERwRbDYnIRECl8IlQpM0QW2hDI1oRiQekYhOXuJ0KAvGHYMQgDnX4xSZNkYtoLM0VYbjGJKokjVs8Y2CiSMc6rkaOccyjUNrIRywiUYuAhOMex+jFMOawkGL0ofDwGEju9ZGNfoQkYxqpR0EKxo6YzKQlGbnJeUnSjY8EpeooSUo0IvKQhEylIlG5yvhVkpMFDKUsI7m7UsKyhJrMZRRvaUv6zfKTv9xbL4dJw1OS0ZDHTGQZWVlGXnZyf8GMJi1J9cxqclKX2EShM7cZOGkCc5p/tOYrxznIVhrznKpcZjKZSUxuEs2bovzmJ9tJTktm857/c6c4WwdVz36CU4T6DCjE0GnOdCKToOoMnkDpKbF/xvOhwWToPtGIz4rGbqETtZ1D/SnPWma0nlU0qDIPKlJ2jvSkyvuoRDXaUY5CdIEYjSmZLEpTwsl0pcIKCAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAEALBAADAAxAB8AAAj3AAMIHEiwoMGDCBH+S8iwoUOCC1vZekix4kBbUgAAkGKxY8J/tjSKtLXQo0mBZERqTGDvpMl/KVVKaOfSo70tKgGQqemxnYScrUrypNgugcokE4dW3JQTqVClDH9lVLnlF9SHtpLkJBXg6dWCEYGoTNDqa8ObOaW0NKvQ3k+qbBUGIGVUZdm4BzE2TYoXYqucG/saRDv2ruCBdNPSPCxQb86dXs0utBdTpRSSjG1tqisyAVfGrabm3LK2L2WtgJPsZNvK3q9WpJJwlvnZbLuVYgFrlGJYMk7dGlW3jAz1HyndSbb0Prw5iQQppFr9It73X+mB1NkGBAAh+QQFBQABACwRABoAHwA7AAAI9wADCBxIsKBBgwkOKlzIsKHDg1IeSpxIsaLFixgzatzIUWIbh+06EmwlkmDEkgJPomwFoCWAJCITuCQz8JfGLS5hdrTlEkC7fx1ltqTZcVNOkSxbJgjJ0Z5QAEQ5SnGpciMZlwmBbmzX05bIJC5JicTZcovWjaRy2tz4j6dSexz/OXVJsuPUsmNdSkDaM8DZjLaAuPzZUUJYkXcBVNV4teXejlxbJvHKNkDPuhwND0VMVWRjAAk7Jm356y/GwHQ5txQbl6xiz1hF2nMJhDLHnqylutwi0qhkvm87zm3ZyjTGxJuMW/yXtuVijHKFbirZikzujsodBgQAIfkEBQUAAQAsGwAaABIATgAACKEAAwgcSLCgQAkGEypcyLChw4cQI0qcSLGixYsYM2rcyLGjx48gQ4ocSbKkyZMoUzZsp7Kly5cfyQxMYM9hOwACAdh6CKAnAFIPJfjc8nCTzwQB/jW05RMAS4cJfAJt+E+KTykPWx19aK9pq4dJhj4ks9WmV4e/wvbcNLZsw64+ZTq02hOpUoZapT6kC4Am1Zti5zZ9aAtI3ZoObSWRMpVgQAAh+QQFBQABACwjABoACgBQAAAISQADCBw4MAHBgwgTKlzIsKHDhxAjSpxIsaLFixgzatzIsaPHjyBDihxJsqTJkyft/VOYgFRCAAAMDmwFE6aUg2SAALiJ8FfCgAAAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAEALDIALQAHAAUAAAghAAMIbCWllUB7UgAoNEhGocItAUg5TGLrX4AtCaTYCxAQACH5BAUFAAEALCgALgAOAA0AAAhWAAMIHEgwQDsJBROSSpCw4CYAABoG+BdACsSLCW0luQiRFMF/rTgCSNCqIBmREuxRHGiR45aC7RKIJFOQlMgktlYOlHlRyq+GLRN41EnwF6kt7SQKDAgAIfkEBQUAAQAsEAA3ABwAHAAACLAAAwgcSLCgwYGbDipcGMCWFAAMIw5sBQQAxAAXJRL8F4CMxY8JNBq09/AjgC32RBIklcAkEDIqBXIs+TGJrZgCWyUxCUDKTZxbeCYghTMAkJYmpdjjWJQnGaZFMVr0GQCqyCQDLW6pWvRhVqJRS0YtSMrkxKJlzY61hxRAAqxjaQIg1Wqsx48Jo3I0idWqyn+bTP6M2q7tFr8xg35MOTYAzbyNdfZsTPBXO8oFEUcNCAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAQAsFAAcABwAJgAACEAAAwgcSLCgQYNJDipcyLChw4cQI0qcSLGixYP/LmrcyLGjx48gQ4ocSbKkyZMoU6pcyTIBS5IZX8qc+bANxIAAACH5BAUFAAAALCwAGgABAAEAAAgEACUEBAAh+QQFBQAAACwrABoAAgABAAAIBQDbJQgIACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQABACwzABcADgAbAAAIVQATBBhIsKDBgwgTKlzIsKHDhxAjSpxIsaLFAKS2tFq4CYBHe/8SJvAIgJTCJCRNJpRCkkxIhJJIbnpp8B8ZklsUdvQoRWErnDQDAClIRsoWew1fBgQAIfkEBQUAAQAsIQAvACIAIQAACL4AAwgcSLCgwYJkBko5yLBhQVIAIi50SNHgP4gSK2oceDEigCQbQ5LxKCHkRowfTVbsmFElxU0eJ7psODLiln8zG8KMuAlnTotbPG75efCfFI+biB48GpGMT6UKkT6FatRjQqgEmQIghTWr1alQtZLyeZVo1Yhcuwb4lwSpWoFBbYJVilLK3J//WnlMYO9tO48AbL0NADitWglCB8cFsPBuzpoA+Dqe2S6BR8Fv26IdDLnV5Jn2tiQpO3itwIAAACH5BAUFAAEALD0ATAAIAAoAAAgzAAMIDLBp4JaBUga2AsAQiK2BDBmSQhgxQYB/ARZGnChQSsQkA21F3IJRYCspZAaqLBkQACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQABACxKADwABwAIAAAIKgADBPgnUCBBUmTaFdwEoKFCexIaAthCkGHDJAMDJGlIpqAtUq0KZiwYEAAh+QQFBQABACxKAEAADQAQAAAIXgADCBQIxNbAg7YACARA6qDAfwGkAJgoIQBEh60mTjToUGASjVI6CiSjMYHIAPY0AiBzUuLEJCczaiR18eA/lwAk2BMpcyJLkR81buGpEgBHjBornrRFiszOkw8FBgQAIfkEBQUAAQAsOwAzACQAHAAACGsASQUYSLCgwYMIEypcyLChw4cQI0qcSLGixYsYM2rcyLGjx48gQ4pU+M+eLZGkEgDY8rEkgJcATnrcAjPBx1YwAQjsaCtnko9Jcrbi+C+AlJxkOm45ClPCx5wJ7IF8GXXqSqkeN0mRMhRhQAAh+QQFBQABACw7ADMAJgASAAAIbgDJBBhIsKDBgwgTKlzIsKHDhxAjSpxIsaLDVq3sWWT4L4AUAACkaNyY8J+9BCAB2CK5MElKUiwVSkgpMCZClyA32USIEmSrnQZ/pQTwEyhBUimBrDQa4N9HkFuYDrQ1FKbUjwEAJJAaoF3BmgEBACH5BAUFAAEALFYALwALABcAAAhYAAMIbGVPoEGB7RIASNDu38F/WwBITFDwICmJErccFCgFI4BWG20lwZhkY4BWHjeZlIAxgUmUGFs5PNhRoqSZBi8KdGkSgMmfQIMKHUp0Y8miSJNulPIzIAAh+QQFBQABACw7AC8AIAAFAAAIKgADCBxIsKDBg62SSGl1sKHDgbaAAAgw8aHFgu0qXtxIcNNAUhw5JhEYEAAh+QQFBQABACwQABoASQA9AAAIgAADCBxIsKBBg/YOKlzIsKHDhxAjSpxIsaLFiw23YNzIsaPHjyBDihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmzhz6tzJU2SSnkCD0iQDUorQo0iTKl06EQDTp1CjSp1KterENlazat3KtavXr2DDVk0otqxZiL/Oql3LlibZnAEBACH5BAUFAAEALCEAGgA/AD0AAAhvAAMIHEgwgISCCBMqXMiwocOHECNKnEixosWLGDNq3Mixo8ePIEOKHEmypMmTKFOqXMmypcuXMGPKnEmzps2bOHPqHEhqp8+fQIPmlMIwgdCjSJMqXcq0qdOnUKNKnUq1qtWrWLNq3cq1q812QgMCACH5BAUFAAEALCEAGgAMACgAAAgqAAMIHEiwXQKCCBMqXMiwocOHECNKnEixosWLGDNq3Mixo8ePID2ScRgQACH5BAUFAAEALDsAGQA6ABsAAAhkAAMIHEiwoMGDCBMq/KewocOHCO2R2dQKosWLCbcA2EiGIcaPFm0B2QhACsiTEKWQJIWypUKJpCq6nHnQI82bOHPq3Mmzp8+fQIMKHUq0qNGjSJMqXcq0qdOnUKPeJJMzSc6AAAAh+QQFBQABACw7ABsANwAZAAAITwADCBxIsKDBgwgTGrSnsKHDhwhbAYBIsSJCUhMtarT4a1OCJBtDQmQosqTJkyhTqlzJsqXLlzBjypxJs6bNmzhz6tzJs6fPn0BbkgpKMCAAIfkEBQUAAQAsOwAbAEAAIQAACNMAAwgcSLCgwYMIExr8p7Chw4cQI0qcSLGixYsFWwHYmACjR4gaNwL4xfCjyYO2gIi0V/Kky4EJRLZ6STPAryQiSdWkuUXklpY7P5ISmSToyX8hASSwZ9SkvZgbZzb9iHPjlqkfe26UgNXjUJG2gHaVaKsqAKljKf6T4jNtxX+biLqtaEtkx7kTn8rEO9HsVb4RyYjkChikSAC2CkM0q1MgGcUJtQL4CbnhVwBFKyf8V3evZoR6Nz7+jFByZtIGkwJgirqgPQkcSbZ2TWZT4tkISwYEACH5BAUFAAEALHQAOAAHAAYAAAgmAAMIFNhOYAKBAMgI3ASgoZR//1o1BJDAXgB7EhqSGhjAViuBAQEAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAQAsbgATABcAGwAACJYAAwgcSLDgwH8GExoklSBJK4UQA7QCQBFAAIQRC9qqCKBdxoQJKj78SPCflIpSSBacSDGBSoL2OI609zJJRVIvB56kuCWnwE0Vk/iUWDEBzZztQlK0hbGmyKYkTVYkMxQoxZQ+yaCESpIlAKE5/21sefRlzIq2fP6SOVQpgJE5bVLE6VPC1KE7AWDNqZXnUHtbkmyxFxAAIfkEBQUAAQAsfwAiAAoAJAAACJIApQQYSLCgwYMIEypcyLChQ4VbCEowSAqAxSQGW1kEMLFgxYsZNyawV7BVgo22/hG0BWRjO4MnLbYymGTjzIJSbKokmNMiqYL/egIgA1ToJoNbNm7ZOfAjAIwE/2m0ODJqu40AbBX8hfUmwZgAvA6safFowaQWIxbctBEqwakWSRK0B7YV0wCSXDJVKUXCzwABAQAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAEALF8AIQAsABgAAAhWAAMIHEiwoMGDCAf+S8iwocMAttr9ekjxIRkAGG1V3HjQFkaMUjiKJCjho5SFI0XaK5mgXcqU9jS+nEmzps2bOHPq3Mmzp8+fQIMKHUq0qNGjDyUhDQgAIfkEBQUAAQAsXwAhACgAGAAACHwAAwgcSLCgwYMD7SFcyLAhQoUOIzZMkCSBxIsC27WSMhAAAIwL/wn8RWpLAo8fBaIEedDWJglAUK7sWJHlwE2tZOpMKZCUzYKbdgJIssXnT4RkUEqQ0kqhyKMLbZGyFeAp1IhWCSa5yrWr169gw4odS7as2bNo06LlqDYgACH5BAUFAAEALF4AIQAjABgAAAiGAAMIHEiwoMGDBP8hXMiwocOHECNKnEixIsFWFh0mSZAxYQBbpDgKBACgo0BbmySQLDmQJUV7rbYkWElzIBApE1tJmUmzJ0ScAf7BlNKzZ4JNbSQqlFl0pZQttir+StL0JqmoGe3xdErql0KTATaRlHAVrMFWWM0i/Kq2rdu3cOPKDSBpbkAAIfkEBQUAAQAsWgAtAAgADAAACDEAAwgUaGugwHZbABhsBaChwASkEjRUKHBiQymtKjbcZDAAACkB/nUcSbKkyYEgAwQEACH5BAUFAAAALGAAMwABAAEAAAgEAO0FBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAQAsIQAaAFcAPQAACIIAAwgcSNAewYMIEypcyLChw4cQI0qcSLGixYsYM2rcyLGjx48gQ4ocSbKkyZMoU6pcybKly5cwY8qcSbOmzZssN+HcybOnz59AgwodSrSoQlJGkypdyrSpU4wAnkqdSrWq1atYn7bJyrWr169gw4odS7as2bNo06pdy7atW4kGvwYEACH5BAUFAAEALCEAGgBOAD0AAAh6AAMIHEgwgISCCBMqXMiwocOHECNKnPhvosWLGDNq3Mixo8ePIEOKHEmypMmTKFOqXMmypcuXMGPKnEmzps2bOHPq3Mmzp8+fQIMKHUhmqNGjSJMq9ZlgqdOnUKNKnUq1qtWrWLNq3cq1q9evYMOKHUu2rNmzKdtVDQgAIfkEBQUAAQAsIQAaAHAAKAAACJEAAwgcSLBdAoIIEypcyLChw4cQI0qcSLGixYsYM2rcyLGjx48gQ4ocSbKkyZMoU6pcybKly5cwY8qcSbOmzZs4c+rcybOnz59AgwodSrSo0aNIkypdyrSp06dQo8b8J1VkKymbflX1SAqAVylbOybwCuBg2IxUk5AldXajLSkJ2LbVSHWu3bt48+pNSWbvxYAAACH5BAUFAAEALI0AJwAQABIAAAhrAAMIHEgwwL+CCAfa2yKlVUKC/6QAmGjrocBWEyc6THgwScYkBjluyghgY0KMGaUcTGgvQcYE9ixuIUnKIhmSm1YiRDkR5ENbHicCqfgwqMaHvyRm3GJR6USmD0dmlGCRIAAJMasKBJDVYkAAIfkEBQUAAQAsjgAhABEAEAAACGcAAwgcKPDfQIMEEwr8Zc9WK1sKCbbakiQBgItbEhpsJeWiR48ZB9rb8rEkgCQBNlosWdFjAoHtVoJsFSCJRykCW32UAjFAu480BXZMsCliAAn2CNqyh1AhKY1Go0qdSrWqVauSIgYEACH5BAUFAAEALIgAJwAKAAwAAAhGAAMIHEgKwMCDmwwe/BdgC4CHART+S/gQQIJWAgtWvBjgn70EG9sxbFgRAKmBtoBU3ISwpL2DEipuORhAI0ea7ci8PAgkIAAh+QQFBQABACyHADEACwAKAAAIPABtAQgQAAApgghbAVgIxBbCAEkULpTwkGC7hQAaBviHUCDGiBW3YFxYMUACjCX/2ZNCsmQAew5dbnQZEAAh+QQFBQABACwzABcAagAkAAAIlwABBBhIsKDBgwgTKlzIsKHDhxAjSpxIsaLFixgzatzIsaPHjyBDihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmzhz6tzJs6fPn0CDCh1KtKjRo0iTKo25aanTp1Cjtvwn1aIUe78C2GrVqupEAEASAAFAFkACe14fll1bthXVtAzZrj37Fm7CJBKSJEgiJcmWLWTa2bX4NiAAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAQAsogAzAAcABwAACCoAAwT4J7BggDakfgn8twUAgCQCbQFxCKBVAHsJKNoi2CojGYP2fhEMEBAAIfkEBQUAAQAsogAfAA0AFwAACIIAAwgcSLAdwYMBfm0CAKQVwgC2kgCYCAQhmYkYJRxshXGiFHsEWwHpuOXgr5EYHR4k1ZHMwwQYpTy8iNEgwi0YkwT4h1AKRpcIf3Uk9dBeR1sI/9nCmAAkQpYTk/yamfFhgIUeH/6jCaBkUpxZH4IFQIYnQokTSZklaC+BQAAqDwYEACH5BAUFAAEALKsAGgAUAAoAAAhZAAMIHEiw4L+CCAUetGeLFCkpZBIGOBigHRkpCQBo1LjFYAB7ZJJsHKkxycSBraSQXAmgFUqVLAFI2dKq1S+KUgKsTELT1kmJG2kOpChR5yafRIui/KlUYEAAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAQAsIQAXAJkAQAAACLwAAwgcSLDgwAQGEypcyLChw4cQI0qcSLGixYsYM2rcyLGjx48g7YEcSbKkyZMaRaJcybKly5cwY8qcSbOmzZs4XZLKybOnz58FVQIdSrSo0aNIkypdyrSp06dQozJtI7Wq1atYs2pdKnSr14n/voodS7asRklm06pdK3En27dw45K0Jbeu3bt4LwLIy7ev37+AAwseTLjwU6qGEytezLix48eQI0ueTLmy5cuYM2vezLmz58+gQ3PsKtphQAAh+QQFBQABACwhABoAbwA9AAAIkQADCBxIMICEgggTKlzIsKHDhxAjSpxIMeK/ihgzatzIsaPHjyBDihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmzhz6tzJs6fPn0CDCh1KlGG7okiTKl3KtKnTp03JQJ1KtarVq1izhkygtavXr2DDih1LtqzZs2jTql3Ltq3bt3Djyp1Lt67du3jz6t0r9ujdgAAAIfkEBQUAAQAsIQAaAAwAKAAACCoAAwgcSLBdAoIIEypcyLChw4cQI0qcSLGixYsYM2rcyLGjx48gPZJxGBAAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAQAsWAAtAFMATQAACKYAAwgcSLCgwYMIEypcyJCgvYYQI0qcSLGixYsYM2rcyLGjx48gQ4ocSbKkyZMoU6pcybKly5cwY8qcSbOmzZs4c+rcybOnz59AgwodSrSo0aNIkypdyrSp06dQo0qdSrWq1atYs2rdyrWr169gw4odS7as2bNo06pdy/bmP6r2bEX9Z08CgATtoJIBwHfLW6ek+AJI8svpP1uCpURtJUXKQ6h/oQYEACH5BAUFAAEALFkAdwAOACQAAAiyAFsFGAhA4MCDA+0lAMCQDMKHUhgCkPIQYRuJCexVTLiQYat/GwNEZLgJZMV/pDBq3GhPYsGQAZJI3ARzi0QJMFu5/GXy4S+ZHnsi/DcSwJaQKCUmgWkLI0yFEg1uLEoxJJmbMFNKZOqyXUh7EqIKRVi05MZ/VxlW3agVQJJfIZsyTOCVZUcAbWBShZkWQIKcLm3BBAqAlF6JW8YebPv2rM65KytCdQszQCspUmwpPig0IAAh+QQFBQABACxeAIkACQASAAAIJwBbBRhIsKDBgwgTKlzIsKHDhxAjDgQwkUxBKQAybipoS0oCKb8CAgAh+QQFBQAAACxeAIkAAQABAAAIBABJBQQAIfkEBQUAAQAsTgAiADIAeAAACJwAAwgcSLCgwYMIExLcpLChw4cQI0qcSLGixYsYM2rcyLGjx48gQ4ocSbKkyZMoU6pcybKly5cwY8qcSbOmzZs4c+rcybOnz59AgwodSrSo0aNIkypdyrSp06dQo0qdSrWq1atYs2rdyrUrUFv2YLZLACBBu38t/20BwHbLS1JsATB8K8UtTLRe8+rdy7ev37+AAwseTLhwV1IbAwIAIfkEBQUAAQAsTgAiADIAeAAACJQAAwgcSLCgwYMIExKUorChw4cQI0qcSLGixYsYM2rcyLGjx48gQ4ocSbKkyZMoU6pcybKly5cwY8qcSbOmzZs4c+rcybOnz59AgwodSrSo0aNIkypdyrSp06dQo0qdSrWq1atYs2rdyrWrT1ukWsEkAwBAzCRmY25JG7PVli1e48qdS7eu3bt48+rdy7ev35KbNgYEACH5BAUFAAEALEoAbwAVABsAAAhiAAMEaGfLnsCDCBMeJAUAgBSFEBEmaAjAVkSIrSgCMHgxoRSKSToqlECRjMiESSiSOimxJMuDHylu2fQyI8WXAv+RuYnzX4BWKXEe9NmK1EOhSJMqXcq0qdOnUKNKnbq0VUAAIfkEBQUAAQAsSwBjABQAJwAACH0AAwgcOLDdli2//hFcuNBeAgAApDCcKPAhxAT2KBK0JwEiRFIaCW7xGDHkwJEeJZr814pkkgAKQ9oC4hGILZMCk5BsFVPjP1Ikt+AM4NCjhKEBUEJsN/QXSZU4NwkEYBOpSKtYJ0LNyrWr169gw4odS7as2bNo06pdW5ZUQAAh+QQFBQABACxRAFcAHgARAAAIigADCBxIsKBBgf8GJjzI0KA9W6S2bCJDqlXDi+1IJUkAoKNHAFsWXhzYSsrHkx2B/BqZsNUWlDC3jBS4CWYSKRNJ6WzD0lYSlFssihR5kQxKKbZmMnz5UYJFpQclnJRJFKpAkx9bVbVqj6PHJEmtFmzltaOUAFutAhBoVuxIkGjdKiy4Se7MtFYDAgAh+QQFBQABACxqAFgACwAMAAAIRAADCLQnsKDBAAmktDpYEIBDMgH+HXTocAvBAAslUKx40FaSjbY6AqGY5NfBVhvbMUxAEeJBKRSlMCRDcQvDAGSS2AwIACH5BAUFAAEALF4AYgAXACgAAAiGAAMIHEiw4MAtA6UYXFhQCoCHChlKlPAQAEKJBv/ZqgiAFMaFmyom+fWxYLsEFcn8KylwJcWK9layDECG46aZK7dwjDizJkdbLP/Zc1gRSKuZpFD+nNmKI4AkR3vunDnQHsoEpGRSDWAP6NaMX8OKHUu2rNmzaNOqXcu2rdu3cOPKLRt1bEAAIfkEBQUAAQAsUgBnAB0AIwAACJUAAwgcSLCgwYOtDipcyLChw4cQI0qcSDHiv4oLbUnBaJAMAAAcBf4ileDjxwAgJ9prk8SkyS3tJraS4PJjkoQSNdYEkIBUgIsSdyYhY0+iT4EuE2yquBTpxy1FKUpJKfAm0JxTT4YM0NLk1qwfE2BcChaAFJwV7bmUELXixa5stwYYSVSu3bt48+rdy7ev378Gj0IMCAAh+QQFBQABACxRAHUACwATAAAIWAADCBwokAzBgwgTKlzIsCHDVgvtJQAgMMFBMgAyAoBIMIlGKQftadx40JZGiwP/BZD4kVQrewM9jsyY5FcAW0BmZtwU4J+tJBNHchRoj8ymLVLaKFQpMCAAIfkEBQUAAQAsVwB4AB0AEgAACIEAkwQYSLCgwYMIEypcyLChw4cQI0qcSLGixYsX/0FsZ6tdKyAESXW0ZY/krwAaGQJIAAAAwZYwVwKQIoUMqVb2UCKE+TKmT5gJpGwhdbIgz4E/k8YUSFACTSkuBwZ1KiFJAiBKAbQzmJLgFp0E7bVqtWmL1ZZMK6YU26poRoIaAwIAIfkEBQUAAQAsIQAaAHEAdAAACP8AAwgcSNAewYMIEypcyLChw4cQI0qcSBGiwYoYM2rcyLGjx48gQ4ocSbKkyZMoU6pcybKly5cwY8qcSbOmzZs4c+rcybOnz59AgwodSrSo0aNIkypdyrSpU5BAPJJ6SrWq1atYs2otCWCr169gw4odS7asWYptzqpdy7at27dw48qdS7eu3bt48+rdy7ev37UX/woeTLiw4cOIE3tspbix48eQGweOvLAd5cuYM2vezLmzZ40JPoseTbq06dOoU6vGHFovY8ESGrdubCvAP70AEkgh89p2XQDAASTZ0qr23ODIgW+ZCneTBCDJkQPZYtlqb4qttiSJHjxJq9trwQsbtEdGCncAxuHeJr8d+fW57bQD2JL3NmPxDgMCACH5BAUFAAEALBgAGgBxAHcAAAjyAAMIHEiwYEEJBhMqXMiwocOHECNKnEix4sB/FjNq3Mixo8ePIEOKHEmypMmTKFOqXMmypcuXMGPKnEmzps2bOHPq3Mmzp8+fQIMKHUq0qNGjSJMqXcq0qdOnZJ5KnUq1qtWrWEsmyMq1q9evYMOKHUu2rNmzaNOqXcu2LctWbuPKnUu3rt27ePPq3cu3abu+gAMLHky4sOHDiBMrXsy4sePHkCNLnky5suXLmDNr3sy5s+fPoEOLHh1XCunTqFOrJmpPb4JNv/ACAACEVGu5QALM3p2AFEa39jYl2D07we249sgk2W3aLqktW379pjs9QEAAIfkEBQUAAQAsFAAaAHAAcQAACL8AAwgcSLCgQYHtEhxcyLChw4cQI0qcSLGixYsYM2rcyLGjx48gQ4ocSbKkyZMoU6pcybKly5cwY8qcSbOmzZs4c+rcybOnz59AgwodSrSo0aNIkypdyrSp06dQo0qdSrWq1atYs2rdyrWr169gDZIJS7as2bNo06pdy7at27dwTSqMS7eu3bt48+rdy7ev37+AAwseTLiw4cOIEytezLix48eQI0ueTLmy5cuYM2vezLmz58+gQ4seTbp0TFIBAQAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAQAshgByAAkABgAACCYAAwgM8G+gQVJSyBgMsAWAwy0CCzp0mISgQCkT2yxsRcpWwQABAQAh+QQFBQABACyFAHQACAAJAAAIMgADBLAnQaBBe1IMGmwFAIBBMgG2NASQQKC9BBMhBrA1EUA7gxIBbPqn0FYrhQZJGgwIACH5BAUFAAEALIQAeAAJAAsAAAg7AP8FGEiwYMFWBO0BGAjE1sB/tgBITGAvYQKJABASTIJRSsEtGAG0s4hxi8CBpDBuOilwk4QtBgmeDAgAIfkEBQUAAQAshwB3ABAADQAACFYAAwgcSFBgKylb7BVcaAuAQwkLCyZxCCBJxIGbKAIgczEAKY1SOrbTCKDdxVYJNJJaSMpWRo2bIpJ0uIVgTIEzbxLcMjPByn8L222RIkFKq44EgXYMCAAh+QQFBQABACyTAHAACAAKAAAINwADCPwV4J/AAPa2AEjQ6mArABAlFAywCSKAJAcVRjyYxKIUge0sAmgYQOPCgwcBkDKIEgDKgAAAIfkEBQUAAQAskABtAAsAEAAACD0AAwT4F8DeQIEIA7RKkmBTq4QEAUiUSIagQHsTJ5JJSCqBxAAAkhw8uAVhgoQoU6pcybKly5cwY6o0mDAgACH5BAUFAAEALI4AbQAHAAkAAAgsAAMIDGBvYABbmyQItLcFAICBEhw+FCjRoUAyDqW0skfmYDuDAv+BHCgyQEAAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAQAsFAAaAIcAcgAACOAAAwgcSLCgQYH2DipcyLChw4cQI0qcSLGiRYcJL2rcyLGjx48gQ4ocSbKkyZMoU6pcybKly5cwY8qcSbOmzZs4c+rcybOnz59AgwodSrSo0aNIkypdyrSp06dQo0qdSrUqVFJWs2rdyrWr169gKwIIS7as2bNo06pdy7btwzZu48qdS7eu3bt48xbEqrev37+A144NTLiw4cOIEytejJCx48eQI0ueTLmy5cuYM2vezLmz58+gQ4seTbq06dOoU6tezfqjlNaS/8GeTbUd7du4c6OVoLu379/Agwt/yjdkQAAh+QQFBQABACwYABoAlwBpAAAI8gADCBxIsGBBCQYTKlzIsKHDhxAjSpxIsaLFi/8uatzIsaPHjyBDihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmzhz6tzJs6fPn0CDCh1KtKjRo0iTKl3KtKnTp1CjSp1KtarVq1izam1JZqvXr2DDih1LtqzSBGbTql3Ltq3bt3Djyp1Lt67du3jz6t3Lt2/OVn4DCx5MuLDhw4gTK17MuLFjs+0eS55MubLly5gzaw5MilSAjJsFSgAAIImt0P9skSYt5XPo0aS3hB64JYns2bhz697Nu7fv38CDCx9OvLjx48iTK1/OvLnz59CjSxfeemtAACH5BAUFAAEALBQAGgCXAFYAAAjWAAMIHEiwoEGB7RIcXMiwocOHECNKnEixosWLGDNq3Mixo8ePIEOKHEmypMmTKFOqXMmypcuXMGPKnEmzps2bOHPq3Mmzp8+fQIMKHUq0qNGjSJMqXcq0qdOnUKNKnUq1qtWrWLNq3cq1q9evYMOKHUu2rNmzaNOqXcu2rdu3D8nAnUu3rt27ePPq3cu3r9+/gANjVSi4sOHDiBMrXsy4sePHkCNLnky5suXLGVtJkbIJcwBbQAB4FthK9OgAv6SYPt3utMB/rmPLnk27tu3buHPDtVcxIAAh+QQFBQABACybAF8ADwAVAAAIdwADCBxIMIA9MgUT/msnAUDCgf8CbAHg8OFAKRQpPoyYJCOABJsQFuyYMUG7ghEnZpRgsZVHCfYe2ktQ8uRDlRRbRUxoy6MUiwE2ZQRiy2I7mhRFPiTjMaZFjBR/WpyZsRXQnhltPmw3tChQpFKvhnQKdCdQgQEBACH5BAUFAAEALJgAbAANAA8AAAhHAAMIHCgwAcGDCBMq/JewlcKHA20BEAjAXkJ7ADICcJgwiUYpCsloBEDqYoKRSWwhJDUSQJKEm0aCTNhuSxIJ9hg+1AlRZ0AAIfkEBQUAAQAsogBtAA8ADQAACFYAAwgcSFDgv4IIBdprlbDgJgAApDQMYEsKRIgMEba6CDGBvYL2LHJM0G7gQVIJOALY8lEhmSQqgZAhCCSlyiQtCapMQKohx5kNEyTZQurXxAA5D04MCAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALO8AnwABAAEAAAgEAAEEBAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAQAspABPAAYABgAACCEAAwSw10rgv3YJAAAouEUhAAkBWjmUIpCUBCm2BBoMEBAAIfkEBQUAAQAspgBRAA8AGwAACI0AAwhMILCgwYMAthw8KAWAQwCt/i0U+CvJQyC2Jgb4Z+shACkbNZLx2E7jwIcgNf4j5ZGUyQAWHSZ52arly4YOJbxs57GVSpgPFZoc6TCBPZM8H/o0iRPAppdEAeg0ac9jRpMJHro0uSXoy00PZ5qsWfSoRntZHdqSOLGiUrYL/3VV+9LeFilLX8INEBAAIfkEBQUAAQAsrABfAAkAFgAACEsA7QUYSLCgwYMIEypcyLChQ3sJCLYqmASARVIFpVgEQOYfQY0XPQ7cspEMQVsgAWwqmKCkyIEbN73cCGBLxpgGpSSQEuBlT4EDAwIAIfkEBQUAAQAsrABfAAIABAAACAgA2wUYSLBdQAAh+QQFBQAAACzvAJ8AAQABAAAIBAABBAQAIfkEBQUAAQAsugBYAAcABgAACCMAAwT4J7BggFZkpLQa2AqAQwC2Amx5CIBUgHYPpRRsxVFgQAAh+QQFBQABACyyAFkADAAOAAAITQADCBwo8B/BgwJ/SUFY0FYSAAwDtHoI8eC/VgAyZpRAkIzGjFsIbvkIgAxBKSRbnSRpy6DABB+T2DoY85fLgRql/GIIMsDNg+0iCgwIACH5BAUFAAEALKoAZQALAAkAAAgyAAMIHEhQykB7CQYC2EQwAQAABAdKeQiR4L9WFCsO/LcpY8QAGCl+DLBF5EhbrQwSDAgAIfkEBQUAAQAsrgBnAA0ABwAACDMAAwgcSPAfwYGkWm2SkESCvYMBAEicuMUgwYkTN1kciDGBFIgBkmwhZSuARVISIG4MEBAAIfkEBQUAAQAsrABnABMABwAACDIAAwgcSFBgK1JSJCRpVbChQAAQIQKx5bBhRAAJKlqEmIChxoFJyJCi+HGgPYcnSzYMCAAh+QQFBQABACwUABoAsQBpAAAI/wADCBxIsKBBgfYOKlzIsKHDhxAjSpxIsaLFixgbJszIsaPHjyBDihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmzhz6tzJs6fPn0CDCh1KtKjRo0iTKl3KtKnTp1CjSp1KtarVq1izat3KtavXr2DDRiUltqzZs2jTql3Lti1QAG7jyp1Lt67du3jz6t37tQ3fv4ADCx5MuLDhw4ifkk3MuLHjx5DZwo1MubLly5gza97MGefGzqAzSghN2uqW0qhTq17NurXr17CDfl74L7ZEW7Zzv6yt+6Gtdm02SUmSYFNvhQCSK0+++HjB5crJODe4PAGALbOnB5CyhVSr7NoL8iIOr308+fPo06tfz769+/fw45MEL7++/fv48+vf73N03YAAACH5BAUFAAEALBgAGgCkAGkAAAjlAAMIHEiwYEEJBhMqXMiwocOHECNKnEixosWLD/9h3Mixo8ePIEOKHEmypMmTKFOqXMmypcuXMGPKnEmzps2bOHPq3Mmzp8+fQIMKHUq0qNGjSJMqXcq0qdOnUKNKnUq1qtWrWLNq3cq1q1eLZL6KHUu2rNmzaNOqdZhgrdu3cOPKnUu3rt27ePPq3cu3r9+/gAMLHgyyFeHDiBMrXsy4sePHkCMflSK5suW57S5r3sy5s+fPoEOLHk26tOnTqFOrXs26tevXoX/Bnk27tu3buHPr3s27t+/fwIMLH068uHGflNUGBAAh+QQFBQABACwUABoAhwBhAAAIwQADCBxIsKBBge0SHFzIsKHDhxAjSpxIsaLFixgzatzIsaPHjyBDihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmzhz6tzJs6fPn0CDCh1KtKjRo0iTKl3KtKnTp1CjSp1KtarVq1izat3KtavXr2DDih1LtqzZs2jTYiSjtq3bt3Djyp1Lt67du3jz6vWqcK/fv4ADCx5MuLDhw4gTK17MuLHjx5AjS55MubLly5gza97MubPnz6BDix5NurTp02L/BQQAIfkEBQUAAQAsmgBLADkAMAAACHYAAwgcSLCgwYMIExoklUTCJoUQI0o0SAaARQDtJmrcaHDLRQC2/nEcqdFWEgBAyJBcKVFkqwAiWcqcSbOmzZs4c+rcybOnz59AgwodSrSo0aNIkypdyrSp06dQo0qdSrWq1atYs2rdyrWr169gw4od2/QX1YAAACH5BAUFAAEALMIASwAOAA0AAAhSAAMIHEgwAJmCCEklQFhQCgAADAXaSvLwIcNWFR8m2PJL4L8AWzICkGCPoD2HGcmU9NgqQUYgbQq2zJjEFkKMFaVEDOAwwaadAezZWgn0I9CAAAAh+QQFBQABACyaAFMALAAoAAAIcgADCBxIsKDBgwgJkgKQsKFDh5sYPpw48V8AKQAyBpBIsWNBWxgzAkjQyqPJAP9sJRE5st1JkypZSrBn8WXHlSKl2Nx5ESXPn0CDCh1KtKjRo0iTKl3KtKnTp1CjSp1KtarVq1izat3KtavXr2AF1owaEAAh+QQFBQABACyaAFkALAAiAAAIZAADCBxIsKDBgwYTEJSAsKHDhwQBJJEgxRbEixgBaJSIsWPDjRoT2PNIcmCSBCcBJCBVsqXAX/ZsjXRJs6bNmzhz6tzJs6fPn0CDCh1KtKjRo0iTKl3KtKnTp1CjSp0a4JfSgAAAIfkEBQUAAQAswwBZAAoADwAACFUAAwj8J7BggCQSpJBp9SsAQYEAIgIA0sqgRIlbCl6UaEugrXZbLm4aKJCMRCkGA5CSmKTjwJURJdgzuOlkypARyTwUmEQiqZ3/WkVMktIjw6IODQYEACH5BAUFAAEALJoAXgAyAB0AAAiIAAMIHEiwoMGDCBMSlKKwocOHECNKnEixosWLGDNS3KLR4q+OGtsBEAjAFkiKZACoTGDv5MQkKgEwdAmxjciYrWhC/LclZgKdEG0BibnpH1CHUmKWPNrwpkqOTBO2S+CzZVSEEpSSupowqcqZXA/akpJgU9iERgWmPcu2rdu3cOPKndtx7dyAAAAh+QQFBQABACyaAG0AKwAOAAAIPgADCBxIsKDBgwgJkkrIsGFDUgAcSpwY4N+WiBQzJrQnAaPGjwTt2bIHsmRFkyhTqlzJsqXLlzBjavwlk2FAACH5BAUFAAAALJoAegABAAEAAAgEAP8FBAAh+QQFBQAAACyaAHoAAQABAAAIBAB/BQQAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAEALJoAFwA7AGQAAAidAAMIHEiwoMGDCBMm/KewocOHDe1t2WQLosWLChMA2FgRo0eMtjZu3PSxpMUtIlsxNMlSYZtNrVrKbLhyps2bOHPq3Mmzp8+fQIMKHUq0qNGjSJMqXcq0qdOnUKNKnUq1qtWrWLNq3cq1q9evYMOKHUu2rNmzaNOqXcu2rdu3cOPKnUu3rt27ePPq3cu3r9+/gAMLHky4sOGqNacGBAAh+QQFBQABACyaABgAOABjAAAIjAADCBxIsKDBgwgTIiQlQYrChxAjGiQFQKLFiwm3YNzIMQDFjiAlMnQYsqTBfyZTqlzJsqXLlzBjypxJs6bNmzhz6tzJs6fPn0CDCh1KtKjRo0iTKl3KtKnTp1CjSp1KtarVq1izat3KtavXr2DDih1LtqzZs2jTql3Ltq3bt3Djyp1Lt67du1t/HQ0IACH5BAUFAAEALM4AHAAPABgAAAiIAH8lAUCQ1L8ACBMm3EIQgBR7CiO2awigVcSIAwlKuaiQTMMEEDkGsJegoUGRATY1TILyXyuKFlFKaLgFZQBSFENytAWk4SabHglKsGmPIhmRB6WsDHCQ48uG7ZpyLEmwJlKVBIHYQmmLIimbDAkmsPmUYCupFzMCOMnRJUGWNgPYahcXIdqAAAAh+QQFBQABACyaADAATwBLAAAI/wADCBxIsKDBgwgTKlS4aaHDhxAjJiQlEEACexIzatw40F4CACBbcRxJcqEUkACklFzJUmAblAAwtpy50SPKVv9o6pS4CaXKnUAX/msFs13QowhtgiSDtGnBniCTOJ0agChKmVSP2pNwM2fWo1BTev26cyjKi2SDKgUgMi3QJD7dAiVzFqvclq0+grQ19i5LuCBJ9fVL8t+WuIRZ/iMF01Zilr9gUny8kivILZRXMgaZIHNJW0BQthvsWeLJpaVHhpWaeqOts0Zba9QLgKnsjKdT3s5Il7Pd3Q5pOwYOETCAycQdHr5MOrnBzQCS/HKu8N/rm9QVrm2bHaFx5N0NLnqvHR7heMzlDfYGgD49Qeis3Q+0avF3evoAfjXvbsv4aPkD5cYdgGE1BKBA9P10YDsoJTGcfDnBNGB6/zAIEhAPykefBAcKVOB+2RmGkm0A/mLchOlthRJfHbYjQRIkdigQiDLWaOONOOao44489ujjj0AGKWRaNKYXEAAh+QQFBQABACyaAC0ATgBOAAAIswADCBxIsKDBgwgTKky4aaHDhxAjSpxIsaLFixgzatzIsaPHjyBDihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmzhz6tzJs6fPn0CDCh1KtKjRo0iTKl3KtKnTp1CjSp1KtarVq0t/Yd3KtavXr2DDGiW1NIHTVgDSJrCndFNaAFLKvt2S9J+ttwBa1d3yNolSewnekvmXlAxetkmTvI2rNHBavUpbSQBARqzly5gza56p1WlAACH5BAUFAAAALJoAegABAAEAAAgEAP8FBAAh+QQFBQAAACyaAHoAAQABAAAIBAB/BQQAIfkEBQUAAQAsFAAXANMAbAAACP8AAwgcSLCgwYMIEypcyLChw4cQI0qMaG+ixYsYM2rcyLHjwAQeQ4ocSbKkyZMEK6JcybKly5cwB6qMSbOmzZs4c+rcybOnz59AgwodSrSo0aNIkypdyrRp0S1Oo0qdSrWq1atYs2rdyrWr169gw4odS7as2bNo06pdy7at27dw48qdS7fuVFJ28+rdy7ev37+AAws2CGCw4cOIEytezLix48eQI/NsI7my5cuYM2vezLmz588e8YIeTbq06dOoLRZObXI169ewY8s2CXX2VZC2c7Oeqbu379/AgwsfTry48ePIkytfHuAX8+fQo0ufTh0jmerYs0e1pb279+/gw4s5H0++vPnz6NOrX/tvPcJWUjZxdz+wFYD7SegPJHP/Pu/19iRwH0jt6deOBFLMpx9BBS7o4FUSgBYQACH5BAUFAAEALBgAGAC5AGsAAAj2AAMIHEiwoMGDCBMqXMiwocOHECNKbChhosWLGDNq3MhxY8WOIEOKHEmypMmC/06qXMmypcuXMGPKnEmzps2bOHPq3Mmzp8+fQIMKHUq0qNGjSJMqXcq0qdOnUKNKnUq1qtWrWLNq3cq1q9evYMOKHUu2rNmzaNOWJKO2rdu3cOPKnUu3rs0EdvPq3cu3r9+/gAMLHky4sOHDiBMrXsy4sePHGltBnky5suXLmDNr3sy5M2UpnkOLHs2wHenTqFOrXs26tevXsGPLnk27tu3buHPr3s27t+xfvoMLH068uPHjyJMrX868ufPn0KNLn069OlnQgwMCACH5BAUFAAEALBQAGgCHAGEAAAjBAAMIHEiwoEGB7RIcXMiwocOHECNKnEixosWLGDNq3Mixo8ePIEOKHEmypMmTKFOqXMmypcuXMGPKnEmzps2bOHPq3Mmzp8+fQIMKHUq0qNGjSJMqXcq0qdOnUKNKnUq1qtWrWLNq3cq1q9evYMOKHUu2rNmzaNNiJKO2rdu3cOPKnUu3rt27ePPq9apwr9+/gAMLHky4sOHDiBMrXsy4sePHkCNLnky5suXLmDNr3sy5s+fPoEOLHk26tOnTYv8FBAAh+QQFBQABACyaAEEARAA6AAAIagADCBxIsKDBgwgTKlwYAADDhxAjSpxIsaLFixgzatzIsaPHjyBDihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmzhz6tzJs6fPn0CDCh1KtKjRo0iTKl3KtKnTp1CjSp1KtarVq1izwvxVNCAAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALJoAegABAAEAAAgEAP8FBAAh+QQFBQAAACyaAHoAAQABAAAIBAB/BQQAIfkEBQUAAAAs7wCfAAEAAQAACAQAAQQEACH5BAUFAAAALJoAegABAAEAAAgEAP8FBAA7" class=""></p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中实现在Canvas上作画需要CustomPaint和CustomPainter相互配合，首先继承CustomPainter自定义一个Painter并重写paint方法实现绘制逻辑。然后将自定义的CustomPainter传递给CustomPaint的构造方法，CustomPaint作为Widget Tree中的一个Widget使用自定义的CustomPainter完成绘制。</p>
+
+<h2 id="怎样构建自定义widget">怎样构建自定义Widget</h2>
+
+<ul><li><strong>in Android</strong> <br>
+<ul>
+<li>自定义View一般通过继承View或者已经存在的其他组件并重写一些关键方法来实现。</li></ul></li>
+<li><strong>in Flutter</strong> <br>
+<ul>
+<li>自定义一个Widget不是通过继承而是通过组合其他widgets。</li></ul></li>
+</ul>
+
+<p>让我们来看一个栗子：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomButton</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-keyword">final</span> <span class="hljs-built_in">String</span> label;
+</div><div class="hljs-line">  CustomButton(<span class="hljs-keyword">this</span>.label);
+</div><div class="hljs-line">
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> RaisedButton(onPressed: () {}, child: <span class="hljs-keyword">new</span> Text(label));
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>代码很简单，看到CustomButton一样还是继承于StatelessWidget。构造函数接受一个字符串参数并保存在内部成员变量label中。在build方法中返回的是一个RaisedButton(一个Flutter提供的Widget)，巧妙的地方是在RaisedButton的构造函数中传入了一个Text(一个Flutter提供的Widget)作为其child参数。这个Text Widget显示的就是CustomButton的label成员中的内容。</p>
+
+<p>在使用CustomButton的时候可以像使用其他Widget一样直接使用：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Center(
+</div><div class="hljs-line">      child: <span class="hljs-keyword">new</span> CustomButton(<span class="hljs-string">"Hello"</span>),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p><strong>小结：</strong> <br>
+在Flutter中自定义Widget是通过组合不同的Widget来实现的，自定义的Widget只继承于StatelessWidget或者StatefulWidget，通过build方法中组合其他的Widget来实现自定义Widget。</p></div></body></html>

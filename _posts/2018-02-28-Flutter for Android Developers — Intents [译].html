@@ -1,0 +1,256 @@
+<!DOCTYPE html><html><head><title>Flutter for Android Developers — Intents [译]</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+.note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
+.note-content .hljs-number, .note-content 
+.hljs-literal, .note-content 
+.hljs-symbol, .note-content 
+.hljs-bullet {color: #6897BB;}
+.note-content .hljs-keyword, .note-content 
+.hljs-selector-tag, .note-content 
+.hljs-deletion {color: #cc7832;}
+.note-content .hljs-variable, .note-content 
+.hljs-template-variable, .note-content 
+.hljs-link {color: #629755;}
+.note-content .hljs-comment, .note-content 
+.hljs-quote {color: #808080;}
+.note-content .hljs-meta {color: #bbb529;}
+.note-content .hljs-string, .note-content 
+.hljs-attribute, .note-content 
+.hljs-addition {color: #6A8759;}
+.note-content .hljs-section, .note-content 
+.hljs-title, .note-content 
+.hljs-type {color: #ffc66d;}
+.note-content .hljs-name, .note-content 
+.hljs-selector-id, .note-content 
+.hljs-selector-class {color: #e8bf6a;}
+.note-content .hljs-emphasis {font-style: italic;}
+.note-content .hljs-strong {font-weight: bold;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h1 id="flutter-for-android-developers-intents-译">Flutter for Android Developers — Intents [译]</h1>
+
+<h2 id="在flutter中intent等价于什么">在Flutter中Intent等价于什么</h2>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>在Android中Intent用来表示应用的一种意图，常见的使用场景比如切换不同的Activity，发送广播，调用手机内的其他模块功能等等。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>没有Intent的概念，但是如果需要的话Flutter也能通过调用Android对应的平台接口触发Intent。</li></ul></li>
+</ul>
+
+<p>在Flutter中要实现一个应用的多个界面并且在界面间切换跳转需要用到两个核心的概念： <br>
+<strong>1.Route</strong> <br>
+Route是应用中一个界面的抽象，类似Android中的Activity。 <br>
+<strong>2.Navigator</strong> <br>
+Navigator是一个Widget，它用于管理应用中所有的Route。一个Navigator可以通过push或者pop操作来入栈和出栈一个Route，进而实现从一个界面进入另一个界面或者返回上一个界面的效果。</p>
+
+<p>与在Android中的AndroidManifest.xml中声明Activity类似，在Flutter中通过构造MaterialApp实例时传入的routes参数来配置Route。如下：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">void</span> main() {
+</div><div class="hljs-line">  runApp(<span class="hljs-keyword">new</span> MaterialApp(
+</div><div class="hljs-line">    home: <span class="hljs-keyword">new</span> MyAppHome(), <span class="hljs-comment">// becomes the route named '/'</span>
+</div><div class="hljs-line">    routes: &lt;<span class="hljs-built_in">String</span>, WidgetBuilder&gt; {
+</div><div class="hljs-line">      <span class="hljs-string">'/a'</span>: (BuildContext context) =&gt; <span class="hljs-keyword">new</span> MyPage(title: <span class="hljs-string">'page A'</span>),
+</div><div class="hljs-line">      <span class="hljs-string">'/b'</span>: (BuildContext context) =&gt; <span class="hljs-keyword">new</span> MyPage(title: <span class="hljs-string">'page B'</span>),
+</div><div class="hljs-line">      <span class="hljs-string">'/c'</span>: (BuildContext context) =&gt; <span class="hljs-keyword">new</span> MyPage(title: <span class="hljs-string">'page C'</span>),
+</div><div class="hljs-line">    },
+</div><div class="hljs-line">  ));
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>构造MaterialApp时与之前不同的是我们传入了一个Map作为其routes参数，该Map的key是String类型，value是一个用于构造对应Route的方法。 <br>
+接下来就可以通过获取一个Navigator对象来改变当前屏幕内显示的Route：</p>
+
+
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line">Navigator.of(context).pushNamed(<span class="hljs-string">'/b'</span>);
+</div></code></pre>
+
+<p>pushNamed方法传入的参数与之前在MaterialApp构造时配置的routes是匹配的，这个例子中将key为”/b”的Route入栈，进而界面跳转到Page B。</p>
+
+<p>另一个使用Intent主要的场景是去调用手机内的其他功能模块，比如启动相机或者文件管理器等。在这种情况下可以通过调用Android对应的平台接口来实现。后面的例子有简单用到Flutter中Android对应的平台接口。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中处理界面间的跳转切换使用Navigator和Route配合完成。也可以通过Flutter提供的Android对应的平台接口去调用外部的其他模块。</p>
+
+<h2 id="怎样在flutter中处理其他应用发送过来的intent">怎样在Flutter中处理其他应用发送过来的Intent</h2>
+
+<p>在Flutter中处理收到的Intent分为两个步骤： <br>
+<strong>1.接收Intent</strong> <br>
+这一步还是利用Android的原理，在AndroidManifest.xml中配置我们的Activity所能够接收的Intent。 <br>
+<strong>2.处理数据</strong> <br>
+这一步通过Flutter提供的Android平台接口在Flutter层获取Android层接收到的Intent中所携带的数据内容。 <br>
+通过一个例子来解释一下。 <br>
+首先在AndroidManifest.xml中配置我们的Activity可以接收的Intent种类：</p>
+
+<pre class="prettyprint"><code class="language-xml hljs"><div class="hljs-line"><span class="hljs-tag">&lt;<span class="hljs-name">activity</span>
+</span></div><div class="hljs-line">       <span class="hljs-attr">android:name</span>=<span class="hljs-string">".MainActivity"</span>
+</div><div class="hljs-line">       <span class="hljs-attr">android:launchMode</span>=<span class="hljs-string">"singleTop"</span>
+</div><div class="hljs-line">       <span class="hljs-attr">android:theme</span>=<span class="hljs-string">"@style/LaunchTheme"</span>
+</div><div class="hljs-line">       <span class="hljs-attr">android:configChanges</span>=<span class="hljs-string">"orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection"</span>
+</div><div class="hljs-line">       <span class="hljs-attr">android:hardwareAccelerated</span>=<span class="hljs-string">"true"</span>
+</div><div class="hljs-line">       <span class="hljs-attr">android:windowSoftInputMode</span>=<span class="hljs-string">"adjustResize"</span>&gt;
+</div><div class="hljs-line">       <span class="hljs-comment">&lt;!-- This keeps the window background of the activity showing
+</span></div><div class="hljs-line">            until Flutter renders its first frame. It can be removed if
+</div><div class="hljs-line">            there is no splash screen (such as the default splash screen
+</div><div class="hljs-line">            defined in @style/LaunchTheme). --&gt;
+</div><div class="hljs-line">       <span class="hljs-tag">&lt;<span class="hljs-name">meta-data</span>
+</span></div><div class="hljs-line">           <span class="hljs-attr">android:name</span>=<span class="hljs-string">"io.flutter.app.android.SplashScreenUntilFirstFrame"</span>
+</div><div class="hljs-line">           <span class="hljs-attr">android:value</span>=<span class="hljs-string">"true"</span> /&gt;
+</div><div class="hljs-line">       <span class="hljs-tag">&lt;<span class="hljs-name">intent-filter</span>&gt;</span>
+</div><div class="hljs-line">           <span class="hljs-tag">&lt;<span class="hljs-name">action</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">"android.intent.action.MAIN"</span>/&gt;</span>
+</div><div class="hljs-line">           <span class="hljs-tag">&lt;<span class="hljs-name">category</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">"android.intent.category.LAUNCHER"</span>/&gt;</span>
+</div><div class="hljs-line">       <span class="hljs-tag">&lt;/<span class="hljs-name">intent-filter</span>&gt;</span>
+</div><div class="hljs-line">       <span class="hljs-tag">&lt;<span class="hljs-name">intent-filter</span>&gt;</span>
+</div><div class="hljs-line">           <span class="hljs-tag">&lt;<span class="hljs-name">action</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">"android.intent.action.SEND"</span> /&gt;</span>
+</div><div class="hljs-line">           <span class="hljs-tag">&lt;<span class="hljs-name">category</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">"android.intent.category.DEFAULT"</span> /&gt;</span>
+</div><div class="hljs-line">           <span class="hljs-tag">&lt;<span class="hljs-name">data</span> <span class="hljs-attr">android:mimeType</span>=<span class="hljs-string">"text/plain"</span> /&gt;</span>
+</div><div class="hljs-line">       <span class="hljs-tag">&lt;/<span class="hljs-name">intent-filter</span>&gt;</span>
+</div><div class="hljs-line">   <span class="hljs-tag">&lt;/<span class="hljs-name">activity</span>&gt;</span>
+</div></code></pre>
+
+<p>这是一个AndroidManifest.xml配置文件片段，上面的配置说明我们的应用可以接收Action为android.intent.action.SEND的Intent。</p>
+
+<p>接着，在MainActivity中我们实现接收Intent的逻辑，重点需要关注的是这里从Intent中获取的数据是如何传递给Flutter的：</p>
+
+<pre class="prettyprint"><code class="language-java hljs"><div class="hljs-line"><span class="hljs-keyword">package</span> com.yourcompany.shared;
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">import</span> android.content.Intent;
+</div><div class="hljs-line"><span class="hljs-keyword">import</span> android.os.Bundle;
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">import</span> java.nio.ByteBuffer;
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">import</span> io.flutter.app.FlutterActivity;
+</div><div class="hljs-line"><span class="hljs-keyword">import</span> io.flutter.plugin.common.ActivityLifecycleListener;
+</div><div class="hljs-line"><span class="hljs-keyword">import</span> io.flutter.plugin.common.MethodCall;
+</div><div class="hljs-line"><span class="hljs-keyword">import</span> io.flutter.plugin.common.MethodChannel;
+</div><div class="hljs-line"><span class="hljs-keyword">import</span> io.flutter.plugins.GeneratedPluginRegistrant;
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">FlutterActivity</span> </span>{
+</div><div class="hljs-line">    String sharedText;
+</div><div class="hljs-line">
+</div><div class="hljs-line">    <span class="hljs-meta">@Override</span>
+</div><div class="hljs-line">    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onCreate</span><span class="hljs-params">(Bundle savedInstanceState)</span> </span>{
+</div><div class="hljs-line">        <span class="hljs-keyword">super</span>.onCreate(savedInstanceState);
+</div><div class="hljs-line">        GeneratedPluginRegistrant.registerWith(<span class="hljs-keyword">this</span>);
+</div><div class="hljs-line">        Intent intent = getIntent();
+</div><div class="hljs-line">        String action = intent.getAction();
+</div><div class="hljs-line">        String type = intent.getType();
+</div><div class="hljs-line">
+</div><div class="hljs-line">        <span class="hljs-keyword">if</span> (Intent.ACTION_SEND.equals(action) &amp;&amp; type != <span class="hljs-keyword">null</span>) {
+</div><div class="hljs-line">            <span class="hljs-keyword">if</span> (<span class="hljs-string">"text/plain"</span>.equals(type)) {
+</div><div class="hljs-line">                handleSendText(intent); <span class="hljs-comment">// Handle text being sent</span>
+</div><div class="hljs-line">            }
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">
+</div><div class="hljs-line">        <span class="hljs-keyword">new</span> MethodChannel(getFlutterView(), <span class="hljs-string">"app.channel.shared.data"</span>).setMethodCallHandler(<span class="hljs-keyword">new</span> MethodChannel.MethodCallHandler() {
+</div><div class="hljs-line">            <span class="hljs-meta">@Override</span>
+</div><div class="hljs-line">            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onMethodCall</span><span class="hljs-params">(MethodCall methodCall, MethodChannel.Result result)</span> </span>{
+</div><div class="hljs-line">                <span class="hljs-keyword">if</span> (methodCall.method.contentEquals(<span class="hljs-string">"getSharedText"</span>)) {
+</div><div class="hljs-line">                    result.success(sharedText);
+</div><div class="hljs-line">                    sharedText = <span class="hljs-keyword">null</span>;
+</div><div class="hljs-line">                }
+</div><div class="hljs-line">            }
+</div><div class="hljs-line">        });
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">
+</div><div class="hljs-line">
+</div><div class="hljs-line">    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">handleSendText</span><span class="hljs-params">(Intent intent)</span> </span>{
+</div><div class="hljs-line">        sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>MainActivity从FlutterActivity继承而来。这里主要是接收Action为android.intent.action.SEND的Intent，将该Intent中包含的数据提取出来保存在成员变量sharedText中。关键在于onCreate方法中构造了一个MethodChannel实例，构造时需要传递一个String参数作为标识，在后面Flutter层需要构造同样标识的MethodChannel。MethodChannel的作用主要就是为了实现Flutter层与Android层的通信。关于MethodChannel的更多帮助信息可以参阅<a href="https://docs.flutter.io/flutter/services/MethodChannel-class.html" target="_blank">官方文档</a>。</p>
+
+<p>最后，在Flutter层我们可以调用系统提供的接口请求Android层中保存的数据sharedText：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'package:flutter/material.dart'</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'package:flutter/services.dart'</span>;
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">void</span> main() {
+</div><div class="hljs-line">  runApp(<span class="hljs-keyword">new</span> SampleApp());
+</div><div class="hljs-line">}
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-comment">// This widget is the root of your application.</span>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MaterialApp(
+</div><div class="hljs-line">      title: <span class="hljs-string">'Sample Shared App Handler'</span>,
+</div><div class="hljs-line">      theme: <span class="hljs-keyword">new</span> ThemeData(
+</div><div class="hljs-line">        primarySwatch: Colors.blue,
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      home: <span class="hljs-keyword">new</span> SampleAppPage(),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleAppPage</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatefulWidget</span> </span>{
+</div><div class="hljs-line">  SampleAppPage({Key key}) : <span class="hljs-keyword">super</span>(key: key);
+</div><div class="hljs-line">
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  _SampleAppPageState createState() =&gt; <span class="hljs-keyword">new</span> _SampleAppPageState();
+</div><div class="hljs-line">}
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">_SampleAppPageState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">State</span>&lt;<span class="hljs-title">SampleAppPage</span>&gt; </span>{
+</div><div class="hljs-line">  <span class="hljs-keyword">static</span> <span class="hljs-keyword">const</span> platform = <span class="hljs-keyword">const</span> MethodChannel(<span class="hljs-string">'app.channel.shared.data'</span>);
+</div><div class="hljs-line">  <span class="hljs-built_in">String</span> dataShared = <span class="hljs-string">"No data"</span>;
+</div><div class="hljs-line">
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  <span class="hljs-keyword">void</span> initState() {
+</div><div class="hljs-line">    <span class="hljs-keyword">super</span>.initState();
+</div><div class="hljs-line">    getSharedText();
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(body: <span class="hljs-keyword">new</span> Center(child: <span class="hljs-keyword">new</span> Text(dataShared)));
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">
+</div><div class="hljs-line">  getSharedText() <span class="hljs-keyword">async</span> {
+</div><div class="hljs-line">    <span class="hljs-keyword">var</span> sharedData = <span class="hljs-keyword">await</span> platform.invokeMethod(<span class="hljs-string">"getSharedText"</span>);
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (sharedData != <span class="hljs-keyword">null</span>) {
+</div><div class="hljs-line">      setState(() {
+</div><div class="hljs-line">        dataShared = sharedData;
+</div><div class="hljs-line">      });
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>这段代码比较简单，展示一个我们自定义的StatefulWidget在屏幕上，我们主要关注与SampleAppPage对应的_SampleAppPageState类。首先这里使用与前面相同的标识构造了一个MethodChannel类，相同的标识才能保证这里的MethodChannel能与之前Android层中定义的MethodChannel通信。另外定义了一个getSharedText异步方法，该方法中调用MethodChannel实例的invokeMethod方法，最终会回调到之前MainActivity中定义MethodChannel时传入的MethodCallHandler类的onMethodCall方法，该方法的methodCall参数封装Flutter层传递到Android层的信息，result参数用于向Flutter层返回结果信息。</p>
+
+<p><strong>小结：</strong> <br>
+接收Intent的配置和处理还是在Android实现，不同的是要在Flutter中处理接收到的Intent所带的数据时，需要使用MethodChannel类来完成Flutter层与Android层之间的通信。</p>
+
+<h2 id="在flutter中startactivityforresult等价于什么">在Flutter中startActivityForResult等价于什么</h2>
+
+<p>在Flutter中可以使用Navigator类获取从当前Route返回到上一个Route时附带的数据信息。只需要对push返回的Future对象做一个await操作。关于Future，await，async不太清楚可以参阅<a href="https://docs.flutter.io/flutter/dart-async/dart-async-library.html" target="_blank">官方文档</a>，他们用来在Dart中实现异步同步功能。</p>
+
+<p>比如我们需要启动一个位置信息界面让用户选择他们所处的位置，我们可以写下面的代码：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-built_in">Map</span> coordinates = <span class="hljs-keyword">await</span> Navigator.of(context).pushNamed(<span class="hljs-string">'/location'</span>);
+</div></code></pre>
+
+<p>此处通过pushNamed方法将屏幕上的当前界面跳转到了一个位置信息界面（假设我们已经配置好了/location对应的Route）。同时pushNamed会返回一个Future对象，我们需要将该Future对象作为await的表达式。</p>
+
+<p>然后在我们的显示位置信息的界面中当用户选择好位置后我们就通过pop当前的Route出栈来实现返回上一个界面的效果，并同时带上需要返回给上一个界面的数据信息：</p>
+
+
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line">Navigator.of(context).pop({<span class="hljs-string">"lat"</span>:<span class="hljs-number">43.821757</span>,<span class="hljs-string">"long"</span>:<span class="hljs-number">-79.226392</span>});
+</div></code></pre>
+
+<p>pop的参数就是返回给上一个界面的数据信息，这里是一个Map类型的数据。表示位置信息的Route出栈后，上面的await表达式将被唤醒，并且接收到传递过来的Map数据。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中使用Navigator向Route Stack中push一个Route时返回的是一个Future对象，通过await表达式可以实现等待界面返回的效果，并且Navigator从Route Stack中pop一个Route时可以带上参数，此时带的参数就会返回给唤醒的await表达式。进而实现类似startActivityForResult中的当前界面返回并传递参数给上一个界面的效果。</p></div></body></html>

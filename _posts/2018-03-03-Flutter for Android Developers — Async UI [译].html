@@ -84,10 +84,14 @@ Future是Dart中提供的一个类，它用于封装一段在将来会被执行�
 
 <h2 id="在flutter中runonuithread等价于什么">在Flutter中runOnUiThread等价于什么</h2>
 
-<ul><li><p><strong>in Android</strong> <br>
-基于Java，线程的管理完全由开发者决定，我们无法在非main thread更新UI，所以可以通过在非main thread中利用Activity.runOnUiThread方法向main thread的message queue中post一个更新界面的消息实现界面刷新。</p></li>
-<li><p><strong>in Flutter</strong> <br>
-Dart是基于单线程模型的，所以除非我们主动创建一个isolate，否则我们的Dart代码都是运行在main isolate（类比Android的main thread）并且由event loop来驱动的。</p></li>
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>基于Java，线程的管理完全由开发者决定，我们无法在非main thread更新UI，所以可以通过在非main thread中利用Activity.runOnUiThread方法向main thread的message queue中post一个更新界面的消息实现界面刷新。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>Dart是基于单线程模型的，所以除非我们主动创建一个isolate，否则我们的Dart代码都是运行在main isolate（类比Android的main thread）并且由event loop来驱动的。</li></ul></li>
 </ul>
 
 <p>通过协程实现的异步调用其实也是运行在main isolate的，所以其实在Flutter中并不需要runOnUiThread类似方法的存在，我们下面看一个例子，我们可以直接在main isolate执行网络请求而不卡住界面和交互：</p>
@@ -365,10 +369,14 @@ loadData被声明为一个异步方法，其内部的代码运行于main isolate
 
 <h2 id="在flutter中okhttp等价于什么">在Flutter中OkHttp等价于什么</h2>
 
-<ul><li><p><strong>in Android</strong> <br>
-我们有很多类似OkHttp之类的网络库使用。</p></li>
-<li><p><strong>in Flutter</strong> <br>
-我们使用http package来简单的完成一个网络请求调用。</p></li>
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>我们有很多类似OkHttp之类的网络库使用。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>我们使用http package来简单的完成一个网络请求调用。</li></ul></li>
 </ul>
 
 <p>虽然http package没有实现OkHttp已经实现的所有功能，但是它实现了很多常用的网络请求功能，帮助我们更简单的完成一个网络请求调用。关于http package的更多信息可以参阅<a href="https://pub.dartlang.org/packages/http" target="_blank">官方文档</a>。 <br>
@@ -405,15 +413,17 @@ loadData被声明为一个异步方法，其内部的代码运行于main isolate
 
 <h2 id="在flutter中怎样在一个任务正在运行时显示一个loading-dialog">在Flutter中怎样在一个任务正在运行时显示一个Loading Dialog</h2>
 
-<ul><li><p><strong>in Android</strong> <br>
-我们可以在运行一个耗时任务时展示一个Loading Dialog，可以使用Dialog或者其他自定义的View来实现。</p></li>
-<li><p><strong>in Flutter</strong> <br>
-我们可以用一个Progress Indicator Widget来实现一个Loading Dialog。</p></li>
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>我们可以在运行一个耗时任务时展示一个Loading Dialog，可以使用Dialog或者其他自定义的View来实现。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>我们可以用一个Progress Indicator Widget来实现一个Loading Dialog。</li></ul></li>
 </ul>
 
 <p>下面我们可以看一个例子：</p>
-
-
 
 <pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'dart:convert'</span>;
 </div><div class="hljs-line"><wbr>

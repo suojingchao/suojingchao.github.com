@@ -1,0 +1,184 @@
+<!DOCTYPE html><html><head><title>[译]Flutter for Android Developers - Gesture Detection</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+.note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
+.note-content .hljs-number, .note-content 
+.hljs-literal, .note-content 
+.hljs-symbol, .note-content 
+.hljs-bullet {color: #6897BB;}
+.note-content .hljs-keyword, .note-content 
+.hljs-selector-tag, .note-content 
+.hljs-deletion {color: #cc7832;}
+.note-content .hljs-variable, .note-content 
+.hljs-template-variable, .note-content 
+.hljs-link {color: #629755;}
+.note-content .hljs-comment, .note-content 
+.hljs-quote {color: #808080;}
+.note-content .hljs-meta {color: #bbb529;}
+.note-content .hljs-string, .note-content 
+.hljs-attribute, .note-content 
+.hljs-addition {color: #6A8759;}
+.note-content .hljs-section, .note-content 
+.hljs-title, .note-content 
+.hljs-type {color: #ffc66d;}
+.note-content .hljs-name, .note-content 
+.hljs-selector-id, .note-content 
+.hljs-selector-class {color: #e8bf6a;}
+.note-content .hljs-emphasis {font-style: italic;}
+.note-content .hljs-strong {font-weight: bold;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+<h1 id="译flutter-for-android-developers-gesture-detection">[译]Flutter for Android Developers - Gesture Detection</h1>
+
+
+
+<h2 id="在flutter中怎样为一个widget添加点击事件监听器">在Flutter中怎样为一个Widget添加点击事件监听器</h2>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>我们通常调用一个View的setOnClickListener方法来监听一个View的点击事件。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>我们视情况不同有两种实现方法，一是直接传递一个处理事件的方法给Widget，二是通过GestureDetector来实现事件监听与处理。</li></ul></li>
+</ul>
+
+<p>下面两个例子对两种实现方法做简要说明：</p>
+
+
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-meta">@override</span>
+</div><div class="hljs-line">Widget build(BuildContext context) {
+</div><div class="hljs-line">  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> RaisedButton(
+</div><div class="hljs-line">      onPressed: () {
+</div><div class="hljs-line">        <span class="hljs-built_in">print</span>(<span class="hljs-string">"click"</span>);
+</div><div class="hljs-line">      },
+</div><div class="hljs-line">      child: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Button"</span>));
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>这个例子描述了如何使用第一种方法实现点击事件监听。其实很简单，在构造RaisedButton时直接传递一个用于处理事件的方法给onPressed参数就可以了，当RaisedButton被点击时名为onPressed的参数所指向的方法就会被调用。在这里就是简单的打印出”click”。</p>
+
+<blockquote>
+  <p><strong>Note：</strong> <br>
+  这种方法仅当Widget本身已经支持事件监听时使用。比如这里的RaisedButton是系统提供的一个Widget，其本身已经支持了事件监听，所以可以直接在构造时传递一个用于处理事件的方法给它。</p>
+</blockquote>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(
+</div><div class="hljs-line">        body: <span class="hljs-keyword">new</span> Center(
+</div><div class="hljs-line">      child: <span class="hljs-keyword">new</span> GestureDetector(
+</div><div class="hljs-line">        child: <span class="hljs-keyword">new</span> FlutterLogo(
+</div><div class="hljs-line">          size: <span class="hljs-number">200.0</span>,
+</div><div class="hljs-line">        ),
+</div><div class="hljs-line">        onTap: () {
+</div><div class="hljs-line">          <span class="hljs-built_in">print</span>(<span class="hljs-string">"tap"</span>);
+</div><div class="hljs-line">        },
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">    ));
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>这个例子描述了如何使用第二种方法实现点击事件监听。这里的关键是GestureDetector，我们将需要响应点击事件的Widget包裹到GestureDetector内部，并且传递一个用来处理点击事件的方法给GestureDetector的onTap参数，当点击事件发生时onTap所指向的方法就会被调用。在这里就是简单的打印出”tap”。</p>
+
+<blockquote>
+  <p><strong>Note：</strong> <br>
+  这种方法在Widget本身不支持事件监听时使用。</p>
+</blockquote>
+
+<p><strong>小结：</strong> <br>
+在Flutter中实现点击事件的监听处理有两种方法。 <br>
+针对本身支持事件监听的Widget可以直接在构造Widget时传入一个方法用于点击事件处理。 <br>
+针对本身不支持事件监听的Widget可以将其包裹在一个GestureDetector内部来实现点击事件处理。</p>
+
+<h2 id="在flutter中怎样处理其他事件">在Flutter中怎样处理其他事件</h2>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ol>
+<li rel="1">我们可以通过各个组件提供的接口来设置相应的事件监听器来监听并处理我们所关心的事件。</li>
+<li rel="2">直接监听touch事件自行判定事件的类型并处理事件。</li>
+<li rel="3">通过GestureDetector类来帮助监听各种手势事件。</li></ol></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>也有一个GestureDetector类存在，利用它我们可以监听很多事件。</li></ul></li>
+</ul>
+
+<p>在Flutter中GestureDetector可以监听以下事件：</p>
+
+<ul><li><p><strong>Tap</strong></p>
+
+<ul>
+<li><strong>onTapDown</strong> 监听处理一个刚刚接触到屏幕的事件，类似于Android中Action为ACTION_DOWN的touch event。</li>
+<li><strong>onTapUp</strong> 监听处理一个接触屏幕后的离屏事件，类似于Android中Action为ACTION_UP的touch event。</li>
+<li><strong>onTap</strong> 监听处理一个点击事件，类似于Android中的onClick。</li>
+<li><strong>onTapCancel</strong> 类似Android中Action为ACTION_CANCEL的touch event。出现该事件的原因可能是从ACTION_DOWN到ACTION_UP的过程当中因为手指移出可交互区或者其他异常导致的。</li></ul></li>
+<li><p><strong>Double tap</strong></p>
+
+<ul>
+<li><strong>onDoubleTap</strong> 监听处理一个双击事件。</li></ul></li>
+<li><p><strong>Long press</strong></p>
+
+<ul>
+<li><strong>onLongPress</strong> 监听处理一个长按事件。</li></ul></li>
+<li><p><strong>Vertical drag</strong></p>
+
+<ul>
+<li><strong>onVerticalDragStart</strong> 监听处理一个垂直方向拖拽事件的开始。</li>
+<li><strong>onVerticalDragUpdate</strong> 监听处理一个垂直方向拖拽事件在拖拽过程中的移动。</li>
+<li><strong>onVerticalDragEnd</strong> 监听处理一个垂直方向拖拽事件的结束。</li></ul></li>
+<li><p><strong>Horizontal drag</strong></p>
+
+<ul>
+<li><strong>onHorizontalDragStart</strong> 监听处理一个水平方向拖拽事件的开始。</li>
+<li><strong>onHorizontalDragUpdate</strong> 监听处理一个水平方向的拖拽事件在拖拽过程中的移动。</li>
+<li><strong>onHorizontalDragEnd</strong> 监听处理一个水平方向的拖拽事件的结束。</li></ul></li>
+</ul>
+
+<p>下面的例子简单展示了如何使用GestureDetector来监听一个Double tap事件：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line">AnimationController controller;
+</div><div class="hljs-line">CurvedAnimation curve;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-meta">@override</span>
+</div><div class="hljs-line"><span class="hljs-keyword">void</span> initState() {
+</div><div class="hljs-line">  controller = <span class="hljs-keyword">new</span> AnimationController(duration: <span class="hljs-keyword">const</span> <span class="hljs-built_in">Duration</span>(milliseconds: <span class="hljs-number">2000</span>), vsync: <span class="hljs-keyword">this</span>);
+</div><div class="hljs-line">  curve = <span class="hljs-keyword">new</span> CurvedAnimation(parent: controller, curve: Curves.easeIn);
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(
+</div><div class="hljs-line">        body: <span class="hljs-keyword">new</span> Center(
+</div><div class="hljs-line">          child: <span class="hljs-keyword">new</span> GestureDetector(
+</div><div class="hljs-line">            child: <span class="hljs-keyword">new</span> RotationTransition(
+</div><div class="hljs-line">                turns: curve,
+</div><div class="hljs-line">                child: <span class="hljs-keyword">new</span> FlutterLogo(
+</div><div class="hljs-line">                  size: <span class="hljs-number">200.0</span>,
+</div><div class="hljs-line">                )),
+</div><div class="hljs-line">            onDoubleTap: () {
+</div><div class="hljs-line">              <span class="hljs-keyword">if</span> (controller.isCompleted) {
+</div><div class="hljs-line">                controller.reverse();
+</div><div class="hljs-line">              } <span class="hljs-keyword">else</span> {
+</div><div class="hljs-line">                controller.forward();
+</div><div class="hljs-line">              }
+</div><div class="hljs-line">            },
+</div><div class="hljs-line">        ),
+</div><div class="hljs-line">    ));
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>在这个例子中我们想让一个FlutterLogo响应Double tap事件，但是FlutterLogo本身是不支持事件处理的Widget，所以这里将其包裹在GestureDetector内部，并通过GestureDetector的onDoubleTap参数来传递一个用于处理Double tap事件的方法。 <br>
+因为这个例子是想FlutterLogo在接收到Double tap事件后去执行一个旋转动画，所以这里并不是直接将FlutterLogo包裹在GestureDetector内部，而是先用描述一个旋转动画的组件RotationTransition包裹FlutterLogo，接着再在外层用GestureDetector包裹RotationTransition组件。关于在Flutter中实现动画的介绍可以参阅<a href="https://juejin.im/post/5a96702e5188257a6717a258" target="_blank">FFAD-Views</a>。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中使用GestureDetector可以监听处理大多数类型的事件，使用时只要将我们想要接收事件的Widget包裹在GestureDetector内部，并传递事件处理方法给相应的参数即可。</p></div></body></html>

@@ -1,0 +1,786 @@
+<!DOCTYPE html><html><head><title>[译]Flutter for Android Developers - Others</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+.note-content .hljs {color: #a9b7c6; background: #282b2e; display: block; overflow-x: auto; padding: 0.5em;}
+.note-content .hljs-number, .note-content 
+.hljs-literal, .note-content 
+.hljs-symbol, .note-content 
+.hljs-bullet {color: #6897BB;}
+.note-content .hljs-keyword, .note-content 
+.hljs-selector-tag, .note-content 
+.hljs-deletion {color: #cc7832;}
+.note-content .hljs-variable, .note-content 
+.hljs-template-variable, .note-content 
+.hljs-link {color: #629755;}
+.note-content .hljs-comment, .note-content 
+.hljs-quote {color: #808080;}
+.note-content .hljs-meta {color: #bbb529;}
+.note-content .hljs-string, .note-content 
+.hljs-attribute, .note-content 
+.hljs-addition {color: #6A8759;}
+.note-content .hljs-section, .note-content 
+.hljs-title, .note-content 
+.hljs-type {color: #ffc66d;}
+.note-content .hljs-name, .note-content 
+.hljs-selector-id, .note-content 
+.hljs-selector-class {color: #e8bf6a;}
+.note-content .hljs-emphasis {font-style: italic;}
+.note-content .hljs-strong {font-weight: bold;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h1 id="译flutter-for-android-developers-others">[译]Flutter for Android Developers - Others</h1>
+
+
+
+<h2 id="写在前面">写在前面</h2>
+
+<p>这是该系列的最后一章，都是一些不是很复杂但是在Android很常用的功能在Flutter中对应的解决方案。 <br>
+前几章见： <br>
+<a href="https://juejin.im/post/5a96702e5188257a6717a258" target="_blank">[译]Flutter for Android Developers - Views</a> <br>
+<a href="https://juejin.im/post/5a96cd1f5188257a780de9a0" target="_blank">[译]Flutter for Android Developers - Intents</a> <br>
+<a href="https://juejin.im/post/5a9a21f8518825558b3d5d35" target="_blank">[译]Flutter for Android Developers - Async UI</a> <br>
+<a href="https://juejin.im/post/5a9c106151882555872300f2" target="_blank">[译]Flutter for Android Developers - Gesture Detection</a></p>
+
+<h2 id="activity和fragment">Activity和Fragment</h2>
+
+
+
+<h3 id="在flutter中activity和fragment等价于什么">在Flutter中Activity和Fragment等价于什么</h3>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>Activity和Fragment都是一个界面的抽象，最大的区别在于Fragment在Activity的基础上更好的实现了模块化，并且针对大屏的设备能实现更灵活的界面设计。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>在Flutter中Activity和Fragment都用Widget来表示。</li></ul></li>
+</ul>
+
+
+
+<h3 id="监听生命周期事件">监听生命周期事件</h3>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>我们可以重写Activity或者Fragment的生命周期回调方法来监听它们的生命周期并做相应的处理。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>我们可以利用WidgetsBindingObserver来监听Widget的生命周期，具体怎么使用后面有例子说明。</li></ul></li>
+</ul>
+
+<p>在Flutter中我们能监听的生命周期有以下几种：</p>
+
+<ul><li><strong>resumed</strong> - 应用程序处于可见状态，并且可以响应用户的输入事件。它相当于Android中Activity的onResume。</li>
+<li><strong>inactive</strong> - 应用程序处于闲置状态并且没有收到用户的输入事件。这个状态对Android来说是没用的，它只用于iOS。</li>
+<li><strong>paused</strong> - 应用程序处于不可见状态，并且不能够响应用户的输入事件。它相当于Android中Activity的onPause。</li>
+<li><strong>suspending</strong> - 应用程序将马上被挂起。这个状态对iOS来说没用。</li>
+</ul>
+
+<p>下面的例子展示如何通过WidgetsBindingObserver来监听一个Widget的生命周期：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'package:flutter/widgets.dart'</span>;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LifecycleWatcher</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatefulWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  _LifecycleWatcherState createState() =&gt; <span class="hljs-keyword">new</span> _LifecycleWatcherState();
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">_LifecycleWatcherState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">State</span>&lt;<span class="hljs-title">LifecycleWatcher</span>&gt; <span class="hljs-title">with</span> <span class="hljs-title">WidgetsBindingObserver</span> </span>{
+</div><div class="hljs-line">  AppLifecycleState _lastLifecyleState;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  <span class="hljs-keyword">void</span> initState() {
+</div><div class="hljs-line">    <span class="hljs-keyword">super</span>.initState();
+</div><div class="hljs-line">    WidgetsBinding.instance.addObserver(<span class="hljs-keyword">this</span>);
+</div><div class="hljs-line">  }
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  <span class="hljs-keyword">void</span> dispose() {
+</div><div class="hljs-line">    WidgetsBinding.instance.removeObserver(<span class="hljs-keyword">this</span>);
+</div><div class="hljs-line">    <span class="hljs-keyword">super</span>.dispose();
+</div><div class="hljs-line">  }
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  <span class="hljs-keyword">void</span> didChangeAppLifecycleState(AppLifecycleState state) {
+</div><div class="hljs-line">    setState(() {
+</div><div class="hljs-line">      _lastLifecyleState = state;
+</div><div class="hljs-line">    });
+</div><div class="hljs-line">  }
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (_lastLifecyleState == <span class="hljs-keyword">null</span>)
+</div><div class="hljs-line">      <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'This widget has not observed any lifecycle changes.'</span>, textDirection: TextDirection.ltr);
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'The most recent lifecycle state this widget observed was: $_lastLifecyleState.'</span>,
+</div><div class="hljs-line">        textDirection: TextDirection.ltr);
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-keyword">void</span> main() {
+</div><div class="hljs-line">  runApp(<span class="hljs-keyword">new</span> Center(child: <span class="hljs-keyword">new</span> LifecycleWatcher()));
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>首先通过mixin（读作mix in，详情参阅<a href="https://www.zhihu.com/question/20778853" target="_blank">mixin</a>）的方式扩展_LifecycleWatcherState类的功能，即在定义_LifecycleWatcherState类时使用关键字with来声明_LifecycleWatcherState类需要扩展WidgetsBindingObserver中的功能。这里的with其实可以简单类比到Java中的implements关键字，目的都是为了避免多继承带来的问题，但又同时想利用多继承的优点。</p>
+
+<p>接着来看initState和dispose方法，它们是State类中提供的方法。它们其实本身也是两个生命周期的回调。 <br>
+系统在State对象被创建好之后并且其对应的Widget已经被插入到Widget Tree中时调用initState方法。所以我们可以在initState方法中完成一些初始化的工作。比如这个例子我们在initState中就通过WidgetsBinding.instance获取到WidgetsBinding实例后调用其addObserver方法来注册一个WidgetsBindingObserver。 <br>
+系统在State对象对应的Widget从Widget Tree中永久的删除后调用dispose方法。一个State对象调用dispose方法之后它被认为处于一个unmounted状态，这时候State对象的mounted属性值返回false。在这个时候去调用State的setState方法将触发一个错误。一个处于unmounted状态的State对象没法再回到remounted状态。所以我们可以在dispose方法中完成一些资源的释放工作，比如这个例子中我们就通过WidgetsBinding.instance获取到WidgetsBinding实例后调用其removeObserver方法来注销之前注册的WidgetsBindingObserver。</p>
+
+<p>现在我们已经在initState中注册好了WidgetsBindingObserver，所以在Widget的生命周期发生变化时系统就会调用WidgetsBindingObserver的didChangeAppLifecycleState方法来通知我们，因此只要重写这个方法来实现我们在收到生命周期状态改变的通知时需要处理的逻辑就可以了。在这里就是简单的保存状态，并且通过setState方法触发界面刷新。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中除了State本身提供的生命周期回调方法initState和dispose外，还可以通过WidgetsBindingObserver类来帮助我们实现Widget生命周期的监听。具体使用方式是通过with关键字扩展WidgetsBindingObserver类来为我们定义的组件类提供监听生命周期的能力。</p>
+
+<h2 id="布局">布局</h2>
+
+
+
+<h3 id="linearlayout等价于什么">LinearLayout等价于什么</h3>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>LinearLayout用于将我们的组件水平或垂直的线性排列。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>我们用Row Widget或者Column Widget实现与LinearLayout相同的效果。</li></ul></li>
+</ul>
+
+<p>下面的代码段展示了Row和Column的简单使用：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line">override
+</div><div class="hljs-line">Widget build(BuildContext context) {
+</div><div class="hljs-line">  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Row(
+</div><div class="hljs-line">    mainAxisAlignment: MainAxisAlignment.center,
+</div><div class="hljs-line">    children: &lt;Widget&gt;[
+</div><div class="hljs-line">      <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Row One'</span>),
+</div><div class="hljs-line">      <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Row Two'</span>),
+</div><div class="hljs-line">      <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Row Three'</span>),
+</div><div class="hljs-line">      <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Row Four'</span>),
+</div><div class="hljs-line">    ],
+</div><div class="hljs-line">  );
+</div><div class="hljs-line">}
+</div></code></pre>
+
+
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line">override
+</div><div class="hljs-line">Widget build(BuildContext context) {
+</div><div class="hljs-line">  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Column(
+</div><div class="hljs-line">    mainAxisAlignment: MainAxisAlignment.center,
+</div><div class="hljs-line">    children: &lt;Widget&gt;[
+</div><div class="hljs-line">      <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Column One'</span>),
+</div><div class="hljs-line">      <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Column Two'</span>),
+</div><div class="hljs-line">      <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Column Three'</span>),
+</div><div class="hljs-line">      <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Column Four'</span>),
+</div><div class="hljs-line">    ],
+</div><div class="hljs-line">  );
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>Row和Column的使用比较简单，这里的代码段分别通过Row和Column实现了四个Text在水平方向和垂直方向上的简单排列。 <br>
+Row和Column的使用基本相同，但是有一些参数在它们中表示的意义是有所区别的，比如这里的mainAxisAlignment，它表示的是主轴的对齐方式，针对Row而言，主轴是水平轴。而针对Column而言，主轴是垂直轴。关于Flutter中布局的更多信息可以参阅<a href="https://flutter.io/tutorials/layout/" target="_blank">官方文档</a>。这篇官方文档对Flutter中的很多布局都做了说明，简单明了，如果你对Flutter中的布局比较疑惑，看完之后应该能解开你大部分的谜团。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中我们使用Row和Column来实现Android的LinearLayout布局。</p>
+
+<h3 id="relativelayout等价于什么">RelativeLayout等价于什么</h3>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>RelativeLayout用于将我们的组件按照他们彼此之间的相互关系进行排列。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>我们可以结合Column，Row和Stack实现与RelativeLayout相同的效果。</li></ul></li>
+</ul>
+
+<p>在StackOverflow上有一个在Flutter中实现RelativeLayout的例子<a href="https://stackoverflow.com/questions/44396075/equivalent-of-relativelayout-in -flutter" target="_blank">https://stackoverflow.com/questions/44396075/equivalent-of-relativelayout-in -flutter</a>，代码不算复杂，主要是利用自定义Widget，Widget布局参数和布局的嵌套来实现RelativeLayout。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中我们使用Column，Row和Stack等Widget的组合来实现RelativeLayout。</p>
+
+<h3 id="scrollview等价于什么">ScrollView等价于什么</h3>
+
+<ul><li><strong>in Android</strong> <br>
+<ul>
+<li>ScrollView作为一个容纳组件的容器，能够在要展示的内容超出屏幕范围时实现滚动效果。</li></ul></li>
+<li><strong>in Flutter</strong> <br>
+<ul>
+<li>最简单的实现方式就是使用ListView Widget。</li></ul></li>
+</ul>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-meta">@override</span>
+</div><div class="hljs-line">Widget build(BuildContext context) {
+</div><div class="hljs-line">  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> ListView(
+</div><div class="hljs-line">    children: &lt;Widget&gt;[
+</div><div class="hljs-line">      <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Row One'</span>),
+</div><div class="hljs-line">      <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Row Two'</span>),
+</div><div class="hljs-line">      <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Row Three'</span>),
+</div><div class="hljs-line">      <span class="hljs-keyword">new</span> Text(<span class="hljs-string">'Row Four'</span>),
+</div><div class="hljs-line">    ],
+</div><div class="hljs-line">  );
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>上面的代码片段使用ListView来实现Android中ScrollView的效果。将四个Text Widget组成一个数组赋值给ListView的children参数，实现了四个Text的垂直排列，并且当内容超出屏幕范围时通过ListView提供了滚动效果。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中可以使用ListView Widget来实现Android中ScrollView的效果。</p>
+
+<h2 id="listview-adapter">ListView &amp; Adapter</h2>
+
+
+
+<h3 id="在flutter中简单使用listview来渲染一个列表">在Flutter中简单使用ListView来渲染一个列表</h3>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>我们通常构造一个Adapter，并将它传递给ListView，由ListView来渲染Adapter返回的每一行内容。但是我们必须自己管理ListView中的列表项，包括复用和及时的释放等，否则会带来意想不到的内存问题。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>由于Flutter的Widget被设计为不可变的，所以我们只要传递一个用于表示每行列表项的Widget数组给ListView就行了，Flutter将完成剩下的工作并保证整个滑动的流畅性。</li></ul></li>
+</ul>
+
+<p>其实在本文前面的一节使用ListView实现ScrollView的时候已经看到了如何简单的使用ListView，无非就是传递给ListView的children参数一个表示列表项的数组。下面展示一个完整的例子：</p>
+
+
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'package:flutter/material.dart'</span>;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-keyword">void</span> main() {
+</div><div class="hljs-line">  runApp(<span class="hljs-keyword">new</span> SampleApp());
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-comment">// This widget is the root of your application.</span>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MaterialApp(
+</div><div class="hljs-line">      title: <span class="hljs-string">'Sample App'</span>,
+</div><div class="hljs-line">      theme: <span class="hljs-keyword">new</span> ThemeData(
+</div><div class="hljs-line">        primarySwatch: Colors.blue,
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      home: <span class="hljs-keyword">new</span> SampleAppPage(),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleAppPage</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatefulWidget</span> </span>{
+</div><div class="hljs-line">  SampleAppPage({Key key}) : <span class="hljs-keyword">super</span>(key: key);
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  _SampleAppPageState createState() =&gt; <span class="hljs-keyword">new</span> _SampleAppPageState();
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">_SampleAppPageState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">State</span>&lt;<span class="hljs-title">SampleAppPage</span>&gt; </span>{
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(
+</div><div class="hljs-line">      appBar: <span class="hljs-keyword">new</span> AppBar(
+</div><div class="hljs-line">        title: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Sample App"</span>),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      body: <span class="hljs-keyword">new</span> ListView(children: _getListData()),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  _getListData() {
+</div><div class="hljs-line">    <span class="hljs-built_in">List</span>&lt;Widget&gt; widgets = [];
+</div><div class="hljs-line">    <span class="hljs-keyword">for</span> (<span class="hljs-built_in">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100</span>; i++) {
+</div><div class="hljs-line">      widgets.add(<span class="hljs-keyword">new</span> Padding(padding: <span class="hljs-keyword">new</span> EdgeInsets.all(<span class="hljs-number">10.0</span>), child: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Row $i"</span>)));
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> widgets;
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>这个例子与前面实现ScrollView的例子很相似，通过_getListData方法返回一个Widget的数组传递给ListView的children参数。这种使用ListView的方式其实是比较低效的，因为ListView的children参数被我们赋值为一个表示列表项的数组，在本例中这个数组中就表示100个Widget，也就是说系统确实会为ListView生成100个表示其列表项的Widget。这有点类似在Android中不使用ViewHolder直接使用Adapter。在后面我们会讲到更高效的使用ListView的方法。</p>
+
+<p><strong>小结：</strong> <br>
+ 在Flutter中要使用ListView来渲染一个列表最简单直接的方式就是构造一个ListView，并且传递给它一个描述每个列表项的Widget数组。剩下的工作交给Flutter就可以了。</p>
+
+<h3 id="处理列表项的点击事件">处理列表项的点击事件</h3>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>我们可以通过ListView的onItemClickListener方法得知用户点击的列表项是哪一个。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>因为我们传递给ListView的就是包含所有列表项Widget的数组，所以我们可以直接处理数组中的每个列表项Widget的点击事件来实现与onItemClickListener类似的效果。</li></ul></li>
+</ul>
+
+<p>下面看一个简单的例子：</p>
+
+
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'package:flutter/material.dart'</span>;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-keyword">void</span> main() {
+</div><div class="hljs-line">  runApp(<span class="hljs-keyword">new</span> SampleApp());
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-comment">// This widget is the root of your application.</span>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MaterialApp(
+</div><div class="hljs-line">      title: <span class="hljs-string">'Sample App'</span>,
+</div><div class="hljs-line">      theme: <span class="hljs-keyword">new</span> ThemeData(
+</div><div class="hljs-line">        primarySwatch: Colors.blue,
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      home: <span class="hljs-keyword">new</span> SampleAppPage(),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleAppPage</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatefulWidget</span> </span>{
+</div><div class="hljs-line">  SampleAppPage({Key key}) : <span class="hljs-keyword">super</span>(key: key);
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  _SampleAppPageState createState() =&gt; <span class="hljs-keyword">new</span> _SampleAppPageState();
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">_SampleAppPageState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">State</span>&lt;<span class="hljs-title">SampleAppPage</span>&gt; </span>{
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(
+</div><div class="hljs-line">      appBar: <span class="hljs-keyword">new</span> AppBar(
+</div><div class="hljs-line">        title: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Sample App"</span>),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      body: <span class="hljs-keyword">new</span> ListView(children: _getListData()),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  _getListData() {
+</div><div class="hljs-line">    <span class="hljs-built_in">List</span>&lt;Widget&gt; widgets = [];
+</div><div class="hljs-line">    <span class="hljs-keyword">for</span> (<span class="hljs-built_in">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100</span>; i++) {
+</div><div class="hljs-line">      widgets.add(<span class="hljs-keyword">new</span> GestureDetector(
+</div><div class="hljs-line">        child: <span class="hljs-keyword">new</span> Padding(
+</div><div class="hljs-line">            padding: <span class="hljs-keyword">new</span> EdgeInsets.all(<span class="hljs-number">10.0</span>),
+</div><div class="hljs-line">            child: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Row $i"</span>)),
+</div><div class="hljs-line">        onTap: () {
+</div><div class="hljs-line">          <span class="hljs-built_in">print</span>(<span class="hljs-string">'row tapped'</span>);
+</div><div class="hljs-line">        },
+</div><div class="hljs-line">      ));
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> widgets;
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>这个例子在前一个简单列表项展示的例子基础上做了一点点的改动实现列表项点击事件的监听处理。 <br>
+在_getListData方法中，构造每一个列表项时使用GestureDetector来包裹Text为其实现onTap点击事件的监听（关于事件的监听处理可参阅<a href="https://juejin.im/post/5a9c106151882555872300f2" target="_blank">FFAD-Gesture Detection</a>）。也就是说这里构造的100个列表项在构造的时候同时就为它们设置好了各自的点击事件监听的处理逻辑。在点击ListView中每一个列表项时将直接调用它们自己的事件处理方法。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中处理ListView列表项的点击事件时，可以为每个列表项设置自己的事件监听，由它们自己来监听处理自己的点击事件。</p>
+
+<h3 id="怎样动态更新listview">怎样动态更新ListView</h3>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>我们可以更新Adapter中的数据内容并调用其notifyDataSetChanged方法来实现数据运行时的动态更新。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>与所有Flutter中的Widget更新一样，我们依然通过修改State来实现Widget的更新。即在setState中去更新传递给ListView的列表项数组。</li></ul></li>
+</ul>
+
+<p>但是当我们只是简单的在setState方法中往列表项数组中添加或者删除列表项时，会发现界面并没有刷新。这是因为setState方法的调用会导致Flutter的渲染引擎开始遍历所有的Widgets去确认它们是否有变化，只有有变化的Widget才会被Flutter重新渲染刷新。当遍历到ListView的children时会通过==operator方法去比较前后两个ListView的children，该方法的比较逻辑类似Java中直接使用等号比较，比较的是对象引用，所以如果直接向老的列表项数组插入或者删除列表项，数组本身的引用是没有改变的，Flutter会认为前后两个ListView的children是相同的没有发生变化。所以导致界面没有刷新。</p>
+
+<p>为了能够实现ListView的更新我们需要在setState中创建一个新的列表项数组实例，并且将列表项数据从老的数组拷贝到新的数组中。然后再在新的数组中添加或者删除列表项，而不是像上面说的那样直接更新老的列表项数组。下面是一个实现动态更新的例子：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'package:flutter/material.dart'</span>;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-keyword">void</span> main() {
+</div><div class="hljs-line">  runApp(<span class="hljs-keyword">new</span> SampleApp());
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-comment">// This widget is the root of your application.</span>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MaterialApp(
+</div><div class="hljs-line">      title: <span class="hljs-string">'Sample App'</span>,
+</div><div class="hljs-line">      theme: <span class="hljs-keyword">new</span> ThemeData(
+</div><div class="hljs-line">        primarySwatch: Colors.blue,
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      home: <span class="hljs-keyword">new</span> SampleAppPage(),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleAppPage</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatefulWidget</span> </span>{
+</div><div class="hljs-line">  SampleAppPage({Key key}) : <span class="hljs-keyword">super</span>(key: key);
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  _SampleAppPageState createState() =&gt; <span class="hljs-keyword">new</span> _SampleAppPageState();
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">_SampleAppPageState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">State</span>&lt;<span class="hljs-title">SampleAppPage</span>&gt; </span>{
+</div><div class="hljs-line">  <span class="hljs-built_in">List</span> widgets = [];
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  <span class="hljs-keyword">void</span> initState() {
+</div><div class="hljs-line">    <span class="hljs-keyword">super</span>.initState();
+</div><div class="hljs-line">    <span class="hljs-keyword">for</span> (<span class="hljs-built_in">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100</span>; i++) {
+</div><div class="hljs-line">      widgets.add(getRow(i));
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">  }
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(
+</div><div class="hljs-line">      appBar: <span class="hljs-keyword">new</span> AppBar(
+</div><div class="hljs-line">        title: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Sample App"</span>),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      body: <span class="hljs-keyword">new</span> ListView(children: widgets),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  Widget getRow(<span class="hljs-built_in">int</span> i) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> GestureDetector(
+</div><div class="hljs-line">      child: <span class="hljs-keyword">new</span> Padding(
+</div><div class="hljs-line">          padding: <span class="hljs-keyword">new</span> EdgeInsets.all(<span class="hljs-number">10.0</span>),
+</div><div class="hljs-line">          child: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Row $i"</span>)),
+</div><div class="hljs-line">      onTap: () {
+</div><div class="hljs-line">        setState(() {
+</div><div class="hljs-line">          widgets = <span class="hljs-keyword">new</span> <span class="hljs-built_in">List</span>.from(widgets);
+</div><div class="hljs-line">          widgets.add(getRow(widgets.length + <span class="hljs-number">1</span>));
+</div><div class="hljs-line">          <span class="hljs-built_in">print</span>(<span class="hljs-string">'row $i'</span>);
+</div><div class="hljs-line">        });
+</div><div class="hljs-line">      },
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>上面的例子实现每点击列表项就在ListView中增加一条记录的效果。 <br>
+在initState方法中初始化存放列表项的数组widgets。然后监听每个列表项的点击事件，在监听处理函数中通过调用setState来触发界面更新。 <br>
+特别注意的是在setState方法内部首先是基于旧的widgets构造一个新的widgets数组实例，然后再往新构造的widgets数组中添加一条记录以此来实现有效的动态更新。</p>
+
+<p>到目前为止我们使用ListView的方式都很简单，首先我们构造列表项数组，然后将列表项数组传递给ListView的children参数来展示列表项数组中的Widget。然而当我们列表项的数量非常庞大时，建议利用ListView.Builder来提高ListView的效率。因为它能够像Android中的RecyclerView一样帮助我们自动的重用的释放列表项。</p>
+
+<p>下面的例子展示了怎样通过ListView.builder来高效使用ListView：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'package:flutter/material.dart'</span>;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-keyword">void</span> main() {
+</div><div class="hljs-line">  runApp(<span class="hljs-keyword">new</span> SampleApp());
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-comment">// This widget is the root of your application.</span>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MaterialApp(
+</div><div class="hljs-line">      title: <span class="hljs-string">'Sample App'</span>,
+</div><div class="hljs-line">      theme: <span class="hljs-keyword">new</span> ThemeData(
+</div><div class="hljs-line">        primarySwatch: Colors.blue,
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      home: <span class="hljs-keyword">new</span> SampleAppPage(),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleAppPage</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatefulWidget</span> </span>{
+</div><div class="hljs-line">  SampleAppPage({Key key}) : <span class="hljs-keyword">super</span>(key: key);
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  _SampleAppPageState createState() =&gt; <span class="hljs-keyword">new</span> _SampleAppPageState();
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">_SampleAppPageState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">State</span>&lt;<span class="hljs-title">SampleAppPage</span>&gt; </span>{
+</div><div class="hljs-line">  <span class="hljs-built_in">List</span> widgets = [];
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  <span class="hljs-keyword">void</span> initState() {
+</div><div class="hljs-line">    <span class="hljs-keyword">super</span>.initState();
+</div><div class="hljs-line">    <span class="hljs-keyword">for</span> (<span class="hljs-built_in">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100</span>; i++) {
+</div><div class="hljs-line">      widgets.add(getRow(i));
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">  }
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(
+</div><div class="hljs-line">        appBar: <span class="hljs-keyword">new</span> AppBar(
+</div><div class="hljs-line">          title: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Sample App"</span>),
+</div><div class="hljs-line">        ),
+</div><div class="hljs-line">        body: <span class="hljs-keyword">new</span> ListView.builder(
+</div><div class="hljs-line">            itemCount: widgets.length,
+</div><div class="hljs-line">            itemBuilder: (BuildContext context, <span class="hljs-built_in">int</span> position) {
+</div><div class="hljs-line">              <span class="hljs-keyword">return</span> getRow(position);
+</div><div class="hljs-line">            }));
+</div><div class="hljs-line">  }
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  Widget getRow(<span class="hljs-built_in">int</span> i) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> GestureDetector(
+</div><div class="hljs-line">      child: <span class="hljs-keyword">new</span> Padding(
+</div><div class="hljs-line">          padding: <span class="hljs-keyword">new</span> EdgeInsets.all(<span class="hljs-number">10.0</span>),
+</div><div class="hljs-line">          child: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Row $i"</span>)),
+</div><div class="hljs-line">      onTap: () {
+</div><div class="hljs-line">        setState(() {
+</div><div class="hljs-line">          widgets.add(getRow(widgets.length + <span class="hljs-number">1</span>));
+</div><div class="hljs-line">          <span class="hljs-built_in">print</span>(<span class="hljs-string">'row $i'</span>);
+</div><div class="hljs-line">        });
+</div><div class="hljs-line">      },
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>与之前我们直接构造ListView不同的是这里我们创建了一个ListView.builder，并传递给它两个参数，itemCount表示列表项的长度，itemBuilder是一个方法，它很像Android中Adapter的getView方法，itemBuilder方法有一个表示列表项位置的参数position，然后返回这个位置对应的列表项。</p>
+
+<p>另外这里看到我们并没有像之前使用ListView那样直接对ListView的children赋值，也就是说使用ListView.builder的方式来构造ListView时，ListView的children并不是在构造时静态写死的，而是在运行时动态更新的。也正是因为这个原因，所以这个例子中实现动态更新时setState方法中并不需要重新构造列表项数组了。</p>
+
+<p>其实再细心点你会发现利用ListView.builder的方式来构造ListView很多地方跟Android中ListView和Adapter的搭配很像。比如itemCount参数和itemBuilder参数，itemCount很像Adapter的getCount方法，itemBuilder很像Adapter的getView方法。再比如widgets数组，你会发现这个例子中widgets数组中的元素其实完全可以不是Widget类型，它们可以是任何表示数据内容的实体类型，就类似Adapter中承载的数据集一样。每一个列表项由itemBuilder方法动态构造出来，而widgets数组这里的作用无非就是提供每个列表项要承载的内容数据。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中建议通过ListView.builder来使用ListView。因为通过ListView.builder的方式系统能够帮助我们自动完成列表项的释放或重用等工作，它是一个更加高效的选择。 <br>
+ListView的动态更新关键在于其children是否有变化，当直接构造ListView时由于我们静态的将一个表示列表项的数组赋值给其children，所以在setState时我们需要手动去重新创建列表项数组，以保证前后的对象引用不同。当使用ListView.builder的方式实现ListView时其children是在运行时动态生成的，所以在setState时我们无需重新构造列表项数组。其实这时候是否重新构造一个数组已经不重要了，因为列表项数组已经不是表示列表项了，它内部的元素是表示列表项需要承载的内容而已。</p>
+
+<h2 id="关于text">关于Text</h2>
+
+
+
+<h3 id="text样式">Text样式</h3>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>我们可以创建一个字体资源文件，然后把它传递给TextView的FontFamily参数来实现自定义TextView的字体。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>Text Widget等价于Android中的TextView。我们可以通过TextStyle类来实现自定义字体。</li></ul></li>
+</ul>
+
+<p>首先我们要在项目中创建字体文件（最好是创建一个assets目录，将字体文件放在该目录中）。然后在pubspec.yaml中声明我们需要使用的字体：</p>
+
+
+
+<pre class="prettyprint"><code class="language-yaml hljs"><div class="hljs-line"><span class="hljs-attr">fonts:</span>
+</div><div class="hljs-line"><span class="hljs-attr">   - family:</span> <span class="hljs-string">MyCustomFont</span>
+</div><div class="hljs-line"><span class="hljs-attr">     fonts:</span>
+</div><div class="hljs-line"><span class="hljs-attr">       - asset:</span> <span class="hljs-string">fonts/MyCustomFont.ttf</span>
+</div><div class="hljs-line"><span class="hljs-attr">       - style:</span> <span class="hljs-string">italic</span>
+</div></code></pre>
+
+<p>上面需要注意的是第2行family的配置，后面Text Widget中使用字体的时候就是通过这里配置的family name来指定。 <br>
+接下来就可以在Text中使用字体了：</p>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-meta">@override</span>
+</div><div class="hljs-line">Widget build(BuildContext context) {
+</div><div class="hljs-line">  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(
+</div><div class="hljs-line">    appBar: <span class="hljs-keyword">new</span> AppBar(
+</div><div class="hljs-line">      title: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Sample App"</span>),
+</div><div class="hljs-line">    ),
+</div><div class="hljs-line">    body: <span class="hljs-keyword">new</span> Center(
+</div><div class="hljs-line">      child: <span class="hljs-keyword">new</span> Text(
+</div><div class="hljs-line">        <span class="hljs-string">'This is a custom font text'</span>,
+</div><div class="hljs-line">        style: <span class="hljs-keyword">new</span> TextStyle(fontFamily: <span class="hljs-string">'MyCustomFont'</span>),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">    ),
+</div><div class="hljs-line">  );
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>上面的代码片段在构造Text时除了要显示的内容外还传入了一个style参数，该参数是一个TextStyle类型，构造TextStyle类型时通过指定前面配置的family name来指定我们要使用的字体。</p>
+
+<p>除了自定义字体外我们还可以为Text Widget自定义很多样式。构造TextStyle时提供了很多参数供我们使用，比如：</p>
+
+<ul><li>color</li>
+<li>decoration</li>
+<li>decorationColor</li>
+<li>decorationStyle</li>
+<li>fontFamily</li>
+<li>fontSize</li>
+<li>fontStyle</li>
+<li>fontWeight</li>
+<li>hashCode</li>
+<li>height</li>
+<li>inherit</li>
+<li>letterSpacing</li>
+<li>textBaseline</li>
+<li>wordSpacing</li>
+</ul>
+
+<p><strong>小结：</strong> <br>
+在Flutter中我们通过构造一个TextStyle对象来描述一个样式，并将其传递给Text Widget将我们指定的样式应用到该Text Widget上。</p>
+
+
+
+<h2 id="关于textfield">关于TextField</h2>
+
+
+
+<h3 id="实现输入框的hint">实现输入框的hint</h3>
+
+<ul><li><p><strong>in Android</strong></p>
+
+<ul>
+<li>hint就是EditText的一个属性，我们直接设置该属性来实现输入框在无输入状态时显示的默认文本。</li></ul></li>
+<li><p><strong>in Flutter</strong></p>
+
+<ul>
+<li>TextField Widget用于表示一个让用户输入文本的控件，我们可以通过InputDecoration类简单的实现Android中hint的效果。</li></ul></li>
+</ul>
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line">body: <span class="hljs-keyword">new</span> Center(
+</div><div class="hljs-line">  child: <span class="hljs-keyword">new</span> TextField(
+</div><div class="hljs-line">    decoration: <span class="hljs-keyword">new</span> InputDecoration(hintText: <span class="hljs-string">"This is a hint"</span>),
+</div><div class="hljs-line">  )
+</div><div class="hljs-line">)
+</div></code></pre>
+
+<p>这个例子构造了一个InputDecoration对象，在构造时可以传入一个hintText参数，该参数则表示输入框无输入状态时显示的默认内容。最后将构造好的InputDecoration对象传递给TextField的decoration参数使得TextField具有hint功能。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中通过TextField来表示一个让用户输入文本的控件。首先构造一个InputDecoration对象来描述hint的内容，接着在构造TextField时传递该InputDecoration对象来实现TextField的hint功能。</p>
+
+<h3 id="提示输入内容错误">提示输入内容错误</h3>
+
+<p>就像我们实现hint一样，同样通过InputDecoration来实现提示输入内容错误的效果，在构造InputDecoration时传入另一个errorText参数，该参数描述的一个文本信息会被当做错误信息展示给用户。利用该参数我们就可以实现在用户输入内容错误时提示用户的效果，如下例：</p>
+
+
+
+<pre class="prettyprint"><code class="language-dart hljs"><div class="hljs-line"><span class="hljs-keyword">import</span> <span class="hljs-string">'package:flutter/material.dart'</span>;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-keyword">void</span> main() {
+</div><div class="hljs-line">  runApp(<span class="hljs-keyword">new</span> SampleApp());
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatelessWidget</span> </span>{
+</div><div class="hljs-line">  <span class="hljs-comment">// This widget is the root of your application.</span>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MaterialApp(
+</div><div class="hljs-line">      title: <span class="hljs-string">'Sample App'</span>,
+</div><div class="hljs-line">      theme: <span class="hljs-keyword">new</span> ThemeData(
+</div><div class="hljs-line">        primarySwatch: Colors.blue,
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      home: <span class="hljs-keyword">new</span> SampleAppPage(),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SampleAppPage</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StatefulWidget</span> </span>{
+</div><div class="hljs-line">  SampleAppPage({Key key}) : <span class="hljs-keyword">super</span>(key: key);
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  _SampleAppPageState createState() =&gt; <span class="hljs-keyword">new</span> _SampleAppPageState();
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">_SampleAppPageState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">State</span>&lt;<span class="hljs-title">SampleAppPage</span>&gt; </span>{
+</div><div class="hljs-line">  <span class="hljs-built_in">String</span> _errorText;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-meta">@override</span>
+</div><div class="hljs-line">  Widget build(BuildContext context) {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Scaffold(
+</div><div class="hljs-line">      appBar: <span class="hljs-keyword">new</span> AppBar(
+</div><div class="hljs-line">        title: <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Sample App"</span>),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">      body: <span class="hljs-keyword">new</span> Center(
+</div><div class="hljs-line">        child: <span class="hljs-keyword">new</span> TextField(
+</div><div class="hljs-line">          onSubmitted: (<span class="hljs-built_in">String</span> text) {
+</div><div class="hljs-line">            setState(() {
+</div><div class="hljs-line">              <span class="hljs-keyword">if</span> (!isEmail(text)) {
+</div><div class="hljs-line">                _errorText = <span class="hljs-string">'Error: This is not an email'</span>;
+</div><div class="hljs-line">              } <span class="hljs-keyword">else</span> {
+</div><div class="hljs-line">                _errorText = <span class="hljs-keyword">null</span>;
+</div><div class="hljs-line">              }
+</div><div class="hljs-line">            });
+</div><div class="hljs-line">          },
+</div><div class="hljs-line">          decoration: <span class="hljs-keyword">new</span> InputDecoration(hintText: <span class="hljs-string">"This is a hint"</span>, errorText: _getErrorText()),
+</div><div class="hljs-line">        ),
+</div><div class="hljs-line">      ),
+</div><div class="hljs-line">    );
+</div><div class="hljs-line">  }
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  _getErrorText() {
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> _errorText;
+</div><div class="hljs-line">  }
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">  <span class="hljs-built_in">bool</span> isEmail(<span class="hljs-built_in">String</span> em) {
+</div><div class="hljs-line">    <span class="hljs-built_in">String</span> emailRegexp =
+</div><div class="hljs-line">        <span class="hljs-string">r'^(([^&lt;&gt;()[\]\\.,;:\s@\"]+(\.[^&lt;&gt;()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$'</span>;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    <span class="hljs-built_in">RegExp</span> regExp = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(p);
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> regExp.hasMatch(em);
+</div><div class="hljs-line">  }
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p>这个例子在用户完成输入时去验证用户的输入内容是否是一个邮箱地址格式，若不是则提示用户。</p>
+
+<p>首先还是通过TextField来实现一个输入框，传递一个方法给其onSubmitted参数，该方法会在用户完成内容输入时回调（比如按下软键盘上的回车键）。我们在这个回调中通过调用setState来触发界面更新。在setState中我们更新的是_errorText成员变量，它由用户输入的内容决定。 <br>
+同时还传递给TextField一个InputDecoration对象，InputDecoration对象在构造时除了之前用过的hintText参数外我们还将_errorText的值传递给其errorText参数。_errorText是在setState方法中动态改变的，当用户输入的内容验证是一个邮件地址时，_errorText被赋值为null，此时TextField不会显示错误提示。当用户输入的内容验证错误时则_errorText被赋值为Error: This is not an email，此时TextField会将该文本作文错误提示展示给用户。</p>
+
+<p>这个例子是通过TextField的onSubmitted回调来触发检查的，我们还可以使用TextField的另一个回调onChanged来触发检查，onChanged会在输入内容发生改变时便立即回调。关于TextField的更多信息可以参阅<a href="https://docs.flutter.io/flutter/material/TextField-class.html" target="_blank">官方文档</a>。另外构造InputDecoration时可传入的参数也还有很多，关于InputDecoration的更多信息可以参阅<a href="https://docs.flutter.io/flutter/material/InputDecoration-class.html" target="_blank">官方文档</a>。</p>
+
+<p><strong>小结：</strong> <br>
+InputDecoration正如其名字一样，是一个装饰类。利用InputDecoration类可以为TextField定制很多装饰效果。</p>
+
+<h2 id="flutter插件">Flutter插件</h2>
+
+
+
+<h3 id="常用插件">常用插件</h3>
+
+<ul><li><p>GPS sensor</p>
+
+<ul>
+<li>要使用GPS sensor可以使用这个插件 - <a href="https://pub.dartlang.org/packages/location" target="_blank">https://pub.dartlang.org/packages/location</a></li></ul></li>
+<li><p>Camera</p>
+
+<ul>
+<li>要使用相机模块可以使用这个插件 - <a href="https://pub.dartlang.org/packages/image_picker" target="_blank">https://pub.dartlang.org/packages/image_picker</a>。</li></ul></li>
+<li><p>Facebook</p>
+
+<ul>
+<li>要使用Facebook的第三方登录等API可以使用这个插件 - <a href="https://pub.dartlang.org/packages/flutter_facebook_connect" target="_blank">https://pub.dartlang.org/packages/flutter_facebook_connect </a>。</li></ul></li>
+<li><p>Shared Preferences</p>
+
+<ul>
+<li>要使用Shared Preferences的功能可以使用这个插件 - <a href="https://pub.dartlang.org/packages/shared_preferences" target="_blank">https://pub.dartlang.org/packages/shared_preferences</a>。</li></ul></li>
+<li><p>SQLite</p>
+
+<ul>
+<li>要使用SQLite的功能可以使用这个插件 - <a href="https://pub.dartlang.org/packages/sqflite" target="_blank">https://pub.dartlang.org/packages/sqflite</a>。</li></ul></li>
+<li><p>Firebase Cloud Messaging</p>
+
+<ul>
+<li>Firebase Cloud Messaging是Google提供的一个云服务，应用一般可以接入它来实现消息推送等功能（大天朝可自动忽略）。要使用该功能可以使用这个插件 - <a href="https://github.com/flutter/plugins/tree/master/packages/firebase_messaging" target="_blank">https://github.com/flutter/plugins/tree/master/packages/firebase_messaging</a>。</li></ul></li>
+</ul>
+
+<p>更多插件查阅<a href="https://pub.dartlang.org/packages" target="_blank">https://pub.dartlang.org/packages</a>。</p>
+
+<h3 id="自定义插件">自定义插件</h3>
+
+<p>如果在开发社区或者Flutter框架都没有提供我们想要的功能的插件，我们可以自定义插件。关于自定义插件的详情可以参阅<a href="https://flutter.io/developing-packages/" target="_blank">官方文档</a>。</p>
+
+<p>简而言之Flutter的插件架构有点类似在Android中使用Event Bus：触发一个消息给接收者，让接收者处理之后返回一个结果给我们。在这里接收者指的就是iOS层或者Android层。</p>
+
+<h3 id="在flutter中使用ndk">在Flutter中使用NDK</h3>
+
+<p>我们可以通过自定义一个插件来实现在Flutter应用中调用native libraries的功能。 <br>
+我们自定义的插件首先需要和Android层通信，在Android层可以调用native方法。一旦调用完成，再发送一个消息回Flutter层去处理。</p>
+
+<p><strong>小结：</strong> <br>
+在Flutter中我们可以通过使用现有的插件来实现很多与平台层通信的功能（Android层或者iOS层）。当现有的插件无法满足我们的需求时我们也可以定义自己的插件。</p></div></body></html>
